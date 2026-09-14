@@ -1,0 +1,18 @@
+# Flutter / mobile build artifacts
+**/build/
+**/.dart_tool/
+**/android/.gradle/
+*.apk
+*.aab
+
+# Dependencies
+**/node_modules/
+
+# Environment
+**/.env
+
+# IDE
+.idea/
+*.iml
+.env
+.env.example
