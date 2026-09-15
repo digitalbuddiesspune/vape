@@ -1,4 +1,4 @@
-import { CONTACT_EMAIL, CONTACT_PHONE_DISPLAY, CONTACT_PHONE_TEL } from "../config/contact";
+import { CONTACT_PHONE_DISPLAY, CONTACT_PHONE_TEL } from "../config/contact";
 
 function TermsAndConditions() {
   return (
@@ -54,11 +54,7 @@ function TermsAndConditions() {
           <div>
             <h2 className="text-xl font-bold text-text-primary mb-3">Contact</h2>
             <p>
-              Questions about these terms? Reach us at{" "}
-              <a href={`mailto:${CONTACT_EMAIL}`} className="text-primary hover:underline">
-                {CONTACT_EMAIL}
-              </a>{" "}
-              or call{" "}
+              Questions about these terms? Call us at{" "}
               <a href={CONTACT_PHONE_TEL} className="text-primary hover:underline">
                 {CONTACT_PHONE_DISPLAY}
               </a>

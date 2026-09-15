@@ -1,7 +1,6 @@
 import { useState } from "react";
 import {
   CONTACT_ADDRESS,
-  CONTACT_EMAIL,
   CONTACT_PHONE_DISPLAY,
   CONTACT_PHONE_TEL,
 } from "../config/contact";
@@ -46,15 +45,6 @@ function Contact() {
                 <h3 className="text-text-primary font-semibold mb-1">Phone / WhatsApp</h3>
                 <a href={CONTACT_PHONE_TEL} className="text-primary hover:underline">
                   {CONTACT_PHONE_DISPLAY}
-                </a>
-              </div>
-              <div>
-                <h3 className="text-text-primary font-semibold mb-1">Email</h3>
-                <a
-                  href={`mailto:${CONTACT_EMAIL}`}
-                  className="text-primary hover:underline"
-                >
-                  {CONTACT_EMAIL}
                 </a>
               </div>
               <div>

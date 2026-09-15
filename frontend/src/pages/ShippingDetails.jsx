@@ -1,4 +1,4 @@
-import { CONTACT_EMAIL, CONTACT_PHONE_DISPLAY, CONTACT_PHONE_TEL } from "../config/contact";
+import { CONTACT_PHONE_DISPLAY, CONTACT_PHONE_TEL } from "../config/contact";
 
 function ShippingDetails() {
   return (
@@ -63,11 +63,7 @@ function ShippingDetails() {
           <div>
             <h2 className="text-xl font-bold text-text-primary mb-3">Contact for Shipping Help</h2>
             <p>
-              For shipping queries, email{" "}
-              <a href={`mailto:${CONTACT_EMAIL}`} className="text-primary hover:underline">
-                {CONTACT_EMAIL}
-              </a>{" "}
-              or call{" "}
+              For shipping queries, call{" "}
               <a href={CONTACT_PHONE_TEL} className="text-primary hover:underline">
                 {CONTACT_PHONE_DISPLAY}
               </a>

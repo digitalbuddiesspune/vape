@@ -1,6 +1,3 @@
-/** Primary business contact email */
-export const CONTACT_EMAIL = "bulkmobilemart@gmail.com";
-
 /** Primary business phone */
 export const CONTACT_PHONE_RAW = "7418964327";
 export const CONTACT_PHONE_DISPLAY = "+44 7418964327";

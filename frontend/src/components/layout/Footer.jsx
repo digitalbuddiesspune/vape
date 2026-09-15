@@ -77,7 +77,7 @@ function Footer() {
   }, [allCategories]);
 
   return (
-    <footer className="relative overflow-x-hidden border-t border-neutral-800 bg-[#080808] pb-24 text-neutral-400 lg:overflow-hidden lg:pb-8">
+    <footer className="relative border-t border-neutral-800 bg-[#080808] pb-24 text-neutral-400 lg:overflow-hidden lg:pb-8">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 bottom-16 hidden select-none bg-gradient-to-t from-purple-500/15 via-purple-400/8 to-transparent pb-2 pt-16 text-center text-[clamp(4.5rem,20vw,12rem)] font-extrabold uppercase leading-none tracking-tight text-white/[0.14] lg:block lg:bottom-[-0.08em]"
@@ -126,9 +126,9 @@ function Footer() {
 
         <div
           aria-hidden="true"
-          className="relative mt-8 overflow-hidden py-2 text-center lg:hidden"
+          className="relative mt-8 px-3 py-2 text-center lg:hidden"
         >
-          <p className="select-none bg-gradient-to-t from-purple-500/10 to-transparent pb-1 pt-4 text-[clamp(3.25rem,22vw,5.5rem)] font-extrabold uppercase leading-none tracking-tight text-white/20">
+          <p className="select-none bg-gradient-to-t from-purple-500/10 to-transparent pb-1 pt-4 text-[clamp(1.875rem,13vw,4.5rem)] font-extrabold uppercase leading-none tracking-[0.02em] text-white/20">
             {SITE_NAME}
           </p>
         </div>

@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { submitSupportMessage, uploadImageFile } from "../api/api";
 import { UPLOAD_FOLDERS } from "../utils/uploadFolders";
 import { SUPPORT_ISSUE_OPTIONS } from "../utils/supportConstants";
-import { CONTACT_EMAIL, CONTACT_PHONE_DISPLAY, CONTACT_PHONE_TEL, CONTACT_WHATSAPP_URL } from "../config/contact";
+import { CONTACT_PHONE_DISPLAY, CONTACT_PHONE_TEL, CONTACT_WHATSAPP_URL } from "../config/contact";
 
 const MAX_ATTACHMENT_BYTES = 5 * 1024 * 1024;
 const MAX_MESSAGE_LENGTH = 1000;
@@ -14,7 +14,6 @@ const SUPPORT_CONTACT = {
   phoneHref: CONTACT_PHONE_TEL,
   whatsapp: CONTACT_PHONE_DISPLAY,
   whatsappHref: CONTACT_WHATSAPP_URL,
-  email: CONTACT_EMAIL,
 };
 
 const SUPPORT_FAQS = [
@@ -316,21 +315,6 @@ function Support() {
                 >
                   <p className="mt-1 text-xs font-semibold text-green-600 sm:text-sm">{SUPPORT_CONTACT.whatsapp}</p>
                   <p className="mt-0.5 hidden text-xs text-text-secondary sm:block">Chat on WhatsApp</p>
-                </ContactCard>
-
-                <ContactCard
-                  compact
-                  href={`mailto:${SUPPORT_CONTACT.email}`}
-                  iconBg="bg-purple-100 text-primary"
-                  title="Email"
-                  icon={
-                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 00-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 00-1.07-1.916V6.75" />
-                    </svg>
-                  }
-                >
-                  <p className="mt-1 break-all text-xs font-semibold text-primary sm:text-sm">{SUPPORT_CONTACT.email}</p>
-                  <p className="mt-0.5 hidden text-xs text-text-secondary sm:block">Reply within 24 hours</p>
                 </ContactCard>
 
                 <ContactCard

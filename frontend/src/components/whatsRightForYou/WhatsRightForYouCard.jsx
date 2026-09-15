@@ -36,33 +36,29 @@ function WhatsRightForYouCard({ item, index = 0 }) {
 
   return (
     <article
-      className={`group relative flex min-h-[220px] flex-col overflow-hidden rounded-sm p-5 sm:min-h-[250px] sm:p-6 ${theme.bg}`}
+      className={`group flex items-stretch gap-3 overflow-hidden rounded-sm p-4 sm:gap-4 sm:p-5 ${theme.bg}`}
     >
-      <div className="relative z-10 max-w-[85%]">
+      <div className="min-w-0 flex-1">
         <h3
-          className={`text-xl font-bold leading-tight tracking-tight sm:text-2xl ${theme.title}`}
+          className={`text-lg font-bold leading-tight tracking-tight sm:text-xl ${theme.title}`}
         >
           {item.title}
         </h3>
-        <p className={`mt-2 text-sm leading-relaxed sm:text-[15px] ${theme.desc}`}>
+        <p className={`mt-1.5 text-sm leading-relaxed sm:mt-2 sm:text-[15px] ${theme.desc}`}>
           {item.description}
         </p>
       </div>
 
-      <div className="relative mt-auto flex flex-1 items-end justify-center pt-5 sm:justify-end sm:pt-6">
-        {item.imageUrl ? (
+      {item.imageUrl ? (
+        <div className="flex w-[72px] shrink-0 items-end justify-end sm:w-[88px]">
           <img
             src={item.imageUrl}
             alt={item.title}
-            className="max-h-[110px] w-auto max-w-[90%] object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.18)] transition-transform duration-300 group-hover:scale-105 sm:max-h-[130px] sm:max-w-[75%]"
+            className="max-h-[72px] w-full object-contain object-bottom drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)] transition-transform duration-300 group-hover:scale-105 sm:max-h-[88px]"
             loading="lazy"
           />
-        ) : (
-          <div className="flex h-20 w-20 items-center justify-center rounded-lg bg-white/40 text-xs font-medium text-neutral-500">
-            No image
-          </div>
-        )}
-      </div>
+        </div>
+      ) : null}
     </article>
   );
 }

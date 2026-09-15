@@ -1,4 +1,4 @@
-import { CONTACT_EMAIL } from "../config/contact";
+import { CONTACT_PHONE_DISPLAY, CONTACT_PHONE_TEL } from "../config/contact";
 
 function PrivacyPolicy() {
   return (
@@ -47,9 +47,9 @@ function PrivacyPolicy() {
           <div>
             <h2 className="text-xl font-bold text-text-primary mb-3">Contact Us</h2>
             <p>
-              For privacy-related questions, email us at{" "}
-              <a href={`mailto:${CONTACT_EMAIL}`} className="text-primary hover:underline">
-                {CONTACT_EMAIL}
+              For privacy-related questions, call us at{" "}
+              <a href={CONTACT_PHONE_TEL} className="text-primary hover:underline">
+                {CONTACT_PHONE_DISPLAY}
               </a>
               .
             </p>
