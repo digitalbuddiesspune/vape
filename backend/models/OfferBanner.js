@@ -9,20 +9,19 @@ const offerBannerSchema = new mongoose.Schema(
     },
     title: {
       type: String,
-      default: "Bulk Mobile Accessories at",
+      default: "",
       trim: true,
       maxlength: 120,
     },
     titleHighlight: {
       type: String,
-      default: "Wholesale Prices",
+      default: "",
       trim: true,
       maxlength: 80,
     },
     subtitle: {
       type: String,
-      default:
-        "MOQ 10 pieces · Pan-India delivery · Best deals for retailers & distributors",
+      default: "",
       trim: true,
       maxlength: 200,
     },

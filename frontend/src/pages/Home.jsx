@@ -6,6 +6,7 @@ import HotSelling from "../components/home/HotSelling";
 import RecentlyViewed from "../components/home/RecentlyViewed";
 import TopBrands from "../components/mobile/TopBrands";
 import BestDeals from "../components/mobile/BestDeals";
+import PromoBanner from "../components/mobile/PromoBanner";
 import TestimonialsImpact from "../components/home/TestimonialsImpact";
 
 function Home() {
@@ -21,6 +22,7 @@ function Home() {
         <HotSelling />
         <RecentlyViewed />
       </div>
+      <PromoBanner />
       <TestimonialsImpact />
     </div>
   );

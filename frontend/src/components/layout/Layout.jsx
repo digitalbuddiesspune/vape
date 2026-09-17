@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
+import NicotineWarningBanner from "./NicotineWarningBanner";
 
 function Layout({ children }) {
   const [headerVisible, setHeaderVisible] = useState(true);
@@ -51,6 +52,7 @@ function Layout({ children }) {
       </header>
       <div style={{ height: headerHeight }} aria-hidden="true" />
       <main className="flex-1 bg-black">{children}</main>
+      <NicotineWarningBanner />
       <Footer />
     </div>
   );

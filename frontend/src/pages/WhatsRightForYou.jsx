@@ -1,8 +1,11 @@
+import { useMemo } from "react";
+import { withFindTheBestOneCard } from "../config/whatsRightForYou";
 import { useWhatsRightForYouQuery } from "../hooks/queries/useWhatsRightForYouQuery";
 import WhatsRightForYouSlider from "../components/whatsRightForYou/WhatsRightForYouSlider";
 
 function WhatsRightForYou() {
   const { data: items = [], isLoading, isError } = useWhatsRightForYouQuery();
+  const displayItems = useMemo(() => withFindTheBestOneCard(items), [items]);
 
   return (
     <div className="bg-mobile-bg">
@@ -23,12 +26,12 @@ function WhatsRightForYou() {
             <p className="text-center text-text-secondary">
               Unable to load guides right now. Please try again later.
             </p>
-          ) : items.length === 0 ? (
+          ) : displayItems.length === 0 ? (
             <p className="text-center text-text-secondary">
               Guides are coming soon. Check back shortly.
             </p>
           ) : (
-            <WhatsRightForYouSlider items={items} />
+            <WhatsRightForYouSlider items={displayItems} />
           )}
         </div>
       </section>

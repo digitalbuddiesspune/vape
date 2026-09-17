@@ -1,8 +1,11 @@
+import { useMemo } from "react";
+import { withFindTheBestOneCard } from "../../config/whatsRightForYou";
 import { useWhatsRightForYouQuery } from "../../hooks/queries/useWhatsRightForYouQuery";
 import WhatsRightForYouSlider from "../whatsRightForYou/WhatsRightForYouSlider";
 
 function WhatsRightForYouSection() {
   const { data: items = [], isLoading, isError } = useWhatsRightForYouQuery();
+  const displayItems = useMemo(() => withFindTheBestOneCard(items), [items]);
 
   return (
     <section className="bg-mobile-bg px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
@@ -22,12 +25,12 @@ function WhatsRightForYouSection() {
           <p className="text-center text-text-secondary">
             Guides are coming soon. Check back shortly.
           </p>
-        ) : items.length === 0 ? (
+        ) : displayItems.length === 0 ? (
           <p className="text-center text-text-secondary">
             Guides are coming soon. Check back shortly.
           </p>
         ) : (
-          <WhatsRightForYouSlider items={items} />
+          <WhatsRightForYouSlider items={displayItems} />
         )}
       </div>
     </section>

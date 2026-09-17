@@ -2,6 +2,7 @@ import BottomNav from "../components/mobile/BottomNav";
 import TopNav from "../components/mobile/TopNav";
 import MobileHeader from "../components/mobile/MobileHeader";
 import Footer from "../components/layout/Footer";
+import NicotineWarningBanner from "../components/layout/NicotineWarningBanner";
 
 function MobileLayout({ children }) {
   return (
@@ -11,6 +12,7 @@ function MobileLayout({ children }) {
       <main className="mx-auto w-full max-w-7xl flex-1 bg-mobile-bg pb-20 pt-0 lg:pb-8 lg:pt-[104px]">
         {children}
       </main>
+      <NicotineWarningBanner />
       <Footer />
       <BottomNav />
     </div>

@@ -27,10 +27,9 @@ const DEVICE_LABELS = {
 
 const DEFAULT_FORM = {
   imageUrl: "",
-  title: "Bulk Mobile Accessories at",
-  titleHighlight: "Wholesale Prices",
-  subtitle:
-    "MOQ 10 pieces · Pan-India delivery · Best deals for retailers & distributors",
+  title: "",
+  titleHighlight: "",
+  subtitle: "",
   linkUrl: "",
   alt: "",
   order: 0,
