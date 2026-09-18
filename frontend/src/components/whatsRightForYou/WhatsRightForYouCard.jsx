@@ -36,7 +36,7 @@ function WhatsRightForYouCard({ item, index = 0 }) {
 
   return (
     <article
-      className={`group flex items-stretch gap-3 overflow-hidden rounded-sm p-4 sm:gap-4 sm:p-5 ${theme.bg}`}
+      className={`group flex h-full min-h-[120px] items-stretch gap-3 overflow-hidden p-4 sm:min-h-[132px] sm:gap-4 sm:p-5 ${theme.bg}`}
     >
       <div className="min-w-0 flex-1">
         <h3

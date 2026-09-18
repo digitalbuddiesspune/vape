@@ -1,13 +1,12 @@
 import { Link } from "react-router-dom";
 import { useBrandsQuery } from "../../hooks/queries/useBrandsQuery";
 import SectionHeader from "./SectionHeader";
-import HorizontalScrollRow from "../home/HorizontalScrollRow";
 
 function BrandCard({ brand }) {
   return (
     <Link
       to={`/product?brandName=${encodeURIComponent(brand.brandName)}`}
-      className="flex h-[100px] w-[120px] shrink-0 snap-start items-center justify-center rounded-xl border border-border-light bg-white px-4 shadow-sm transition hover:border-primary/30 hover:shadow-md sm:h-[112px] sm:w-[132px] md:h-[124px] md:w-[144px]"
+      className="flex h-[100px] w-[120px] shrink-0 items-center justify-center rounded-xl border border-border-light bg-white px-4 shadow-sm transition hover:border-primary/30 hover:shadow-md sm:h-[112px] sm:w-[132px] md:h-[124px] md:w-[144px]"
     >
       <img
         src={brand.brandImage}
@@ -16,6 +15,16 @@ function BrandCard({ brand }) {
         loading="lazy"
       />
     </Link>
+  );
+}
+
+function BrandMarqueeGroup({ brands, groupKey, ariaHidden = false }) {
+  return (
+    <div className="social-marquee-group" aria-hidden={ariaHidden || undefined}>
+      {brands.map((brand) => (
+        <BrandCard key={`${groupKey}-${brand._id}`} brand={brand} />
+      ))}
+    </div>
   );
 }
 
@@ -29,11 +38,12 @@ function TopBrands() {
   return (
     <section className="bg-white px-4 py-5 sm:px-6 sm:py-6 md:px-8 md:py-7">
       <SectionHeader title="Top Brands" viewAllTo="/product" />
-      <HorizontalScrollRow autoScroll gapClassName="gap-3 sm:gap-4">
-        {brands.map((brand) => (
-          <BrandCard key={brand._id} brand={brand} />
-        ))}
-      </HorizontalScrollRow>
+      <div className="social-marquee hide-scrollbar">
+        <div className="social-marquee-track">
+          <BrandMarqueeGroup brands={brands} groupKey="a" />
+          <BrandMarqueeGroup brands={brands} groupKey="b" ariaHidden />
+        </div>
+      </div>
     </section>
   );
 }

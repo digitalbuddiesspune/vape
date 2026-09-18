@@ -18,22 +18,22 @@ function WhatsRightForYou() {
         </div>
       </section>
 
-      <section className="px-4 pb-16 pt-2 sm:px-6 sm:pb-20 lg:px-8">
-        <div className="mx-auto max-w-6xl">
-          {isLoading ? (
-            <p className="text-center text-text-secondary">Loading guides...</p>
-          ) : isError ? (
-            <p className="text-center text-text-secondary">
-              Unable to load guides right now. Please try again later.
-            </p>
-          ) : displayItems.length === 0 ? (
-            <p className="text-center text-text-secondary">
-              Guides are coming soon. Check back shortly.
-            </p>
-          ) : (
-            <WhatsRightForYouSlider items={displayItems} />
-          )}
-        </div>
+      <section className="pb-16 pt-2 sm:pb-20">
+        {isLoading ? (
+          <p className="px-4 text-center text-text-secondary sm:px-6 lg:px-8">
+            Loading guides...
+          </p>
+        ) : isError ? (
+          <p className="px-4 text-center text-text-secondary sm:px-6 lg:px-8">
+            Unable to load guides right now. Please try again later.
+          </p>
+        ) : displayItems.length === 0 ? (
+          <p className="px-4 text-center text-text-secondary sm:px-6 lg:px-8">
+            Guides are coming soon. Check back shortly.
+          </p>
+        ) : (
+          <WhatsRightForYouSlider items={displayItems} />
+        )}
       </section>
     </div>
   );
