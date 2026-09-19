@@ -67,11 +67,7 @@ function MobileHeader() {
             <button
               type="button"
               onClick={toggleSearch}
-              className={`flex h-8 w-8 items-center justify-center rounded-lg transition sm:h-9 sm:w-9 ${
-                searchOpen
-                  ? "bg-purple-700 text-white"
-                  : "bg-purple-600 text-white hover:bg-purple-700"
-              }`}
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-black transition hover:bg-neutral-100 sm:h-9 sm:w-9"
               aria-label={searchOpen ? "Close search" : "Open search"}
               aria-expanded={searchOpen}
             >
@@ -88,7 +84,7 @@ function MobileHeader() {
               to="/wishlist"
               data-wishlist-target="mobile"
               onClick={handleWishlistClick}
-              className="relative flex h-8 w-8 items-center justify-center overflow-visible rounded-lg text-primary transition hover:bg-primary/5 hover:text-primary-dark sm:h-9 sm:w-9"
+              className="relative flex h-8 w-8 items-center justify-center overflow-visible rounded-lg text-black transition hover:bg-neutral-100 sm:h-9 sm:w-9"
               aria-label={`Wishlist${wishlistCount > 0 ? `, ${wishlistCount} items` : ""}`}
             >
               <NavIconWrap badge={wishlistCount} compact>
@@ -105,7 +101,7 @@ function MobileHeader() {
             <button
               type="button"
               onClick={openMenu}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-text-primary transition hover:text-primary sm:h-9 sm:w-9"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-black transition hover:bg-neutral-100 sm:h-9 sm:w-9"
               aria-label="Open menu"
             >
               <svg className="h-5 w-5 sm:h-[22px] sm:w-[22px]" fill="currentColor" viewBox="0 0 24 24">

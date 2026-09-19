@@ -6,14 +6,16 @@ const IMAGE_VARIANTS = {
     "h-11 w-auto max-w-[180px] object-contain sm:h-12 lg:h-14 lg:max-w-[220px]",
   headerMobile: "h-10 w-auto max-w-[150px] object-contain sm:h-11 sm:max-w-[170px]",
   footer: "h-12 w-auto max-w-[180px] object-contain sm:h-14 sm:max-w-[200px]",
-  splash: "h-20 w-auto max-w-[260px] object-contain sm:h-24 sm:max-w-[300px]",
+  splash: "h-24 w-24 object-contain sm:h-32 sm:w-32",
   compact: "h-7 w-auto max-w-[100px] object-contain",
   badge: "h-10 w-10 object-contain",
 };
 
+const LAUNCHER_VARIANTS = new Set(["badge", "splash"]);
+
 export function SiteBrand({ variant = "header", asLink = true, className = "" }) {
   const imgClass = `${IMAGE_VARIANTS[variant] || IMAGE_VARIANTS.header} ${className}`.trim();
-  const imageSrc = variant === "badge" ? SITE_LAUNCHER_URL : SITE_LOGO_URL;
+  const imageSrc = LAUNCHER_VARIANTS.has(variant) ? SITE_LAUNCHER_URL : SITE_LOGO_URL;
   const content = (
     <img
       src={imageSrc}

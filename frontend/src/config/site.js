@@ -1,4 +1,6 @@
 export const SITE_NAME = "VapeHub";
+export const SITE_FOOTER_NAME = "Vape Avenue";
+export const SITE_FOOTER_WATERMARK = "VAPEAVENUE";
 export const SITE_TAGLINE = "Premium Vapes & Accessories";
 export const SITE_LOGO_URL = "/assets/payment/logo.png";
 export const SITE_LAUNCHER_URL = "/assets/payment/launcher.png";
