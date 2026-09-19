@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { SOCIAL_LINKS } from "../../config/contact";
+import { SiteBrand } from "./SiteBrand";
 import { SITE_NAME, SITE_TAGLINE } from "../../config/site";
 import { useCategoriesQuery } from "../../hooks/queries/useCategoriesQuery";
 
@@ -88,15 +89,7 @@ function Footer() {
       <div className="relative z-10 mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:py-14">
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.4fr)_repeat(3,minmax(0,1fr))] lg:gap-12">
           <div className="sm:col-span-2 lg:col-span-1">
-            <Link to="/" className="inline-flex items-center gap-3">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-purple-400/50 bg-purple-600/35 text-sm font-extrabold text-white shadow-[0_0_24px_rgba(147,51,234,0.25)]">
-                VH
-              </span>
-              <span className="text-2xl font-extrabold tracking-tight text-white drop-shadow-[0_0_18px_rgba(168,85,247,0.35)] sm:text-3xl">
-                {SITE_NAME}
-                <span className="text-purple-400">.</span>
-              </span>
-            </Link>
+            <SiteBrand variant="footer" />
 
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-neutral-400">
               {SITE_TAGLINE}. Your trusted destination for premium vapes, pods, and accessories across India.

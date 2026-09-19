@@ -17,7 +17,7 @@ messaging.onBackgroundMessage((payload) => {
   const notificationTitle = payload.notification?.title || 'VapeHub';
   const notificationOptions = {
     body: payload.notification?.body || '',
-    icon: '/favicon.ico',
+    icon: '/assets/payment/launcher.png',
     data: payload.data || {},
   };
 

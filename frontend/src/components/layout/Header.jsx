@@ -129,7 +129,7 @@ function Header({ user, onLoginClick, onMenuToggle, menuOpen }) {
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10 py-3">
         {/* Mobile: logo + menu */}
         <div className="flex md:hidden items-center justify-between gap-3 min-w-0">
-          <SiteBrand variant="headerMobile" className="max-w-[75%] truncate" />
+          <SiteBrand variant="headerMobile" className="max-w-[75%]" />
           <button
             type="button"
             onClick={onMenuToggle}

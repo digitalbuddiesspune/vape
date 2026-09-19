@@ -1,5 +1,11 @@
 import { buildApiUrl } from "../api/api";
-import { SITE_NAME, SITE_SHARE_IMAGE_URL, SITE_TAGLINE, SITE_URL } from "../config/site";
+import {
+  SITE_LAUNCHER_URL,
+  SITE_NAME,
+  SITE_SHARE_IMAGE_URL,
+  SITE_TAGLINE,
+  SITE_URL,
+} from "../config/site";
 import { downloadShareImage } from "./productShare";
 
 function getMimeType(ext) {
@@ -66,7 +72,7 @@ export function buildWebsiteShareContent(shareUrl = getWebsiteShareUrl()) {
 export async function getShareableWebsiteFile() {
   const blob = await fetchImageBlob(SITE_SHARE_IMAGE_URL);
   if (!blob) {
-    const localResponse = await fetch("/favicon.png").catch(() => null);
+    const localResponse = await fetch(SITE_LAUNCHER_URL).catch(() => null);
     if (!localResponse?.ok) return null;
     const localBlob = await localResponse.blob();
     return new File([localBlob], "vapehub-logo.png", {

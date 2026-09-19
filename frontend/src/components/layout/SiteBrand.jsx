@@ -1,21 +1,28 @@
 import { Link } from "react-router-dom";
-import { SITE_NAME } from "../../config/site";
+import { SITE_LAUNCHER_URL, SITE_LOGO_URL, SITE_NAME } from "../../config/site";
 
-const VARIANTS = {
+const IMAGE_VARIANTS = {
   header:
-    "text-2xl font-extrabold tracking-tight text-gray-900 transition hover:text-purple-600 lg:text-3xl",
-  headerMobile: "text-xl font-extrabold tracking-tight text-gray-900 transition hover:text-purple-600",
-  footer: "text-2xl font-extrabold tracking-tight text-white",
-  splash: "text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl",
-  compact: "text-sm font-extrabold tracking-tight text-primary",
-  badge:
-    "flex h-full w-full items-center justify-center text-center text-xs font-extrabold leading-none tracking-tight text-primary",
+    "h-11 w-auto max-w-[180px] object-contain sm:h-12 lg:h-14 lg:max-w-[220px]",
+  headerMobile: "h-10 w-auto max-w-[150px] object-contain sm:h-11 sm:max-w-[170px]",
+  footer: "h-12 w-auto max-w-[180px] object-contain sm:h-14 sm:max-w-[200px]",
+  splash: "h-20 w-auto max-w-[260px] object-contain sm:h-24 sm:max-w-[300px]",
+  compact: "h-7 w-auto max-w-[100px] object-contain",
+  badge: "h-10 w-10 object-contain",
 };
 
 export function SiteBrand({ variant = "header", asLink = true, className = "" }) {
-  const classes = `${VARIANTS[variant] || VARIANTS.header} ${className}`.trim();
-  const label = variant === "badge" ? SITE_NAME.slice(0, 2).toUpperCase() : SITE_NAME;
-  const content = <span className={classes}>{label}</span>;
+  const imgClass = `${IMAGE_VARIANTS[variant] || IMAGE_VARIANTS.header} ${className}`.trim();
+  const imageSrc = variant === "badge" ? SITE_LAUNCHER_URL : SITE_LOGO_URL;
+  const content = (
+    <img
+      src={imageSrc}
+      alt={SITE_NAME}
+      className={imgClass}
+      loading={variant === "splash" ? "eager" : "lazy"}
+      decoding="async"
+    />
+  );
 
   if (asLink) {
     return (

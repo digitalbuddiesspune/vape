@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { uploadImageFile } from "../../api/api";
+import { SITE_LOGO_URL, SITE_NAME } from "../../config/site";
 import { UPLOAD_FOLDERS } from "../../utils/uploadFolders";
 import {
   buildMerchantUpiConfig,
@@ -180,9 +181,16 @@ function PaymentModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex shrink-0 items-center justify-between border-b border-border-light px-3 py-2">
-          <h2 id="payment-modal-title" className="text-sm font-bold text-text-primary">
-            Complete Payment
-          </h2>
+          <div className="flex min-w-0 items-center gap-2">
+            <img
+              src={SITE_LOGO_URL}
+              alt={SITE_NAME}
+              className="h-9 w-auto max-w-[120px] object-contain"
+            />
+            <h2 id="payment-modal-title" className="text-sm font-bold text-text-primary">
+              Complete Payment
+            </h2>
+          </div>
           <button
             type="button"
             onClick={onClose}

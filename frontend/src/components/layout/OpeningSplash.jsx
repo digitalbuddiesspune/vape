@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { SITE_NAME, SITE_TAGLINE } from "../../config/site";
+import { SiteBrand } from "./SiteBrand";
+import { SITE_TAGLINE } from "../../config/site";
 
 const SESSION_KEY = "bmm_opening_splash_shown";
 const MIN_DISPLAY_MS = 900;
@@ -60,7 +61,7 @@ function OpeningSplash() {
     >
       <div className="opening-splash__content">
         <div className="opening-splash__brand-wrap">
-          <h1 className="opening-splash__title">{SITE_NAME}</h1>
+          <SiteBrand variant="splash" asLink={false} />
         </div>
         <p className="opening-splash__tagline">{SITE_TAGLINE}</p>
         <div className="opening-splash__bar" />
