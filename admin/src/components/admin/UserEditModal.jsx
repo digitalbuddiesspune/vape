@@ -126,7 +126,7 @@ function UserEditModal({ user, isAdd = false, onClose, onSave, saving }) {
             <label className={labelClass}>Password</label>
             <input
               type="password"
-              placeholder={isAdd ? "Optional — users sign in with OTP" : "Leave blank to keep current password"}
+              placeholder={isAdd ? "Required for email login" : "Leave blank to keep current password"}
               value={form.password}
               onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
               className={inputClass}

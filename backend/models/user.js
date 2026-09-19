@@ -38,10 +38,12 @@ const userSchema = new mongoose.Schema(
     },
     phone: {
       type: String,
-      required: [true, "Phone number is required"],
       unique: true,
+      sparse: true,
+      trim: true,
       validate: {
         validator(value) {
+          if (!value) return true;
           return PHONE_PATTERN.test(value);
         },
         message:
@@ -124,22 +126,27 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-userSchema.pre("validate", function requireAdminCredentials() {
-  if (this.role !== "admin") return;
+userSchema.pre("validate", function requireAccountCredentials() {
+  if (!this.isNew && !this.isModified("password")) return;
 
   if (!this.email?.trim()) {
-    this.invalidate("email", "Email is required for admin accounts");
+    this.invalidate("email", "Email is required");
   }
 
-  // Password is select:false, so skip on profile updates unless setting a new password.
-  if ((this.isNew || this.isModified("password")) && !this.password) {
-    this.invalidate("password", "Password is required for admin accounts");
+  if (!this.password) {
+    this.invalidate("password", "Password is required");
   }
 });
 
 userSchema.pre("save", function normalizeOptionalEmail() {
   if (!this.email?.trim()) {
     this.email = undefined;
+  }
+});
+
+userSchema.pre("save", function normalizeOptionalPhone() {
+  if (!this.phone?.trim()) {
+    this.phone = undefined;
   }
 });
 

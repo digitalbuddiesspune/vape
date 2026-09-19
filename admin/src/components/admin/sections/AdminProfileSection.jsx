@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { changeMyPassword, getCurrentUser, sendAdminSecurityOtp } from "../../../api/api";
+import { changeMyPassword, getCurrentUser } from "../../../api/api";
 import { STORE_URL } from "../../../constants/brand";
 import { useAuth } from "../../../context/AuthContext";
 import AdminAlert from "../AdminAlert";
@@ -35,60 +35,6 @@ function DetailRow({ label, value, children }) {
   );
 }
 
-function maskPhoneNumber(phone) {
-  const digits = String(phone || "");
-  if (digits.length < 4) return "your registered phone";
-  return `******${digits.slice(-4)}`;
-}
-
-function AdminSecurityOtpBlock({
-  idPrefix,
-  otp,
-  onOtpChange,
-  phoneHint,
-  onSendOtp,
-  sendingOtp,
-  otpSent,
-}) {
-  const otpId = `${idPrefix}-security-otp`;
-  return (
-    <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
-      <p className="text-sm font-semibold text-text-primary">Verify with OTP</p>
-      <p className="mt-1 text-xs leading-relaxed text-text-secondary">
-        For security, an OTP must be sent to your registered mobile number
-        {phoneHint ? ` (${phoneHint})` : ""} before saving this change.
-      </p>
-      <div className="mt-3 flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={onSendOtp}
-          disabled={sendingOtp}
-          className={btnSecondary}
-        >
-          {sendingOtp ? "Sending…" : otpSent ? "Resend OTP" : "Send OTP"}
-        </button>
-      </div>
-      <div className="mt-3">
-        <label className={labelClass} htmlFor={otpId}>
-          OTP *
-        </label>
-        <input
-          id={otpId}
-          type="text"
-          inputMode="numeric"
-          autoComplete="one-time-code"
-          maxLength={6}
-          required
-          value={otp}
-          onChange={(e) => onOtpChange(e.target.value.replace(/\D/g, "").slice(0, 6))}
-          className={inputClass}
-          placeholder="Enter 6-digit OTP"
-        />
-      </div>
-    </div>
-  );
-}
-
 function buildAccountForm(profile, adminUser) {
   return {
     name: profile?.name ?? adminUser?.name ?? "",
@@ -106,17 +52,13 @@ function AdminProfileSection() {
   const [success, setSuccess] = useState("");
   const [editingAccount, setEditingAccount] = useState(false);
   const [accountForm, setAccountForm] = useState(() => buildAccountForm(adminUser, adminUser));
+  const [accountCurrentPassword, setAccountCurrentPassword] = useState("");
   const [savingAccount, setSavingAccount] = useState(false);
-  const [accountOtp, setAccountOtp] = useState("");
-  const [accountOtpSent, setAccountOtpSent] = useState(false);
-  const [sendingAccountOtp, setSendingAccountOtp] = useState(false);
   const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
-  const [passwordOtp, setPasswordOtp] = useState("");
-  const [passwordOtpSent, setPasswordOtpSent] = useState(false);
-  const [sendingPasswordOtp, setSendingPasswordOtp] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
 
   useEffect(() => {
@@ -149,9 +91,7 @@ function AdminProfileSection() {
     createdAt: profile?.createdAt,
   };
 
-  const registeredPhoneHint = maskPhoneNumber(profile?.phone ?? adminUser?.phone);
-
-  const accountRequiresOtp = useMemo(() => {
+  const accountRequiresPassword = useMemo(() => {
     const currentEmail = String(profile?.email ?? adminUser?.email ?? "").trim().toLowerCase();
     const currentPhone = String(profile?.phone ?? adminUser?.phone ?? "").trim();
     const nextEmail = accountForm.email.trim().toLowerCase();
@@ -161,38 +101,7 @@ function AdminProfileSection() {
 
   const resetAccountForm = () => {
     setAccountForm(buildAccountForm(profile, adminUser));
-    setAccountOtp("");
-    setAccountOtpSent(false);
-  };
-
-  const handleSendAccountOtp = async () => {
-    setError("");
-    setSuccess("");
-    try {
-      setSendingAccountOtp(true);
-      const { data } = await sendAdminSecurityOtp();
-      setAccountOtpSent(true);
-      setSuccess(data.message || "OTP sent to your registered phone number.");
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to send OTP.");
-    } finally {
-      setSendingAccountOtp(false);
-    }
-  };
-
-  const handleSendPasswordOtp = async () => {
-    setError("");
-    setSuccess("");
-    try {
-      setSendingPasswordOtp(true);
-      const { data } = await sendAdminSecurityOtp();
-      setPasswordOtpSent(true);
-      setSuccess(data.message || "OTP sent to your registered phone number.");
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to send OTP.");
-    } finally {
-      setSendingPasswordOtp(false);
-    }
+    setAccountCurrentPassword("");
   };
 
   const handleStartEditAccount = () => {
@@ -221,22 +130,21 @@ function AdminProfileSection() {
       return;
     }
 
-    if (accountRequiresOtp && !accountOtp.trim()) {
-      setError("OTP is required to change email or phone number.");
+    if (accountRequiresPassword && !accountCurrentPassword.trim()) {
+      setError("Current password is required to change email or phone number.");
       return;
     }
 
     try {
       setSavingAccount(true);
       const payload = { name, email, phone };
-      if (accountRequiresOtp) {
-        payload.otp = accountOtp.trim();
+      if (accountRequiresPassword) {
+        payload.currentPassword = accountCurrentPassword.trim();
       }
       const { data } = await updateAdminProfile(payload);
       setProfile(data);
       setEditingAccount(false);
-      setAccountOtp("");
-      setAccountOtpSent(false);
+      setAccountCurrentPassword("");
       setSuccess("Account details updated successfully.");
     } catch (err) {
       setError(err.response?.data?.message || "Failed to update account details.");
@@ -260,24 +168,23 @@ function AdminProfileSection() {
       return;
     }
 
-    if (!passwordOtp.trim()) {
-      setError("OTP is required to change your password.");
+    if (!passwordForm.currentPassword.trim()) {
+      setError("Current password is required.");
       return;
     }
 
     try {
       setSavingPassword(true);
       await changeMyPassword({
-        otp: passwordOtp.trim(),
+        currentPassword: passwordForm.currentPassword.trim(),
         newPassword: passwordForm.newPassword,
       });
       setSuccess("Password updated successfully.");
       setPasswordForm({
+        currentPassword: "",
         newPassword: "",
         confirmPassword: "",
       });
-      setPasswordOtp("");
-      setPasswordOtpSent(false);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to update password.");
     } finally {
@@ -371,16 +278,24 @@ function AdminProfileSection() {
                 placeholder="10-digit mobile number"
               />
             </div>
-            {accountRequiresOtp ? (
-              <AdminSecurityOtpBlock
-                idPrefix="admin-account"
-                otp={accountOtp}
-                onOtpChange={setAccountOtp}
-                phoneHint={registeredPhoneHint}
-                onSendOtp={handleSendAccountOtp}
-                sendingOtp={sendingAccountOtp}
-                otpSent={accountOtpSent}
-              />
+            {accountRequiresPassword ? (
+              <div>
+                <label className={labelClass} htmlFor="admin-profile-current-password">
+                  Current password *
+                </label>
+                <input
+                  id="admin-profile-current-password"
+                  type="password"
+                  required
+                  value={accountCurrentPassword}
+                  onChange={(e) => setAccountCurrentPassword(e.target.value)}
+                  className={inputClass}
+                  autoComplete="current-password"
+                />
+                <p className="mt-1 text-xs text-text-muted">
+                  Required when changing email or phone number.
+                </p>
+              </div>
             ) : null}
             <div className="flex flex-wrap gap-2 pt-1">
               <button type="submit" disabled={savingAccount} className={btnPrimary}>
@@ -415,15 +330,19 @@ function AdminProfileSection() {
       <div className={cardClass}>
         <h3 className="mb-4 font-semibold text-text-primary">Change password</h3>
         <form onSubmit={handlePasswordSubmit} className="space-y-4">
-          <AdminSecurityOtpBlock
-            idPrefix="admin-password"
-            otp={passwordOtp}
-            onOtpChange={setPasswordOtp}
-            phoneHint={registeredPhoneHint}
-            onSendOtp={handleSendPasswordOtp}
-            sendingOtp={sendingPasswordOtp}
-            otpSent={passwordOtpSent}
-          />
+          <div>
+            <label className={labelClass}>Current password *</label>
+            <input
+              type="password"
+              required
+              value={passwordForm.currentPassword}
+              onChange={(e) =>
+                setPasswordForm((prev) => ({ ...prev, currentPassword: e.target.value }))
+              }
+              className={inputClass}
+              autoComplete="current-password"
+            />
+          </div>
           <div>
             <label className={labelClass}>New password *</label>
             <input
@@ -458,21 +377,23 @@ function AdminProfileSection() {
         </form>
       </div>
 
-      <div className={`${cardClass} flex flex-col gap-3 sm:flex-row`}>
-        <a
-          href={STORE_URL}
-          target="_blank"
-          rel="noreferrer"
-          className={`${btnSecondary} gap-2`}
-        >
-          <IconExternalLink className="h-4 w-4" />
-          Visit store
-        </a>
-        <button type="button" onClick={handleLogout} className={`${btnDanger} gap-2`}>
-          <IconLogout className="h-4 w-4" />
-          Logout
+      <div className={`${cardClass} flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between`}>
+        <div>
+          <h3 className="font-semibold text-text-primary">Session</h3>
+          <p className="mt-1 text-sm text-text-secondary">Sign out of the admin panel on this device.</p>
+        </div>
+        <button type="button" onClick={handleLogout} className={`${btnDanger} shrink-0`}>
+          <IconLogout className="mr-2 inline h-4 w-4" />
+          Log out
         </button>
       </div>
+
+      <p className="text-center text-sm text-text-muted">
+        <a href={STORE_URL} className="inline-flex items-center gap-1 text-primary hover:underline">
+          Visit storefront
+          <IconExternalLink className="h-3.5 w-3.5" />
+        </a>
+      </p>
     </div>
   );
 }

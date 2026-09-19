@@ -1,10 +1,5 @@
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
-import api, {
-  completeOtpSignup,
-  sendOtpLogin,
-  updateMe,
-  verifyOtpLogin,
-} from "../api/api";
+import { useCallback, useContext, useEffect, useState, createContext } from "react";
+import api, { loginUser, signupUser, updateMe } from "../api/api";
 import { STORAGE_KEY } from "../utils/authStorage";
 
 const AuthContext = createContext(null);
@@ -86,43 +81,22 @@ export function AuthProvider({ children }) {
     initAuth();
   }, []);
 
-  const sendOtp = async (phone, { purpose = "login" } = {}) => {
-    const res = await sendOtpLogin({ phone, purpose });
-    return res.data;
-  };
-
   const persistAuthSession = (authUser, authToken) => {
     assertCustomerUser(authUser);
     persistCustomerAuth(authUser, authToken);
     closeAuthModal();
   };
 
-  const completeOtpSignupProfile = async ({ phone, name }) => {
-    const res = await completeOtpSignup({
-      phone,
-      name,
-    });
+  const login = async ({ email, password }) => {
+    const res = await loginUser({ email, password });
     const { user: authUser, token: authToken } = res.data.data;
     persistAuthSession(authUser, authToken);
     return res.data;
   };
 
-  const loginWithOtp = async ({ phone, otp, name }) => {
-    const res = await verifyOtpLogin({ phone, otp });
-    const payload = res.data.data;
-
-    if (payload?.needsSignup) {
-      if (name?.trim()) {
-        return completeOtpSignupProfile({
-          phone,
-          name,
-        });
-      }
-
-      return { needsSignup: true, phone: payload.phone };
-    }
-
-    const { user: authUser, token: authToken } = payload;
+  const signup = async (data) => {
+    const res = await signupUser(data);
+    const { user: authUser, token: authToken } = res.data.data;
     persistAuthSession(authUser, authToken);
     return res.data;
   };
@@ -144,9 +118,8 @@ export function AuthProvider({ children }) {
         user,
         token,
         loading,
-        sendOtp,
-        loginWithOtp,
-        completeOtpSignupProfile,
+        login,
+        signup,
         logout,
         updateProfile,
         authModal,

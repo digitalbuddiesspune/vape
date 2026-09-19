@@ -102,7 +102,6 @@ export const updateAdminUser = (id, data) => api.put(`/api/users/admins/${id}`, 
 export const deleteAdminUser = (id) => api.delete(`/api/users/admins/${id}`);
 export const getUserOrderStats = (id) => api.get(`/api/users/${id}/order-stats`);
 export const getCurrentUser = () => api.get("/api/users/me");
-export const sendAdminSecurityOtp = () => api.post("/api/users/me/security-otp");
 export const updateCurrentUser = (data) => api.patch("/api/users/me", data);
 export const changeMyPassword = (data) => api.patch("/api/users/me/password", data);
 export const createUser = (data) => api.post("/api/users", data);
