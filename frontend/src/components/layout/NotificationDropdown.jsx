@@ -18,7 +18,7 @@ function formatTimeAgo(dateString) {
   return date.toLocaleDateString("en-IN", { month: "short", day: "numeric" });
 }
 
-export function NotificationDropdown({ user, onLoginClick }) {
+export function NotificationDropdown({ user, onLoginClick, compact = false }) {
   const navigate = useNavigate();
   const {
     notifications,
@@ -72,12 +72,16 @@ export function NotificationDropdown({ user, onLoginClick }) {
       <button
         type="button"
         onClick={handleBellClick}
-        className="relative flex flex-col items-center justify-center gap-1 px-3 lg:px-4 text-gray-700 hover:text-accent transition focus:outline-none"
+        className={
+          compact
+            ? "relative flex h-8 w-8 items-center justify-center rounded-lg text-primary transition hover:bg-primary/5 focus:outline-none sm:h-9 sm:w-9"
+            : "relative flex flex-col items-center justify-center gap-1 px-3 text-gray-700 transition hover:text-accent focus:outline-none lg:px-4"
+        }
         aria-label="Notifications"
       >
         <span className="relative inline-flex">
           <svg
-            className="w-5 h-5"
+            className={compact ? "h-5 w-5 sm:h-[22px] sm:w-[22px]" : "h-5 w-5"}
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -90,12 +94,20 @@ export function NotificationDropdown({ user, onLoginClick }) {
             />
           </svg>
           {user && unreadCount > 0 && (
-            <span className="absolute -top-1.5 -right-2.5 flex h-[18px] min-w-[18px] px-0.5 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white leading-none shadow-sm animate-pulse">
+            <span
+              className={`absolute flex items-center justify-center rounded-full bg-red-600 font-bold leading-none text-white shadow-sm animate-pulse ${
+                compact
+                  ? "-right-1.5 -top-1.5 h-4 min-w-4 px-0.5 text-[9px]"
+                  : "-right-2.5 -top-1.5 h-[18px] min-w-[18px] px-0.5 text-[10px]"
+              }`}
+            >
               {unreadCount > 99 ? "99+" : unreadCount}
             </span>
           )}
         </span>
-        <span className="text-[10px] font-medium hidden sm:inline">Notifications</span>
+        {!compact ? (
+          <span className="hidden text-[10px] font-medium sm:inline">Notifications</span>
+        ) : null}
       </button>
 
       {isOpen && user && (

@@ -7,8 +7,6 @@ import { SiteBrand } from "../layout/SiteBrand";
 import { NavIconWrap } from "./NavIconWrap";
 import MobileMenuDrawer from "./MobileMenuDrawer";
 import MobileSearchBar from "./MobileSearchBar";
-import { NotificationDropdown } from "../layout/NotificationDropdown";
-
 function MobileHeader() {
   const { user, openAuthModal } = useAuth();
   const { wishlistCount } = useWishlist();
@@ -65,11 +63,11 @@ function MobileHeader() {
         <div className="flex items-center justify-between gap-3">
           <SiteBrand variant="headerMobile" />
 
-          <div className="flex shrink-0 items-center gap-1 overflow-visible">
+          <div className="flex shrink-0 items-center gap-0.5 overflow-visible sm:gap-1">
             <button
               type="button"
               onClick={toggleSearch}
-              className={`flex h-10 w-10 items-center justify-center rounded-lg transition ${
+              className={`flex h-8 w-8 items-center justify-center rounded-lg transition sm:h-9 sm:w-9 ${
                 searchOpen
                   ? "bg-purple-700 text-white"
                   : "bg-purple-600 text-white hover:bg-purple-700"
@@ -77,7 +75,7 @@ function MobileHeader() {
               aria-label={searchOpen ? "Close search" : "Open search"}
               aria-expanded={searchOpen}
             >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <svg className="h-5 w-5 sm:h-[22px] sm:w-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -86,18 +84,15 @@ function MobileHeader() {
               </svg>
             </button>
 
-            <NotificationDropdown user={user} onLoginClick={() => openAuthModal("login")} />
-
-
             <Link
               to="/wishlist"
               data-wishlist-target="mobile"
               onClick={handleWishlistClick}
-              className="relative flex h-10 w-10 items-center justify-center overflow-visible rounded-lg text-primary transition hover:bg-primary/5 hover:text-primary-dark"
+              className="relative flex h-8 w-8 items-center justify-center overflow-visible rounded-lg text-primary transition hover:bg-primary/5 hover:text-primary-dark sm:h-9 sm:w-9"
               aria-label={`Wishlist${wishlistCount > 0 ? `, ${wishlistCount} items` : ""}`}
             >
-              <NavIconWrap badge={wishlistCount}>
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <NavIconWrap badge={wishlistCount} compact>
+                <svg className="h-5 w-5 sm:h-[22px] sm:w-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -110,10 +105,10 @@ function MobileHeader() {
             <button
               type="button"
               onClick={openMenu}
-              className="flex h-10 w-10 items-center justify-center rounded-lg text-text-primary transition hover:text-primary"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-text-primary transition hover:text-primary sm:h-9 sm:w-9"
               aria-label="Open menu"
             >
-              <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+              <svg className="h-5 w-5 sm:h-[22px] sm:w-[22px]" fill="currentColor" viewBox="0 0 24 24">
                 <circle cx="12" cy="5" r="1.75" />
                 <circle cx="12" cy="12" r="1.75" />
                 <circle cx="12" cy="19" r="1.75" />
