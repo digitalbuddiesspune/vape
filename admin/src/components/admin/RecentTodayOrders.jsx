@@ -3,13 +3,7 @@ import { getAddressFullName } from "../../utils/addressDisplay";
 import { getOrderNumber } from "../../utils/orderNumber";
 import { cardClass } from "./adminStyles";
 
-function formatPrice(amount) {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
+import { formatPrice } from "../../utils/currency";
 
 function formatTime(dateStr) {
   return new Date(dateStr).toLocaleTimeString("en-IN", {

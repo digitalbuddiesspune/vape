@@ -34,9 +34,9 @@ const escapeCsv = (value = "") => {
 };
 
 /**
- * Formats price for Meta Catalog (e.g., "999.00 INR")
+ * Formats price for Meta Catalog (e.g., "999.00 GBP")
  */
-const formatPrice = (price, currency = "INR") => {
+const formatPrice = (price, currency = "GBP") => {
   const num = Number(price);
   if (isNaN(num)) return `0.00 ${currency}`;
   return `${num.toFixed(2)} ${currency}`;
@@ -55,7 +55,7 @@ const checkSecretAuth = (req) => {
 /**
  * Converts product doc (and optional variant) into standardized Meta Product Feed object
  */
-const buildMetaProductItem = (product, variant = null, baseUrl = "", currency = "INR") => {
+const buildMetaProductItem = (product, variant = null, baseUrl = "", currency = "GBP") => {
   const productId = product._id.toString();
   const sku = product.sku || productId;
 
@@ -138,7 +138,7 @@ export const getMetaAdsProducts = async (req, res) => {
     const format = (queryFormat || req.path.split(".").pop() || "json").toLowerCase();
 
     const baseUrl = process.env.PUBLIC_WEB_URL || "https://www.bulkmobilemart.in";
-    const currency = process.env.CURRENCY || "INR";
+    const currency = process.env.CURRENCY || "GBP";
 
     const filter = { isActive: true };
 

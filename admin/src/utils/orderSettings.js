@@ -1,5 +1,5 @@
 export const DEFAULT_STORE_SETTINGS = {
-  minimumOrderValue: 3000,
+  minimumOrderValue: 0,
   minimumShippingCharge: 280,
   shippingSlabs: [
     { orderAmount: 3000, shippingCharge: 280 },
@@ -29,7 +29,7 @@ export function mergeStoreSettings(settings) {
   const source = settings || {};
   return {
     minimumOrderValue:
-      Number(source.minimumOrderValue) || DEFAULT_STORE_SETTINGS.minimumOrderValue,
+      Number(source.minimumOrderValue ?? DEFAULT_STORE_SETTINGS.minimumOrderValue),
     minimumShippingCharge:
       Number(source.minimumShippingCharge) ||
       DEFAULT_STORE_SETTINGS.minimumShippingCharge,
@@ -61,13 +61,10 @@ export function calculateShippingCharge(subtotal, settings) {
   return charge;
 }
 
-export function meetsMinimumOrder(subtotal, settings) {
-  const amount = Number(subtotal) || 0;
-  const merged = mergeStoreSettings(settings);
-  return amount >= merged.minimumOrderValue;
+export function meetsMinimumOrder() {
+  return true;
 }
 
-export function getMinimumOrderShortfall(subtotal, settings) {
-  const merged = mergeStoreSettings(settings);
-  return Math.max(0, merged.minimumOrderValue - (Number(subtotal) || 0));
+export function getMinimumOrderShortfall() {
+  return 0;
 }

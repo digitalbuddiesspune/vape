@@ -45,7 +45,7 @@ export function mergeOrderShipment(order, updates = {}) {
   };
 }
 
-/** Empty shipment so admin can create a new Envia label. */
+/** Empty shipment so admin can link tracking again. */
 export function getClearedShipment() {
   return {
     provider: "",

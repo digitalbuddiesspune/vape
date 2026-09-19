@@ -31,7 +31,7 @@ function ShippingDetails() {
           <div>
             <h2 className="text-xl font-bold text-text-primary mb-3">Delivery Charges</h2>
             <p>
-              Standard delivery charges apply on orders below ₹999. Orders of ₹999 and
+              Standard delivery charges apply on orders below £999. Orders of £999 and
               above qualify for free delivery on eligible products. Final shipping cost
               is shown at checkout before you place your order.
             </p>

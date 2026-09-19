@@ -24,7 +24,7 @@ function invoiceNumber(order) {
 function formatAmount(value) {
   const amount = Number(value);
   if (!Number.isFinite(amount)) return "0";
-  return amount.toLocaleString("en-IN");
+  return amount.toLocaleString("en-GB");
 }
 
 function formatWhatsAppDate(value) {

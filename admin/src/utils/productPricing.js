@@ -263,7 +263,7 @@ export function getAdminProductPriceDisplay(product) {
       hasDiscount: false,
       isBulk: anyBulk,
       bulkRange:
-        min !== max ? `₹${min} – ₹${max}` : anyBulk ? "Bulk pricing" : "Multi variant",
+        min !== max ? `£${min} – £${max}` : anyBulk ? "Bulk pricing" : "Multi variant",
     };
   }
 
@@ -280,7 +280,7 @@ export function getAdminProductPriceDisplay(product) {
     isBulk: info.isBulk,
     bulkRange:
       info.isBulk && minSlab != null && maxSlab != null && minSlab !== maxSlab
-        ? `₹${minSlab} – ₹${maxSlab}`
+        ? `£${minSlab} – £${maxSlab}`
         : info.isBulk
           ? "Bulk pricing"
           : null,

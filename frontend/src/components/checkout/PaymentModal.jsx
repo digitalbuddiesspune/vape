@@ -11,16 +11,9 @@ import {
   getQrDownloadFilename,
   pickEnabledMerchantUpiAccounts,
 } from "../../utils/upiPayment";
+import { formatPrice } from "../../utils/currency";
 
 const MAX_SCREENSHOT_BYTES = 5 * 1024 * 1024;
-
-const formatPrice = (amount) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
 
 const safeTrim = (value) => String(value ?? "").trim();
 

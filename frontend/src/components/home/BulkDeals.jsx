@@ -3,13 +3,13 @@ const deals = [
     title: "Entry-Level Bulk",
     desc: "Redmi, Realme, Samsung A-series — ideal for retail shops & small sellers.",
     min: "Min. 20 units",
-    highlight: "From ₹6,999/unit",
+    highlight: "From £6,999/unit",
   },
   {
     title: "Mid-Range Packs",
     desc: "OnePlus Nord, Samsung M-series, Vivo — strong margins for resellers.",
     min: "Min. 15 units",
-    highlight: "From ₹14,999/unit",
+    highlight: "From £14,999/unit",
   },
   {
     title: "Premium Wholesale",

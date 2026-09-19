@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import {
-  getEnviaWebhookSetup,
   getMetaAdsSummary,
   getStoreSettings,
-  registerEnviaWebhook,
   updateStoreSettings,
 } from "../../../api/api";
 import AdminAlert from "../AdminAlert";
@@ -14,94 +12,13 @@ import {
   inputClass,
   labelClass,
 } from "../adminStyles";
-import {
-  DEFAULT_ENVIA_PICKUP_ORIGIN,
-  mergeEnviaOriginDefaults,
-} from "@shared/shipping/enviaOriginAddress.js";
-import ImagePicker from "../ImagePicker";
-import { UPLOAD_FOLDERS } from "../../../utils/uploadFolders";
 
 const EMPTY_SLAB = { orderAmount: "", shippingCharge: "" };
-const EMPTY_UPI_ACCOUNT = { upiId: "", label: "VapeHub", enabled: false };
-const EMPTY_GIFT_TIER = {
-  minOrderAmount: "",
-  giftName: "",
-  giftDescription: "",
-  giftImage: "",
-};
-
-function enviaOriginToForm(origin = {}) {
-  const normalized = mergeEnviaOriginDefaults(origin);
-
-  return {
-    enviaOriginName: normalized.name,
-    enviaOriginCompany: normalized.company,
-    enviaOriginEmail: normalized.email,
-    enviaOriginPhone: normalized.phone,
-    enviaOriginAddressLine1: normalized.addressLine1,
-    enviaOriginAddressLine2: normalized.addressLine2,
-    enviaOriginLandmark: normalized.landmark,
-    enviaOriginStreetNumber: normalized.streetNumber,
-    enviaOriginCity: normalized.city,
-    enviaOriginState: normalized.state,
-    enviaOriginCountry: normalized.country,
-    enviaOriginPostalCode: normalized.postalCode,
-  };
-}
-
-function enviaOriginFromForm(form = {}) {
-  return {
-    name: String(form.enviaOriginName ?? "").trim(),
-    company: String(form.enviaOriginCompany ?? "").trim(),
-    email: String(form.enviaOriginEmail ?? "").trim(),
-    phone: String(form.enviaOriginPhone ?? "").trim(),
-    addressLine1: String(form.enviaOriginAddressLine1 ?? "").trim(),
-    addressLine2: String(form.enviaOriginAddressLine2 ?? "").trim(),
-    landmark: String(form.enviaOriginLandmark ?? "").trim(),
-    streetNumber: String(form.enviaOriginStreetNumber ?? "").trim(),
-    city: String(form.enviaOriginCity ?? "").trim(),
-    state: String(form.enviaOriginState ?? "").trim(),
-    country: String(form.enviaOriginCountry ?? "").trim().toUpperCase(),
-    postalCode: String(form.enviaOriginPostalCode ?? "").trim(),
-    isDefault: true,
-  };
-}
-
-function normalizeUpiAccounts(accounts = []) {
-  let activeAssigned = false;
-
-  return accounts.map((account) => {
-    const normalized = {
-      upiId: account.upiId || "",
-      label: account.label || "VapeHub",
-      enabled: account.enabled !== false,
-    };
-
-    if (normalized.enabled && !activeAssigned) {
-      activeAssigned = true;
-      return normalized;
-    }
-
-    return { ...normalized, enabled: false };
-  });
-}
 
 function serializeOrderSection(form) {
   return JSON.stringify({
     minimumOrderValue: String(form.minimumOrderValue ?? ""),
     minimumShippingCharge: String(form.minimumShippingCharge ?? ""),
-  });
-}
-
-function serializeGiftHampersSection(form) {
-  return JSON.stringify({
-    giftHampersEnabled: Boolean(form.giftHampersEnabled),
-    tiers: (form.giftHamperTiers || []).map((tier) => ({
-      minOrderAmount: String(tier.minOrderAmount ?? ""),
-      giftName: String(tier.giftName ?? "").trim(),
-      giftDescription: String(tier.giftDescription ?? "").trim(),
-      giftImage: String(tier.giftImage ?? "").trim(),
-    })),
   });
 }
 
@@ -114,20 +31,6 @@ function serializeSlabsSection(form) {
   );
 }
 
-function serializeUpiSection(form) {
-  return JSON.stringify(
-    normalizeUpiAccounts(
-      (form.merchantUpiAccounts || [])
-        .map((account) => ({
-          upiId: String(account.upiId || "").trim(),
-          label: String(account.label || "").trim() || "VapeHub",
-          enabled: Boolean(account.enabled),
-        }))
-        .filter((account) => account.upiId)
-    )
-  );
-}
-
 function serializeCartSection(form) {
   return JSON.stringify({
     cartNoticeEn: String(form.cartNoticeEn ?? ""),
@@ -135,41 +38,11 @@ function serializeCartSection(form) {
   });
 }
 
-function serializeEnviaSection(form) {
-  return JSON.stringify({
-    enabled: Boolean(form.enviaEnabled),
-    useSandbox: Boolean(form.enviaUseSandbox),
-    apiToken: String(form.enviaApiToken ?? "").trim(),
-    defaultCarrier: String(form.enviaDefaultCarrier ?? "").trim(),
-    defaultService: String(form.enviaDefaultService ?? "").trim(),
-    rateCarriers: String(form.enviaRateCarriers ?? "")
-      .split(/[,;\n]+/)
-      .map((entry) => entry.trim())
-      .filter(Boolean),
-    origin: enviaOriginFromForm(form),
-  });
-}
-
-function serializeAppUpdateSection(form) {
-  return JSON.stringify({
-    latestVersion: String(form.appUpdateLatestVersion ?? "").trim(),
-    minVersion: String(form.appUpdateMinVersion ?? "").trim(),
-    forceUpdate: Boolean(form.appUpdateForceUpdate),
-    message: String(form.appUpdateMessage ?? "").trim(),
-    androidStoreUrl: String(form.appUpdateAndroidStoreUrl ?? "").trim(),
-    iosStoreUrl: String(form.appUpdateIosStoreUrl ?? "").trim(),
-  });
-}
-
 function buildSectionSnapshots(form) {
   return {
     order: serializeOrderSection(form),
-    giftHampers: serializeGiftHampersSection(form),
     slabs: serializeSlabsSection(form),
-    upi: serializeUpiSection(form),
     cart: serializeCartSection(form),
-    envia: serializeEnviaSection(form),
-    appUpdate: serializeAppUpdateSection(form),
   };
 }
 
@@ -179,10 +52,6 @@ function StoreSettingsSection() {
   const [loading, setLoading] = useState(true);
   const [savingSection, setSavingSection] = useState("");
   const [savedSnapshots, setSavedSnapshots] = useState(() => buildSectionSnapshots({}));
-  const [enviaHasSavedToken, setEnviaHasSavedToken] = useState(false);
-  const [enviaWebhook, setEnviaWebhook] = useState(null);
-  const [enviaWebhookLoading, setEnviaWebhookLoading] = useState(false);
-  const [enviaWebhookRegistering, setEnviaWebhookRegistering] = useState(false);
   const [metaAdsSummary, setMetaAdsSummary] = useState(null);
   const [metaAdsLoading, setMetaAdsLoading] = useState(false);
   const [copiedFormat, setCopiedFormat] = useState("");
@@ -190,24 +59,8 @@ function StoreSettingsSection() {
     minimumOrderValue: "3000",
     minimumShippingCharge: "280",
     shippingSlabs: [{ orderAmount: "3000", shippingCharge: "280" }],
-    giftHamperTiers: [],
-    giftHampersEnabled: false,
-    merchantUpiAccounts: [{ ...EMPTY_UPI_ACCOUNT }],
     cartNoticeEn: "",
     cartNoticeHi: "",
-    enviaEnabled: false,
-    enviaUseSandbox: true,
-    enviaApiToken: "",
-    enviaDefaultCarrier: "",
-    enviaDefaultService: "",
-    enviaRateCarriers: "xpressbees, delhivery, ekart, amazon, bluedart, dtdc, ecomexpress",
-    appUpdateLatestVersion: "1.0.8",
-    appUpdateMinVersion: "1.0.8",
-    appUpdateForceUpdate: true,
-    appUpdateMessage: "A new version of VapeHub is available. Please update the app to continue.",
-    appUpdateAndroidStoreUrl: "https://play.google.com/store/apps/details?id=com.bulkmobilemart.app",
-    appUpdateIosStoreUrl: "",
-    ...enviaOriginToForm(DEFAULT_ENVIA_PICKUP_ORIGIN),
   });
 
   const loadSettings = useCallback(async () => {
@@ -222,48 +75,10 @@ function StoreSettingsSection() {
           orderAmount: String(slab.orderAmount),
           shippingCharge: String(slab.shippingCharge),
         })),
-        giftHamperTiers: (settings.giftHamperTiers || []).map((tier) => ({
-          minOrderAmount: String(tier.minOrderAmount ?? ""),
-          giftName: tier.gift?.name || "",
-          giftDescription: tier.gift?.description || "",
-          giftImage: tier.gift?.image || "",
-        })),
-        giftHampersEnabled: Boolean(settings.giftHampersEnabled),
         cartNoticeEn: (settings.cartNoticeEn || []).join("\n"),
         cartNoticeHi: (settings.cartNoticeHi || []).join("\n"),
-        merchantUpiAccounts: normalizeUpiAccounts(
-          settings.merchantUpiAccounts?.length > 0
-            ? settings.merchantUpiAccounts.map((account) => ({
-                upiId: account.upiId || "",
-                label: account.label || "VapeHub",
-                enabled: account.enabled !== false,
-              }))
-            : settings.merchantUpiId
-              ? [
-                  {
-                    upiId: settings.merchantUpiId,
-                    label: settings.merchantUpiName || "VapeHub",
-                    enabled: true,
-                  },
-                ]
-              : [{ ...EMPTY_UPI_ACCOUNT, enabled: true }]
-        ),
-        enviaEnabled: Boolean(settings.envia?.enabled),
-        enviaUseSandbox: settings.envia?.useSandbox !== false,
-        enviaApiToken: settings.envia?.apiToken || "",
-        enviaDefaultCarrier: settings.envia?.defaultCarrier || "",
-        enviaDefaultService: settings.envia?.defaultService || "",
-        enviaRateCarriers: (settings.envia?.rateCarriers || []).join(", "),
-        appUpdateLatestVersion: settings.appUpdate?.latestVersion || "1.0.8",
-        appUpdateMinVersion: settings.appUpdate?.minVersion || "1.0.8",
-        appUpdateForceUpdate: settings.appUpdate?.forceUpdate !== false,
-        appUpdateMessage: settings.appUpdate?.message || "A new version of VapeHub is available. Please update the app to continue.",
-        appUpdateAndroidStoreUrl: settings.appUpdate?.androidStoreUrl || "https://play.google.com/store/apps/details?id=com.bulkmobilemart.app",
-        appUpdateIosStoreUrl: settings.appUpdate?.iosStoreUrl || "",
-        ...enviaOriginToForm(settings.envia?.origin),
       };
       setForm(nextForm);
-      setEnviaHasSavedToken(Boolean(settings.envia?.hasApiToken));
       setSavedSnapshots(buildSectionSnapshots(nextForm));
     } catch (err) {
       setError(
@@ -277,22 +92,6 @@ function StoreSettingsSection() {
   useEffect(() => {
     loadSettings();
   }, [loadSettings]);
-
-  const loadEnviaWebhookSetup = useCallback(async () => {
-    setEnviaWebhookLoading(true);
-    try {
-      const { data } = await getEnviaWebhookSetup();
-      setEnviaWebhook(data?.data || null);
-    } catch {
-      setEnviaWebhook(null);
-    } finally {
-      setEnviaWebhookLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadEnviaWebhookSetup();
-  }, [loadEnviaWebhookSetup]);
 
   const loadMetaAdsSummary = useCallback(async () => {
     setMetaAdsLoading(true);
@@ -317,21 +116,6 @@ function StoreSettingsSection() {
     setTimeout(() => setCopiedFormat(""), 2500);
   };
 
-  const handleRegisterEnviaWebhook = async () => {
-    setEnviaWebhookRegistering(true);
-    setError("");
-    setSuccess("");
-    try {
-      await registerEnviaWebhook();
-      setSuccess("Envia tracking webhook registered.");
-      await loadEnviaWebhookSetup();
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to register Envia webhook");
-    } finally {
-      setEnviaWebhookRegistering(false);
-    }
-  };
-
   const updateSlab = (index, field, value) => {
     setForm((prev) => {
       const next = [...prev.shippingSlabs];
@@ -354,82 +138,16 @@ function StoreSettingsSection() {
     }));
   };
 
-  const addGiftTier = () => {
-    setForm((prev) => ({
-      ...prev,
-      giftHamperTiers: [...prev.giftHamperTiers, { ...EMPTY_GIFT_TIER }],
-    }));
-  };
-
-  const updateGiftTier = (index, field, value) => {
-    setForm((prev) => {
-      const next = [...prev.giftHamperTiers];
-      next[index] = { ...next[index], [field]: value };
-      return { ...prev, giftHamperTiers: next };
-    });
-  };
-
-  const removeGiftTier = (index) => {
-    setForm((prev) => ({
-      ...prev,
-      giftHamperTiers: prev.giftHamperTiers.filter((_, i) => i !== index),
-    }));
-  };
-
-  const updateUpiAccount = (index, field, value) => {
-    setForm((prev) => {
-      const next = [...prev.merchantUpiAccounts];
-      next[index] = { ...next[index], [field]: value };
-      return { ...prev, merchantUpiAccounts: next };
-    });
-  };
-
-  const toggleUpiAccount = (index) => {
-    setForm((prev) => {
-      const isCurrentlyActive = prev.merchantUpiAccounts[index]?.enabled;
-
-      return {
-        ...prev,
-        merchantUpiAccounts: prev.merchantUpiAccounts.map((account, i) => ({
-          ...account,
-          enabled: isCurrentlyActive ? false : i === index,
-        })),
-      };
-    });
-  };
-
-  const addUpiAccount = () => {
-    setForm((prev) => ({
-      ...prev,
-      merchantUpiAccounts: [...prev.merchantUpiAccounts, { ...EMPTY_UPI_ACCOUNT }],
-    }));
-  };
-
-  const removeUpiAccount = (index) => {
-    setForm((prev) => ({
-      ...prev,
-      merchantUpiAccounts: prev.merchantUpiAccounts.filter((_, i) => i !== index),
-    }));
-  };
-
   const sectionSaveLabels = {
     order: "Order & shipping rules",
-    giftHampers: "Gift hamper tiers",
     slabs: "Shipping slabs",
-    upi: "UPI payment settings",
     cart: "Cart messages",
-    envia: "Parcel partner settings",
-    appUpdate: "Mobile App update settings",
   };
 
   const sectionSerializers = {
     order: serializeOrderSection,
-    giftHampers: serializeGiftHampersSection,
     slabs: serializeSlabsSection,
-    upi: serializeUpiSection,
     cart: serializeCartSection,
-    envia: serializeEnviaSection,
-    appUpdate: serializeAppUpdateSection,
   };
 
   const isSectionDirty = (section) =>
@@ -437,29 +155,14 @@ function StoreSettingsSection() {
 
   const dirtySections = {
     order: isSectionDirty("order"),
-    giftHampers: isSectionDirty("giftHampers"),
     slabs: isSectionDirty("slabs"),
-    upi: isSectionDirty("upi"),
     cart: isSectionDirty("cart"),
-    envia: isSectionDirty("envia"),
-    appUpdate: isSectionDirty("appUpdate"),
   };
 
   const saveSection = async (section) => {
     setSavingSection(section);
     setError("");
     setSuccess("");
-
-    if (
-      section === "envia" &&
-      form.enviaEnabled &&
-      !form.enviaApiToken.trim() &&
-      !enviaHasSavedToken
-    ) {
-      setError("Envia API token is required when Envia is enabled");
-      setSavingSection("");
-      return;
-    }
 
     try {
       let payload = {};
@@ -469,38 +172,12 @@ function StoreSettingsSection() {
           minimumOrderValue: Number(form.minimumOrderValue),
           minimumShippingCharge: Number(form.minimumShippingCharge),
         };
-      } else if (section === "giftHampers") {
-        payload = {
-          giftHampersEnabled: Boolean(form.giftHampersEnabled),
-          giftHamperTiers: form.giftHamperTiers
-            .map((tier) => ({
-              minOrderAmount: Number(tier.minOrderAmount),
-              gift: {
-                name: tier.giftName.trim(),
-                description: tier.giftDescription.trim(),
-                image: tier.giftImage.trim(),
-              },
-            }))
-            .filter((tier) => tier.minOrderAmount > 0 && tier.gift.name),
-        };
       } else if (section === "slabs") {
         payload = {
           shippingSlabs: form.shippingSlabs.map((slab) => ({
             orderAmount: Number(slab.orderAmount),
             shippingCharge: Number(slab.shippingCharge),
           })),
-        };
-      } else if (section === "upi") {
-        payload = {
-          merchantUpiAccounts: normalizeUpiAccounts(
-            form.merchantUpiAccounts
-              .map((account) => ({
-                upiId: account.upiId.trim(),
-                label: account.label.trim() || "VapeHub",
-                enabled: Boolean(account.enabled),
-              }))
-              .filter((account) => account.upiId)
-          ),
         };
       } else if (section === "cart") {
         payload = {
@@ -513,39 +190,10 @@ function StoreSettingsSection() {
             .map((line) => line.trim())
             .filter(Boolean),
         };
-      } else if (section === "envia") {
-        payload = {
-          envia: {
-            enabled: Boolean(form.enviaEnabled),
-            useSandbox: Boolean(form.enviaUseSandbox),
-            apiToken: form.enviaApiToken.trim(),
-            defaultCarrier: form.enviaDefaultCarrier.trim(),
-            defaultService: form.enviaDefaultService.trim(),
-            rateCarriers: form.enviaRateCarriers
-              .split(/[,;\n]+/)
-              .map((entry) => entry.trim())
-              .filter(Boolean),
-            origin: enviaOriginFromForm(form),
-          },
-        };
-      } else if (section === "appUpdate") {
-        payload = {
-          appUpdate: {
-            latestVersion: String(form.appUpdateLatestVersion).trim(),
-            minVersion: String(form.appUpdateMinVersion).trim(),
-            forceUpdate: Boolean(form.appUpdateForceUpdate),
-            message: String(form.appUpdateMessage).trim(),
-            androidStoreUrl: String(form.appUpdateAndroidStoreUrl).trim(),
-            iosStoreUrl: String(form.appUpdateIosStoreUrl).trim(),
-          },
-        };
       }
 
       await updateStoreSettings(payload);
       setSuccess(`${sectionSaveLabels[section]} saved successfully`);
-      if (section === "envia" && form.enviaApiToken.trim()) {
-        setEnviaHasSavedToken(true);
-      }
       setSavedSnapshots((prev) => ({
         ...prev,
         [section]: sectionSerializers[section](form),
@@ -643,7 +291,7 @@ function StoreSettingsSection() {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className={labelClass}>Minimum Order Value (₹)</label>
+              <label className={labelClass}>Minimum Order Value (£)</label>
               <input
                 type="number"
                 min="0"
@@ -660,7 +308,7 @@ function StoreSettingsSection() {
             </div>
 
             <div>
-              <label className={labelClass}>Minimum Shipping Charge (₹)</label>
+              <label className={labelClass}>Minimum Shipping Charge (£)</label>
               <input
                 type="number"
                 min="0"
@@ -681,113 +329,6 @@ function StoreSettingsSection() {
           </div>
 
           <SectionSaveButton section="order" />
-        </div>
-
-        <div
-          className={`${cardClass} space-y-4 ${
-            dirtySections.giftHampers ? "ring-2 ring-amber-200" : ""
-          }`}
-        >
-          <div className={formHeaderClass}>
-            <div>
-              <h3 className="font-semibold text-neutral-900">Gift Hamper Tiers</h3>
-              <p className="mt-1 text-sm text-neutral-500">
-                Add order value thresholds and the gift hamper customers receive. The highest
-                matching tier applies when an order is placed.
-              </p>
-            </div>
-            <button type="button" onClick={addGiftTier} className={btnPrimary}>
-              Add Tier
-            </button>
-          </div>
-
-          <label className="flex items-center gap-2 text-sm font-medium text-neutral-800">
-            <input
-              type="checkbox"
-              checked={form.giftHampersEnabled}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, giftHampersEnabled: e.target.checked }))
-              }
-              className="h-4 w-4 accent-primary"
-            />
-            Enable gift hamper offers on new orders
-          </label>
-          <p className="text-xs text-neutral-500">
-            When disabled, new orders will not receive gift hampers. You can still manage
-            existing gift hamper requests inside individual order details.
-          </p>
-
-          {form.giftHamperTiers.length === 0 ? (
-            <p className="text-sm text-neutral-500">No gift hamper tiers configured yet.</p>
-          ) : (
-            <div className="space-y-4">
-              {form.giftHamperTiers.map((tier, index) => (
-                <div
-                  key={`gift-tier-${index}`}
-                  className="space-y-4 rounded-lg border border-neutral-200 p-4"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <h4 className="text-sm font-semibold text-neutral-900">Tier {index + 1}</h4>
-                    <button
-                      type="button"
-                      onClick={() => removeGiftTier(index)}
-                      className="text-sm font-semibold text-red-600 hover:text-red-700"
-                    >
-                      Remove
-                    </button>
-                  </div>
-
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <label className={labelClass}>Minimum order value (₹)</label>
-                      <input
-                        type="number"
-                        min="1"
-                        required
-                        className={inputClass}
-                        value={tier.minOrderAmount}
-                        onChange={(e) => updateGiftTier(index, "minOrderAmount", e.target.value)}
-                      />
-                      <p className="mt-1 text-xs text-neutral-500">
-                        Gift applies when order total is at or above this amount.
-                      </p>
-                    </div>
-                    <div>
-                      <label className={labelClass}>Gift name</label>
-                      <input
-                        type="text"
-                        required
-                        className={inputClass}
-                        value={tier.giftName}
-                        onChange={(e) => updateGiftTier(index, "giftName", e.target.value)}
-                        placeholder="Festive gift hamper"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className={labelClass}>Gift description</label>
-                    <textarea
-                      rows={2}
-                      className={`${inputClass} min-h-[4.5rem] resize-y`}
-                      value={tier.giftDescription}
-                      onChange={(e) => updateGiftTier(index, "giftDescription", e.target.value)}
-                      placeholder="What is included in this hamper?"
-                    />
-                  </div>
-
-                  <ImagePicker
-                    label="Gift image (optional)"
-                    value={tier.giftImage}
-                    onChange={(url) => updateGiftTier(index, "giftImage", url)}
-                    folder={UPLOAD_FOLDERS.PRODUCTS}
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-
-          <SectionSaveButton section="giftHampers" />
         </div>
 
         <div
@@ -814,7 +355,7 @@ function StoreSettingsSection() {
                 className="grid gap-3 rounded-lg border border-neutral-200 p-4 sm:grid-cols-[1fr_1fr_auto]"
               >
                 <div>
-                  <label className={labelClass}>Order Amount (₹)</label>
+                  <label className={labelClass}>Order Amount (£)</label>
                   <input
                     type="number"
                     min="0"
@@ -825,7 +366,7 @@ function StoreSettingsSection() {
                   />
                 </div>
                 <div>
-                  <label className={labelClass}>Shipping Charge (₹)</label>
+                  <label className={labelClass}>Shipping Charge (£)</label>
                   <input
                     type="number"
                     min="0"
@@ -850,114 +391,6 @@ function StoreSettingsSection() {
           </div>
 
           <SectionSaveButton section="slabs" />
-        </div>
-
-        <div
-          className={`${cardClass} space-y-5 ${
-            dirtySections.upi ? "ring-2 ring-amber-200" : ""
-          }`}
-        >
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <h3 className="font-semibold text-neutral-900">UPI Payment (COD Advance & QR)</h3>
-              <p className="mt-1 text-sm text-neutral-500">
-                Add multiple UPI IDs. Only one can be active at a time for customer payments.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={addUpiAccount}
-              className="rounded-lg border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50"
-            >
-              + Add UPI ID
-            </button>
-          </div>
-
-          <div className="space-y-4">
-            {form.merchantUpiAccounts.map((account, index) => (
-              <div
-                key={`upi-${index}`}
-                className={`rounded-xl border p-4 transition ${
-                  account.enabled
-                    ? "border-emerald-300 bg-emerald-50/50 shadow-sm"
-                    : "border-neutral-200 bg-neutral-50/60"
-                }`}
-              >
-                <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-semibold text-neutral-800">UPI ID #{index + 1}</p>
-                    {account.enabled ? (
-                      <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-700">
-                        Active
-                      </span>
-                    ) : null}
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-medium text-neutral-500">
-                        {account.enabled ? "Active for payments" : "Set as active"}
-                      </span>
-                      <button
-                        type="button"
-                        role="switch"
-                        aria-checked={account.enabled}
-                        aria-label={`${account.enabled ? "Disable" : "Enable"} UPI ID ${index + 1}`}
-                        onClick={() => toggleUpiAccount(index)}
-                        className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:ring-offset-2 ${
-                          account.enabled ? "bg-emerald-500" : "bg-neutral-300"
-                        }`}
-                      >
-                        <span
-                          className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform ${
-                            account.enabled ? "translate-x-6" : "translate-x-1"
-                          }`}
-                        />
-                      </button>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => removeUpiAccount(index)}
-                      disabled={form.merchantUpiAccounts.length <= 1}
-                      className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <label className={labelClass}>UPI ID</label>
-                    <input
-                      type="text"
-                      className={inputClass}
-                      value={account.upiId}
-                      onChange={(e) => updateUpiAccount(index, "upiId", e.target.value)}
-                      placeholder="merchant@upi"
-                    />
-                    <p className="mt-1 text-xs text-neutral-500">
-                      Example: bulkmobilemart@okaxis, store@paytm
-                    </p>
-                  </div>
-                  <div>
-                    <label className={labelClass}>Payee Name</label>
-                    <input
-                      type="text"
-                      className={inputClass}
-                      value={account.label}
-                      onChange={(e) => updateUpiAccount(index, "label", e.target.value)}
-                      placeholder="VapeHub"
-                    />
-                    <p className="mt-1 text-xs text-neutral-500">
-                      Shown in UPI apps when customer pays.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <SectionSaveButton section="upi" />
         </div>
 
         <div
@@ -999,243 +432,6 @@ function StoreSettingsSection() {
 
           <SectionSaveButton section="cart" />
         </div>
-
-        <div
-          className={`${cardClass} space-y-5 ${
-            dirtySections.envia ? "ring-2 ring-amber-200" : ""
-          }`}
-        >
-          <div>
-            <h3 className="font-semibold text-neutral-900">Parcel Partner (Envia)</h3>
-            <p className="mt-1 text-sm text-neutral-500">
-              Create shipments manually in the Envia portal. Link tracking on each order so
-              customers get real-time parcel updates in the app.
-            </p>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className="flex items-center gap-2 text-sm font-medium text-neutral-700">
-              <input
-                type="checkbox"
-                checked={form.enviaEnabled}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, enviaEnabled: e.target.checked }))
-                }
-              />
-              Enable Envia tracking
-            </label>
-            <label className="flex items-center gap-2 text-sm font-medium text-neutral-700">
-              <input
-                type="checkbox"
-                checked={form.enviaUseSandbox}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, enviaUseSandbox: e.target.checked }))
-                }
-              />
-              Use sandbox (recommended for testing)
-            </label>
-          </div>
-
-          {form.enviaEnabled && !form.enviaApiToken.trim() && !enviaHasSavedToken ? (
-            <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
-              Enable is ON but API Token is empty. Paste your Envia token below, or turn
-              Enable OFF until settings are ready.
-            </p>
-          ) : null}
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label className={labelClass}>API Token</label>
-              <input
-                type="text"
-                className={inputClass}
-                value={form.enviaApiToken}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, enviaApiToken: e.target.value }))
-                }
-                placeholder={
-                  enviaHasSavedToken && !form.enviaApiToken.trim()
-                    ? "Token saved — leave blank to keep"
-                    : "Paste Envia API token"
-                }
-              />
-              {enviaHasSavedToken && !form.enviaApiToken.trim() ? (
-                <p className="mt-1 text-xs text-neutral-500">
-                  A token is already saved on the server.
-                </p>
-              ) : null}
-            </div>
-            <div>
-              <label className={labelClass}>Default Carrier / Service</label>
-              <div className="grid grid-cols-2 gap-2">
-                <input
-                  type="text"
-                  className={inputClass}
-                  value={form.enviaDefaultCarrier}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, enviaDefaultCarrier: e.target.value }))
-                  }
-                  placeholder="xpressBees"
-                />
-                <input
-                  type="text"
-                  className={inputClass}
-                  value={form.enviaDefaultService}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, enviaDefaultService: e.target.value }))
-                  }
-                  placeholder="surface"
-                />
-              </div>
-              <p className="mt-1 text-xs text-neutral-500">
-                Optional fallback only. On each order you can compare carriers and pick the best rate.
-              </p>
-            </div>
-            <div className="sm:col-span-2">
-              <label className={labelClass}>Carriers to compare for rate quotes</label>
-              <input
-                type="text"
-                className={inputClass}
-                value={form.enviaRateCarriers}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, enviaRateCarriers: e.target.value }))
-                }
-                placeholder="xpressbees, delhivery, ekart, bluedart"
-              />
-              <p className="mt-1 text-xs text-neutral-500">
-                Comma-separated Envia carrier codes. Used when you click Compare rates on an order.
-              </p>
-            </div>
-          </div>
-
-          <div>
-            <h4 className="text-sm font-semibold text-neutral-900">
-              Pickup / Origin / Return Address
-            </h4>
-            <p className="mt-1 text-xs text-neutral-500">
-              Parcel pickup location. Used as the origin address (and return address) when creating
-              Envia shipping labels.
-            </p>
-            <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              <input
-                className={inputClass}
-                value={form.enviaOriginName}
-                onChange={(e) => setForm((prev) => ({ ...prev, enviaOriginName: e.target.value }))}
-                placeholder="Contact name"
-              />
-              <input
-                className={inputClass}
-                value={form.enviaOriginCompany}
-                onChange={(e) => setForm((prev) => ({ ...prev, enviaOriginCompany: e.target.value }))}
-                placeholder="Company name"
-              />
-              <input
-                className={inputClass}
-                value={form.enviaOriginEmail}
-                onChange={(e) => setForm((prev) => ({ ...prev, enviaOriginEmail: e.target.value }))}
-                placeholder="Email"
-              />
-              <input
-                className={inputClass}
-                value={form.enviaOriginPhone}
-                onChange={(e) => setForm((prev) => ({ ...prev, enviaOriginPhone: e.target.value }))}
-                placeholder="Phone"
-              />
-              <input
-                className={`${inputClass} sm:col-span-2`}
-                value={form.enviaOriginAddressLine1}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, enviaOriginAddressLine1: e.target.value }))
-                }
-                placeholder="Address line 1"
-              />
-              <input
-                className={`${inputClass} sm:col-span-2`}
-                value={form.enviaOriginAddressLine2}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, enviaOriginAddressLine2: e.target.value }))
-                }
-                placeholder="Address line 2"
-              />
-              <input
-                className={`${inputClass} sm:col-span-2`}
-                value={form.enviaOriginLandmark}
-                onChange={(e) => setForm((prev) => ({ ...prev, enviaOriginLandmark: e.target.value }))}
-                placeholder="Landmark"
-              />
-              <input
-                className={inputClass}
-                value={form.enviaOriginStreetNumber}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, enviaOriginStreetNumber: e.target.value }))
-                }
-                placeholder="Shop / unit number"
-              />
-              <input
-                className={inputClass}
-                value={form.enviaOriginPostalCode}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, enviaOriginPostalCode: e.target.value }))
-                }
-                placeholder="Pincode"
-              />
-              <input
-                className={inputClass}
-                value={form.enviaOriginCity}
-                onChange={(e) => setForm((prev) => ({ ...prev, enviaOriginCity: e.target.value }))}
-                placeholder="City"
-              />
-              <input
-                className={inputClass}
-                value={form.enviaOriginState}
-                onChange={(e) => setForm((prev) => ({ ...prev, enviaOriginState: e.target.value }))}
-                placeholder="State"
-              />
-              <input
-                className={inputClass}
-                value={form.enviaOriginCountry}
-                onChange={(e) => setForm((prev) => ({ ...prev, enviaOriginCountry: e.target.value }))}
-                placeholder="Country code (IN)"
-              />
-            </div>
-          </div>
-
-          <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4">
-            <h4 className="text-sm font-semibold text-neutral-900">Tracking webhook</h4>
-            <p className="mt-1 text-sm text-neutral-600">
-              Envia sends parcel status updates to this URL. Customers receive push notifications
-              when tracking changes.
-            </p>
-            {enviaWebhookLoading ? (
-              <p className="mt-3 text-sm text-neutral-500">Loading webhook status…</p>
-            ) : (
-              <div className="mt-3 space-y-2 text-sm">
-                <p className="break-all font-mono text-xs text-neutral-800">
-                  {enviaWebhook?.webhookUrl || "Set PUBLIC_API_URL in backend .env"}
-                </p>
-                {enviaWebhook?.listError ? (
-                  <p className="text-amber-800">{enviaWebhook.listError}</p>
-                ) : null}
-                <p className="text-neutral-600">
-                  Status:{" "}
-                  <span className="font-semibold text-neutral-900">
-                    {enviaWebhook?.isRegistered ? "Registered with Envia" : "Not registered yet"}
-                  </span>
-                </p>
-                <button
-                  type="button"
-                  onClick={handleRegisterEnviaWebhook}
-                  disabled={enviaWebhookRegistering || !enviaWebhook?.webhookConfigured}
-                  className={btnPrimary}
-                >
-                  {enviaWebhookRegistering ? "Registering…" : "Register tracking webhook"}
-                </button>
-              </div>
-            )}
-          </div>
-
-          <SectionSaveButton section="envia" />
-        </div>
       </div>
 
       {/* Meta Ads Product Catalog Feed Section */}
@@ -1268,7 +464,6 @@ function StoreSettingsSection() {
                 </div>
               </div>
 
-              {/* Feed URL inputs with copy buttons */}
               <div className="space-y-3">
                 <div>
                   <div className="flex items-center justify-between mb-1">
@@ -1354,121 +549,6 @@ function StoreSettingsSection() {
               </div>
             </div>
           )}
-        </div>
-
-        <div
-          className={`${cardClass} space-y-5 ${
-            dirtySections.appUpdate ? "ring-2 ring-amber-200" : ""
-          }`}
-        >
-          <div className={formHeaderClass}>
-            <div>
-              <h3 className="font-semibold text-neutral-900">Mobile App Update (In-App Prompt)</h3>
-              <p className="mt-1 text-sm text-neutral-500">
-                Control the in-app update popup for users running older versions of the mobile app.
-              </p>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label className={labelClass}>Latest App Version</label>
-                <input
-                  type="text"
-                  className={inputClass}
-                  placeholder="e.g. 1.0.8"
-                  value={form.appUpdateLatestVersion}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, appUpdateLatestVersion: e.target.value }))
-                  }
-                />
-                <p className="mt-1 text-xs text-neutral-400">
-                  Users on versions below this will see the update popup.
-                </p>
-              </div>
-
-              <div>
-                <label className={labelClass}>Minimum Required Version</label>
-                <input
-                  type="text"
-                  className={inputClass}
-                  placeholder="e.g. 1.0.8"
-                  value={form.appUpdateMinVersion}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, appUpdateMinVersion: e.target.value }))
-                  }
-                />
-                <p className="mt-1 text-xs text-neutral-400">
-                  Versions below this will be forced to update immediately.
-                </p>
-              </div>
-            </div>
-
-            <div className="rounded-lg border border-neutral-200 bg-neutral-50/70 p-3">
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={form.appUpdateForceUpdate}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, appUpdateForceUpdate: e.target.checked }))
-                  }
-                  className="h-4 w-4 rounded border-neutral-300 text-amber-600 focus:ring-amber-500"
-                />
-                <div>
-                  <span className="text-sm font-medium text-neutral-800">
-                    Force Update (Compulsory)
-                  </span>
-                  <p className="text-xs text-neutral-500">
-                    When enabled, users on older versions cannot dismiss the popup and must update before using the app.
-                  </p>
-                </div>
-              </label>
-            </div>
-
-            <div>
-              <label className={labelClass}>Update Popup Message</label>
-              <textarea
-                rows={2}
-                className={inputClass}
-                placeholder="A new version of VapeHub is available. Please update the app to continue."
-                value={form.appUpdateMessage}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, appUpdateMessage: e.target.value }))
-                }
-              />
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label className={labelClass}>Android Play Store / APK URL</label>
-                <input
-                  type="text"
-                  className={inputClass}
-                  placeholder="https://play.google.com/store/apps/details?id=com.bulkmobilemart.app"
-                  value={form.appUpdateAndroidStoreUrl}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, appUpdateAndroidStoreUrl: e.target.value }))
-                  }
-                />
-              </div>
-
-              <div>
-                <label className={labelClass}>iOS App Store URL (Optional)</label>
-                <input
-                  type="text"
-                  className={inputClass}
-                  placeholder="https://apps.apple.com/..."
-                  value={form.appUpdateIosStoreUrl}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, appUpdateIosStoreUrl: e.target.value }))
-                  }
-                />
-              </div>
-            </div>
-          </div>
-
-          <SectionSaveButton section="appUpdate" />
         </div>
       </div>
     </div>

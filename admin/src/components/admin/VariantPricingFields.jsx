@@ -139,7 +139,7 @@ function VariantPricingFields({
       {!isBulk ? (
         <div className="grid grid-cols-2 gap-3 sm:gap-4 [&>div]:min-w-0">
           <div>
-            <label className={labelClass}>Price (₹) *</label>
+            <label className={labelClass}>Price (£) *</label>
             <input
               type="number"
               required
@@ -151,7 +151,7 @@ function VariantPricingFields({
             />
           </div>
           <div>
-            <label className={labelClass}>Discounted price (₹) *</label>
+            <label className={labelClass}>Discounted price (£) *</label>
             <input
               type="number"
               required
@@ -206,7 +206,7 @@ function VariantPricingFields({
                     </div>
                     <div>
                       <label className="mb-0.5 block text-[10px] font-medium leading-tight text-text-secondary sm:mb-1 sm:text-xs">
-                        Price per unit (₹) *
+                        Price per unit (£) *
                       </label>
                       <input
                         type="number"

@@ -30,7 +30,7 @@ export function openRazorpayCheckout({
   const options = {
     key: keyId,
     amount,
-    currency: "INR",
+    currency: "GBP",
     name: "VapeHub",
     description,
     order_id: razorpayOrderId,

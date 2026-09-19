@@ -2,13 +2,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useCanViewProductPrice } from "../../hooks/useCanViewProductPrice";
 import { getProductListPriceInfo } from "../../utils/productPricing";
 
-const formatPrice = (amount, fractionDigits = 2) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    minimumFractionDigits: fractionDigits,
-    maximumFractionDigits: fractionDigits,
-  }).format(amount);
+import { formatPrice } from "../../utils/currency";
 
 const sizeStyles = {
   sm: {

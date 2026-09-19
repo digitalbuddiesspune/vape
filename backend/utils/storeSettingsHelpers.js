@@ -3,7 +3,7 @@ import { mergeEnviaOriginDefaults } from "../../shared/shipping/enviaOriginAddre
 import { normalizeGiftHamperTiers } from "../../shared/store/giftHamper.js";
 
 export const DEFAULT_STORE_SETTINGS = {
-  minimumOrderValue: 3000,
+  minimumOrderValue: 0,
   minimumShippingCharge: 280,
   shippingSlabs: [
     { orderAmount: 3000, shippingCharge: 280 },
@@ -18,9 +18,9 @@ export const DEFAULT_STORE_SETTINGS = {
   merchantUpiAccounts: [],
   cartNoticeEn: [
     "Please Verify Your Address Before Placing Your Order.",
-    "Minimum order value ₹{{minOrder}}",
+    "Minimum order value £{{minOrder}}",
     "Parcel opening video is must for return.",
-    "Shipping depends on parcel weight minimum Rs {{minShipping}}.",
+    "Shipping depends on parcel weight minimum £{{minShipping}}.",
     "User have to pay shipping charges in advance.",
   ],
   cartNoticeHi: [
@@ -145,7 +145,7 @@ export function normalizeMerchantUpiAccounts(source = {}) {
 export function serializeStoreSettings(doc, { admin = false } = {}) {
   const source = doc?.toObject ? doc.toObject() : doc || {};
   const minimumOrderValue =
-    Number(source.minimumOrderValue) || DEFAULT_STORE_SETTINGS.minimumOrderValue;
+    Number(source.minimumOrderValue ?? DEFAULT_STORE_SETTINGS.minimumOrderValue);
   const minimumShippingCharge =
     Number(source.minimumShippingCharge) ||
     DEFAULT_STORE_SETTINGS.minimumShippingCharge;
@@ -254,12 +254,8 @@ export function calculateShippingCharge(subtotal, settings) {
   return charge;
 }
 
-export function meetsMinimumOrder(subtotal, settings) {
-  const amount = Number(subtotal) || 0;
-  const minimum =
-    Number(settings?.minimumOrderValue) ||
-    DEFAULT_STORE_SETTINGS.minimumOrderValue;
-  return amount >= minimum;
+export function meetsMinimumOrder() {
+  return true;
 }
 
 export async function getStoreSettings({ forceRefresh = false } = {}) {

@@ -22,7 +22,7 @@ export const trackViewContent = ({
     content_name: productName,
     content_type: "product",
     value: Number(price || 0),
-    currency: "INR",
+    currency: "GBP",
   });
 };
 
@@ -39,7 +39,7 @@ export const trackAddToCart = ({
     content_name: productName,
     content_type: "product",
     value: Number(price || 0) * Number(quantity || 1),
-    currency: "INR",
+    currency: "GBP",
     contents: [
       {
         id: String(productId),
@@ -62,7 +62,7 @@ export const trackInitiateCheckout = ({
     ),
     content_type: "product",
     value: Number(totalAmount || 0),
-    currency: "INR",
+    currency: "GBP",
     contents: items.map((item) => ({
       id: String(item.productId || item._id || item.id),
       quantity: Number(item.quantity || 1),
@@ -84,7 +84,7 @@ export const trackPurchase = ({
     ),
     content_type: "product",
     value: Number(totalAmount || 0),
-    currency: "INR",
+    currency: "GBP",
     contents: items.map((item) => ({
       id: String(item.productId || item._id || item.id),
       quantity: Number(item.quantity || 1),

@@ -57,12 +57,12 @@ function convertIndianNumber(num) {
 
 export function amountInWords(amount) {
   const value = Math.round((Number(amount) || 0) * 100) / 100;
-  const rupees = Math.floor(value);
-  const paise = Math.round((value - rupees) * 100);
+  const pounds = Math.floor(value);
+  const pence = Math.round((value - pounds) * 100);
 
-  let words = `${convertIndianNumber(rupees)} Rupees`;
-  if (paise > 0) {
-    words += ` and ${convertIndianNumber(paise)} Paise`;
+  let words = `${convertIndianNumber(pounds)} Pounds`;
+  if (pence > 0) {
+    words += ` and ${convertIndianNumber(pence)} Pence`;
   }
   return `${words} Only`;
 }

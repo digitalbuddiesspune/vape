@@ -116,12 +116,7 @@ export function getOrderMessage(order) {
   return (order?.message || order?.customerNote || order?.customerMessage || "").trim();
 }
 
-export const formatPrice = (amount) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(amount);
+export { formatPrice } from "../../../utils/currency.js";
 
 export const formatDate = (dateStr) =>
   new Date(dateStr).toLocaleDateString("en-IN", {

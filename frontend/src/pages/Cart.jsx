@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import ProductImageFrame from "../components/product/ProductImageFrame";
-import ImportantMessageCards from "../components/cart/ImportantMessageCards";
 import { getStoreSettings } from "../api/api";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
@@ -10,21 +9,10 @@ import {
   getCartStepForItem,
   getDecreasedCartQuantityForItem,
 } from "../utils/cartDefaults";
-import {
-  calculateShippingCharge,
-  getMinimumOrderShortfall,
-  meetsMinimumOrder,
-  mergeStoreSettings,
-} from "../utils/orderSettings";
+import { calculateShippingCharge } from "../utils/orderSettings";
 import { calculateOrderTotal } from "../utils/gst";
 
-const formatPrice = (amount, fractionDigits = 2) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    minimumFractionDigits: fractionDigits,
-    maximumFractionDigits: fractionDigits,
-  }).format(amount);
+import { formatPrice } from "../utils/currency";
 
 function QuantityControl({ quantity, onDecrease, onIncrease, disabled, compact = false }) {
   const btnClass = compact
@@ -240,9 +228,7 @@ function OrderSummary({ items, storeSettings }) {
   const shipping = calculateShippingCharge(subtotal, storeSettings);
   const { total } = calculateOrderTotal(subtotal, shipping);
   const hasItems = items.length > 0;
-  const canCheckout = hasItems && meetsMinimumOrder(subtotal, storeSettings);
-  const shortfall = getMinimumOrderShortfall(subtotal, storeSettings);
-  const minimumOrderValue = mergeStoreSettings(storeSettings).minimumOrderValue;
+  const canCheckout = hasItems;
 
   return (
     <div className="rounded-xl border border-border-light bg-white p-4 shadow-sm sm:p-5">
@@ -257,12 +243,6 @@ function OrderSummary({ items, storeSettings }) {
           <span>Shipping Charges</span>
           <span className="font-medium text-text-primary">{formatPrice(shipping)}</span>
         </div>
-        {!canCheckout && hasItems ? (
-          <p className="rounded-lg bg-amber-50 px-3 py-2 text-[11px] font-medium text-amber-800 sm:text-xs">
-            Add {formatPrice(shortfall, 0)} more to reach the minimum order of{" "}
-            {formatPrice(minimumOrderValue, 0)}.
-          </p>
-        ) : null}
       </div>
 
       <hr className="my-4 border-border-light" />
@@ -327,7 +307,6 @@ function OrderSummary({ items, storeSettings }) {
 function CartSidebar({ items, storeSettings }) {
   return (
     <div className="space-y-4 lg:sticky lg:top-24">
-      <ImportantMessageCards settings={storeSettings} />
       <OrderSummary items={items} storeSettings={storeSettings} />
     </div>
   );

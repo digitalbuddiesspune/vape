@@ -8,10 +8,9 @@ import {
   addAddress,
   getStoreSettings,
   createCheckoutAttempt,
+  placeOrder,
   validateCoupon,
-  submitUpiPaymentProof,
 } from "../api/api";
-import PaymentModal from "../components/checkout/PaymentModal";
 import AddressForm, { ADDRESS_FORM_FIELDS } from "../components/address/AddressForm";
 import {
   clearBuyNowCheckout,
@@ -21,30 +20,15 @@ import {
   formatAddressLine,
   getAddressFullName,
 } from "../utils/addressDisplay";
-import {
-  calculateShippingCharge,
-  getMinimumOrderShortfall,
-  meetsMinimumOrder,
-  mergeStoreSettings,
-} from "../utils/orderSettings";
+import { calculateShippingCharge } from "../utils/orderSettings";
 import { calculateOrderTotal } from "../utils/gst";
-import {
-  calculateAdvanceAmount,
-  calculatePayableAmount,
-  getCheckoutPaymentMethod,
-  PAYMENT_PLAN,
-} from "../utils/payment";
 import { trackInitiateCheckout, trackPurchase } from "../meta";
+import { formatPrice as formatCurrency } from "../utils/currency";
 
 const MAX_ORDER_NOTE_LENGTH = 200;
 
 const formatPrice = (amount, fractionDigits = 0) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    minimumFractionDigits: fractionDigits,
-    maximumFractionDigits: fractionDigits,
-  }).format(amount);
+  formatCurrency(amount, fractionDigits);
 
 const safeTrim = (value) => String(value ?? "").trim();
 
@@ -154,8 +138,6 @@ function Checkout() {
   const [showAddressPicker, setShowAddressPicker] = useState(false);
   const hasTrackedCheckoutRef = useRef(false);
   const [savingAddress, setSavingAddress] = useState(false);
-  const [paymentPlan, setPaymentPlan] = useState(PAYMENT_PLAN.ADVANCE);
-  const paymentMethod = getCheckoutPaymentMethod(paymentPlan);
   const [formError, setFormError] = useState("");
   const [placingOrder, setPlacingOrder] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -163,8 +145,6 @@ function Checkout() {
   const [orderError, setOrderError] = useState("");
   const [bootstrapping, setBootstrapping] = useState(true);
   const [orderSuccessNote, setOrderSuccessNote] = useState("");
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [paymentModalError, setPaymentModalError] = useState("");
   const [message, setMessage] = useState("");
   const [storeSettings, setStoreSettings] = useState(null);
   const [attemptedOrderId, setAttemptedOrderId] = useState(null);
@@ -184,8 +164,7 @@ function Checkout() {
     () =>
       JSON.stringify({
         addressId: selectedAddressId,
-        paymentMethod,
-        paymentPlan,
+        paymentMethod: "cod",
         items: checkoutItems.map((item) => ({
           productId: item.productId || item._id,
           quantity: item.quantity,
@@ -194,7 +173,7 @@ function Checkout() {
         })),
         couponCode: appliedCoupon?.code || "",
       }),
-    [selectedAddressId, paymentMethod, paymentPlan, checkoutItems, appliedCoupon]
+    [selectedAddressId, checkoutItems, appliedCoupon]
   );
 
   useEffect(() => {
@@ -217,11 +196,6 @@ function Checkout() {
   const discountedSubtotal = Math.max(0, subtotal - couponDiscount);
   const deliveryCharges = calculateShippingCharge(subtotal, storeSettings);
   const { total: orderTotal } = calculateOrderTotal(discountedSubtotal, deliveryCharges);
-  const payableNow = calculatePayableAmount(orderTotal, paymentPlan);
-  const balanceOnDelivery = Math.max(0, Math.round((orderTotal - payableNow) * 100) / 100);
-  const minimumOrderMet = meetsMinimumOrder(subtotal, storeSettings);
-  const minimumOrderShortfall = getMinimumOrderShortfall(subtotal, storeSettings);
-  const minimumOrderValue = mergeStoreSettings(storeSettings).minimumOrderValue;
   const savings = checkoutItems.reduce((sum, item) => {
     const original = item.price ?? item.discountedPrice;
     const diff = Math.max(0, original - item.discountedPrice);
@@ -355,7 +329,7 @@ function Checkout() {
     try {
       const { data } = await createCheckoutAttempt({
         addressId: selectedAddressId || undefined,
-        paymentMethod,
+        paymentMethod: "cod",
         checkoutItems: checkoutItemsPayload,
         checkoutMode: isBuyNow ? "buyNow" : "cart",
         buyNow: isBuyNow,
@@ -385,7 +359,6 @@ function Checkout() {
     orderPlaced,
     checkoutItems.length,
     selectedAddressId,
-    paymentMethod,
     checkoutItemsPayload,
     isBuyNow,
     handleUnavailableCartItems,
@@ -489,47 +462,9 @@ function Checkout() {
     setShowSuccessModal(true);
   };
 
-  const handleSubmitUpiProof = async ({ screenshot, screenshotName, upiTransactionRef }) => {
-    setPlacingOrder(true);
-    setPaymentModalError("");
-    try {
-      const { data } = await submitUpiPaymentProof({
-        addressId: selectedAddressId,
-        paymentMode: paymentPlan,
-        customerMessage: safeTrim(messageRef.current),
-        checkoutItems: checkoutItemsPayload,
-        checkoutMode: isBuyNow ? "buyNow" : "cart",
-        buyNow: isBuyNow,
-        couponCode: appliedCouponRef.current?.code || undefined,
-        orderSource: "website",
-        attemptedOrderId: getCheckoutAttemptedOrderId() || undefined,
-        screenshot,
-        screenshotName,
-        upiTransactionRef,
-      });
-      setShowPaymentModal(false);
-      const note =
-        paymentPlan === PAYMENT_PLAN.ADVANCE
-          ? "Order confirmed. We will verify your 10% advance payment shortly. Pay the balance on delivery."
-          : "Order confirmed. We will verify your UPI payment shortly.";
-      await completeOrderSuccess(note, data.data?.order);
-    } catch (err) {
-      if (await handleUnavailableCartItems(err)) {
-        setShowPaymentModal(false);
-      } else {
-        setPaymentModalError(
-          err.response?.data?.message || "Failed to submit payment proof. Please try again."
-        );
-      }
-    } finally {
-      setPlacingOrder(false);
-    }
-  };
-
   const handlePlaceOrder = async () => {
-    if (!selectedAddressId || placingOrder || !minimumOrderMet) return;
+    if (!selectedAddressId || placingOrder) return;
     setOrderError("");
-    setPaymentModalError("");
     setPlacingOrder(true);
     await loadCart();
     try {
@@ -538,12 +473,25 @@ function Checkout() {
         setPlacingOrder(false);
         return;
       }
-      setPlacingOrder(false);
-      setShowPaymentModal(true);
+      const { data } = await placeOrder({
+        addressId: selectedAddressId,
+        paymentMethod: "cod",
+        customerMessage: safeTrim(messageRef.current),
+        checkoutMode: isBuyNow ? "buyNow" : "cart",
+        buyNow: isBuyNow,
+        couponCode: appliedCouponRef.current?.code || undefined,
+        orderSource: "website",
+        attemptedOrderId: getCheckoutAttemptedOrderId() || undefined,
+      });
+      await completeOrderSuccess(
+        "Your order has been placed. Pay on delivery.",
+        data.data
+      );
     } catch (err) {
       if (!(await handleUnavailableCartItems(err))) {
-        setOrderError(err.response?.data?.message || "Failed to prepare checkout. Please try again.");
+        setOrderError(err.response?.data?.message || "Failed to place order. Please try again.");
       }
+    } finally {
       setPlacingOrder(false);
     }
   };
@@ -761,62 +709,6 @@ function Checkout() {
           ) : (
             <div className="grid items-start gap-3 sm:gap-6 lg:grid-cols-[1fr_380px] lg:gap-8">
               <div className="space-y-3 sm:space-y-4">
-                <StepSection title="UPI Payment (COD Advance & QR)">
-                  <div className="space-y-3">
-                    <label
-                      className={`flex cursor-pointer items-start gap-2.5 rounded-lg border p-3 transition sm:gap-4 sm:rounded-xl sm:p-4 ${
-                        paymentPlan === PAYMENT_PLAN.ADVANCE
-                          ? "border-primary bg-primary/5"
-                          : "border-border-light hover:border-primary/40"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="paymentPlan"
-                        value={PAYMENT_PLAN.ADVANCE}
-                        checked={paymentPlan === PAYMENT_PLAN.ADVANCE}
-                        onChange={() => setPaymentPlan(PAYMENT_PLAN.ADVANCE)}
-                        className="mt-0.5 h-4 w-4 shrink-0 accent-primary"
-                      />
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold text-text-primary sm:text-base">
-                          Pay 10% now · balance on delivery
-                        </p>
-                        <p className="mt-0.5 text-xs text-text-secondary sm:text-sm">
-                          Pay {formatPrice(calculateAdvanceAmount(orderTotal), 2)} now via UPI ·{" "}
-                          {formatPrice(Math.max(0, orderTotal - calculateAdvanceAmount(orderTotal)), 2)}{" "}
-                          on delivery
-                        </p>
-                      </div>
-                    </label>
-
-                    <label
-                      className={`flex cursor-pointer items-start gap-2.5 rounded-lg border p-3 transition sm:gap-4 sm:rounded-xl sm:p-4 ${
-                        paymentPlan === PAYMENT_PLAN.FULL
-                          ? "border-primary bg-primary/5"
-                          : "border-border-light hover:border-primary/40"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="paymentPlan"
-                        value={PAYMENT_PLAN.FULL}
-                        checked={paymentPlan === PAYMENT_PLAN.FULL}
-                        onChange={() => setPaymentPlan(PAYMENT_PLAN.FULL)}
-                        className="mt-0.5 h-4 w-4 shrink-0 accent-primary"
-                      />
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold text-text-primary sm:text-base">
-                          Pay 100% now
-                        </p>
-                        <p className="mt-0.5 text-xs text-text-secondary sm:text-sm">
-                          Complete payment of {formatPrice(orderTotal, 2)} via UPI QR
-                        </p>
-                      </div>
-                    </label>
-                  </div>
-                </StepSection>
-
                 <StepSection title="Delivery Details">
                   {addressesLoading ? (
                     <div className="h-24 animate-pulse rounded-lg bg-mobile-surface" />
@@ -988,23 +880,9 @@ function Checkout() {
                     </span>
                   </div>
                   <div className="flex justify-between text-text-secondary">
-                    <span>Pay now (UPI)</span>
-                    <span className="font-medium text-text-primary">{formatPrice(payableNow, 2)}</span>
+                    <span>Payment</span>
+                    <span className="font-medium text-text-primary">Cash on Delivery</span>
                   </div>
-                  {paymentPlan === PAYMENT_PLAN.ADVANCE ? (
-                    <div className="flex justify-between text-text-secondary">
-                      <span>Balance on delivery</span>
-                      <span className="font-medium text-text-primary">
-                        {formatPrice(balanceOnDelivery, 2)}
-                      </span>
-                    </div>
-                  ) : null}
-                  {!minimumOrderMet ? (
-                    <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800">
-                      Add {formatPrice(minimumOrderShortfall)} more to reach the minimum order of{" "}
-                      {formatPrice(minimumOrderValue)}.
-                    </p>
-                  ) : null}
                 </div>
 
                 <div className="mt-3 flex items-center justify-between border-t border-border-light pt-3 sm:mt-4 sm:pt-4">
@@ -1029,7 +907,7 @@ function Checkout() {
 
                 <button
                   type="button"
-                  disabled={!selectedAddressId || placingOrder || !minimumOrderMet}
+                  disabled={!selectedAddressId || placingOrder}
                   onClick={handlePlaceOrder}
                   className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-bold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50 sm:mt-5 sm:px-6 sm:py-3.5"
                 >
@@ -1040,11 +918,7 @@ function Checkout() {
                       d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0V10.5M4.5 10.5h15v8.25a1.5 1.5 0 01-1.5 1.5h-12a1.5 1.5 0 01-1.5-1.5V10.5z"
                     />
                   </svg>
-                  {placingOrder
-                    ? "Please wait..."
-                    : paymentPlan === PAYMENT_PLAN.ADVANCE
-                      ? `Pay ${formatPrice(payableNow, 2)} with UPI`
-                      : `Pay ${formatPrice(orderTotal, 2)} with UPI`}
+                  {placingOrder ? "Please wait..." : "Place Order"}
                 </button>
 
               </div>
@@ -1052,21 +926,6 @@ function Checkout() {
           )}
         </div>
       </section>
-
-      <PaymentModal
-        open={showPaymentModal}
-        onClose={() => {
-          if (!placingOrder) setShowPaymentModal(false);
-        }}
-        paymentMethod={paymentMethod}
-        orderTotal={orderTotal}
-        merchantUpiId={storeSettings?.merchantUpiId || ""}
-        merchantUpiName={storeSettings?.merchantUpiName || ""}
-        merchantUpiAccounts={storeSettings?.merchantUpiAccounts || []}
-        onSubmitUpiProof={handleSubmitUpiProof}
-        processing={placingOrder}
-        error={paymentModalError}
-      />
     </div>
   );
 }

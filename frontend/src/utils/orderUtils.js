@@ -1,3 +1,4 @@
+import { formatSitePrice } from "./currency.js";
 import { getOrderNumber } from "./orderNumber";
 
 export const ORDER_STATUS_LABELS = {
@@ -37,12 +38,11 @@ export const PAYMENT_LABELS = {
 export const MINI_TRACKER_LABELS = ["Placed", "Packed", "Shipped", "Delivered"];
 
 export function formatOrderPrice(amount, { withDecimals = true } = {}) {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    minimumFractionDigits: withDecimals ? 2 : 0,
-    maximumFractionDigits: withDecimals ? 2 : 0,
-  }).format(amount);
+  const fractionDigits = withDecimals ? 2 : 0;
+  return formatSitePrice(amount, {
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits,
+  });
 }
 
 export function formatOrderDate(dateStr) {

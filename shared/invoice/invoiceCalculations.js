@@ -1,7 +1,7 @@
 import { INDIAN_STATE_CODES, INVOICE_CONFIG } from "./invoiceConfig.js";
 
 export function formatInvoiceAmount(amount) {
-  return Number(amount || 0).toLocaleString("en-IN", {
+  return Number(amount || 0).toLocaleString("en-GB", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });

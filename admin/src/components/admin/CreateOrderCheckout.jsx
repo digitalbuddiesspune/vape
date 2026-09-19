@@ -2,11 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { createAdminOrder, getAllProducts, getStoreSettings } from "../../api/api";
 import ProductSearchCard, { getDefaultDraft } from "./ProductSearchCard";
-import {
-  calculateShippingCharge,
-  getMinimumOrderShortfall,
-  meetsMinimumOrder,
-} from "../../utils/orderSettings";
+import { calculateShippingCharge } from "../../utils/orderSettings";
 import { calculateOrderTotal, GST_INCLUDED_NOTE } from "../../utils/gst";
 import {
   calculateAdvanceAmount,
@@ -95,9 +91,6 @@ function CreateOrderCheckout({ userId, addressId, onSuccess, onError }) {
     () => calculateOrderTotal(subtotal, deliveryCharges),
     [subtotal, deliveryCharges]
   );
-  const minimumMet = meetsMinimumOrder(subtotal, storeSettings);
-  const minimumShortfall = getMinimumOrderShortfall(subtotal, storeSettings);
-
   const addToLineItems = useCallback((product, draft) => {
     const { variantName = "", colorName = "", quantity } = draft;
     const key = buildLineItemKey(product._id, variantName, colorName);
@@ -207,11 +200,6 @@ function CreateOrderCheckout({ userId, addressId, onSuccess, onError }) {
       onError?.("Add at least one product");
       return;
     }
-    if (!minimumMet) {
-      onError?.(`Minimum order value is ${formatPrice(minimumShortfall + subtotal)}. Add more items.`);
-      return;
-    }
-
     try {
       setPlacingOrder(true);
       onError?.("");
@@ -511,12 +499,6 @@ function CreateOrderCheckout({ userId, addressId, onSuccess, onError }) {
             </div>
           </dl>
 
-          {!minimumMet ? (
-            <p className="mt-3 text-sm text-amber-700">
-              Add {formatPrice(minimumShortfall)} more to meet the minimum order value.
-            </p>
-          ) : null}
-
           <div className="mt-4 grid grid-cols-2 gap-2 sm:gap-3">
             <div className="col-span-2 min-w-0 sm:col-span-1">
               <label className={labelClass}>Payment status</label>
@@ -546,7 +528,7 @@ function CreateOrderCheckout({ userId, addressId, onSuccess, onError }) {
             <button
               type="button"
               onClick={handlePlaceOrder}
-              disabled={placingOrder || !minimumMet}
+              disabled={placingOrder}
               className={`${btnPrimary} w-full sm:w-auto`}
             >
               {placingOrder ? "Creating Order..." : "Create Order"}

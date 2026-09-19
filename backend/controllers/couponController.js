@@ -179,7 +179,7 @@ export async function resolveCouponForCheckout(code, subtotal, options = {}) {
   const safeSubtotal = Math.max(0, Number(subtotal) || 0);
   if (safeSubtotal < Number(coupon.minOrderAmount || 0)) {
     return {
-      error: `Minimum order amount is ₹${coupon.minOrderAmount}`,
+      error: `Minimum order amount is £${coupon.minOrderAmount}`,
     };
   }
 
@@ -470,7 +470,7 @@ export const validateCoupon = async (req, res) => {
     if (subtotal < Number(coupon.minOrderAmount || 0)) {
       return res.status(400).json({
         success: false,
-        message: `Minimum order amount is ₹${coupon.minOrderAmount}`,
+        message: `Minimum order amount is £${coupon.minOrderAmount}`,
       });
     }
 

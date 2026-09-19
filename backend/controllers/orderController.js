@@ -25,16 +25,7 @@ import {
 import {
   notifyOrderCreated,
   notifyOrderStatusChange,
-  notifyShipmentLabelCreated,
 } from "../services/orderNotificationDispatcher.js";
-import {
-  cancelEnviaShipment,
-  createEnviaShipment,
-  isRecoverableEnviaCancelError,
-  parseShipmentOverrides,
-  quoteEnviaShipmentRates,
-  trackEnviaShipment,
-} from "../services/enviaShippingService.js";
 import { GIFT_HAMPER_STATUSES } from "../../shared/store/giftHamper.js";
 import {
   formatIndiaDateString,
@@ -62,7 +53,6 @@ const RECENT_ORDERS_STATUSES = [
   "return",
 ];
 const LEGACY_CONFIRM_STATUSES = ["pending", "confirmed"];
-const AUTO_TRACK_SYNC_MS = 20 * 60 * 1000;
 const ORDER_ADDRESS_REQUIRED_FIELDS = [
   "fullName",
   "number",
@@ -224,7 +214,7 @@ function normalizeOrderDeliveryAddressInput(payload = {}) {
 
 function applyShipmentOnOrder(order, shipment, metadata = {}) {
   order.shipment = mergeOrderShipment(order, {
-    provider: shipment.provider || "envia",
+    provider: shipment.provider || "manual",
     carrier: shipment.carrier || "",
     service: shipment.service || "",
     shipmentId: shipment.shipmentId || "",
@@ -245,7 +235,7 @@ async function applyTrackingToOrder(order, tracking = {}, { notify = false } = {
   const previousStatus = order.status;
 
   order.shipment = mergeOrderShipment(order, {
-    provider: "envia",
+    provider: "manual",
     status: tracking.status || order.shipment?.status || "",
     statusMessage: tracking.statusMessage || order.shipment?.statusMessage || "",
     trackingNumber: tracking.trackingNumber || order.shipment?.trackingNumber || "",
@@ -297,21 +287,7 @@ async function autoSyncShipmentForOrder(order) {
     void notifyOrderStatusChange(order, previousStatus);
   }
 
-  const lastSync = order.shipment?.syncedAt ? new Date(order.shipment.syncedAt).getTime() : 0;
-  const isFresh = Date.now() - lastSync < AUTO_TRACK_SYNC_MS;
-  if (isFresh) {
-    return order;
-  }
-
-  try {
-    const tracking = await trackEnviaShipment(order.shipment.trackingNumber);
-    return applyTrackingToOrder(order, tracking, { notify: true });
-  } catch (error) {
-    console.warn(
-      `Auto tracking sync skipped for order ${order._id}: ${error.message}`
-    );
-    return order;
-  }
+  return order;
 }
 
 function buildDayOrderStats(orders) {
@@ -1373,128 +1349,6 @@ export const updateOrder = async (req, res) => {
   }
 };
 
-export const quoteOrderShipmentRates = async (req, res) => {
-  try {
-    const order = await Order.findById(req.params.id);
-    if (!order) {
-      return res.status(404).json({ success: false, message: "Order not found" });
-    }
-
-    if (order.status === "cancelled") {
-      return res.status(400).json({
-        success: false,
-        message: "Cannot quote shipment for a cancelled order",
-      });
-    }
-
-    const overrides = parseShipmentOverrides(req.body || {}, order);
-    const { quotes, errors, carriers } = await quoteEnviaShipmentRates(order, overrides);
-
-    res.status(200).json({
-      success: true,
-      data: {
-        quotes,
-        errors,
-        carriers,
-        paymentType: {
-          isCod: overrides.isCod,
-          codAmount: overrides.isCod ? overrides.codAmount : null,
-        },
-        package: {
-          weight: overrides.weight,
-          length: overrides.length,
-          width: overrides.width,
-          height: overrides.height,
-          content: overrides.content,
-        },
-      },
-    });
-  } catch (error) {
-    res.status(400).json({
-      success: false,
-      message: error.message || "Failed to fetch shipment rates",
-    });
-  }
-};
-
-export const createOrderShipment = async (req, res) => {
-  try {
-    const order = await Order.findById(req.params.id);
-    if (!order) {
-      return res.status(404).json({ success: false, message: "Order not found" });
-    }
-
-    if (order.status === "cancelled") {
-      return res.status(400).json({
-        success: false,
-        message: "Cannot create shipment for a cancelled order",
-      });
-    }
-
-    if (order.shipment?.trackingNumber) {
-      return res.status(400).json({
-        success: false,
-        message: "Shipment already created for this order",
-      });
-    }
-
-    const overrides = parseShipmentOverrides(req.body || {}, order);
-    if (!overrides.carrier || !overrides.service) {
-      return res.status(400).json({
-        success: false,
-        message: "Select a carrier and service from rate quotes before creating the label",
-      });
-    }
-
-    const shipment = await createEnviaShipment(order, overrides);
-    const previousStatus = order.status;
-
-    order.shipment = mergeOrderShipment(order, {
-      provider: shipment.provider,
-      carrier: shipment.carrier,
-      service: shipment.service,
-      shipmentId: shipment.shipmentId,
-      trackingNumber: shipment.trackingNumber,
-      trackUrl: shipment.trackUrl,
-      labelUrl: shipment.labelUrl,
-      status: shipment.status,
-      statusMessage: shipment.statusMessage,
-      syncedAt: shipment.syncedAt,
-      events: shipment.events,
-      note: overrides.shipmentNote || "",
-      evidenceUrl: overrides.evidenceUrl || "",
-      evidenceName: overrides.evidenceName || "",
-    });
-    order.markModified("shipment");
-
-    if (order.status === "confirm" || order.status === "processing") {
-      order.status = "shipping";
-    }
-
-    await order.save();
-    const populated = await populateOrderItems(
-      Order.findById(order._id).populate("user", "name email phone")
-    );
-
-    if (previousStatus !== populated.status) {
-      void notifyOrderStatusChange(populated, previousStatus);
-    } else {
-      void notifyShipmentLabelCreated(populated);
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Shipment created successfully",
-      data: enrichOrderForResponse(populated),
-    });
-  } catch (error) {
-    res.status(400).json({
-      success: false,
-      message: error.response?.data?.message || error.message || "Failed to create shipment",
-    });
-  }
-};
-
 export const linkOrderShipmentTracking = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
@@ -1512,34 +1366,28 @@ export const linkOrderShipmentTracking = async (req, res) => {
 
     const previousStatus = order.status;
 
+    const shipmentNote = String(req.body?.shipmentNote || "").trim();
+    const evidenceUrl = String(req.body?.evidenceUrl || "").trim();
+    const evidenceName = String(req.body?.evidenceName || "").trim();
+
     order.shipment = mergeOrderShipment(order, {
-      provider: "envia",
+      provider: "manual",
       carrier: String(req.body?.carrier || order.shipment?.carrier || "").trim(),
       service: String(req.body?.service || order.shipment?.service || "").trim(),
       trackingNumber,
       trackUrl: String(req.body?.trackUrl || order.shipment?.trackUrl || "").trim(),
-      labelUrl: String(req.body?.labelUrl || order.shipment?.labelUrl || "").trim(),
-      status: String(req.body?.status || order.shipment?.status || "created").trim(),
+      labelUrl: "",
+      status: String(req.body?.status || order.shipment?.status || "linked").trim(),
       statusMessage:
         String(req.body?.statusMessage || order.shipment?.statusMessage || "").trim() ||
-        "Linked from Envia portal",
+        "Tracking linked manually",
       syncedAt: new Date(),
       events: order.shipment?.events || [],
+      note: shipmentNote,
+      evidenceUrl,
+      evidenceName,
     });
-
-    try {
-      const tracking = await trackEnviaShipment(trackingNumber);
-      order.shipment.status = tracking.status || order.shipment.status;
-      order.shipment.statusMessage =
-        tracking.statusMessage || order.shipment.statusMessage;
-      order.shipment.trackUrl = tracking.trackUrl || order.shipment.trackUrl;
-      order.shipment.events = tracking.events?.length
-        ? tracking.events
-        : order.shipment.events;
-      order.shipment.syncedAt = tracking.syncedAt || order.shipment.syncedAt;
-    } catch {
-      // Tracking lookup is optional; webhooks will update status later.
-    }
+    order.markModified("shipment");
 
     const nextStatus = mapShipmentTrackingToOrderStatus({
       status: order.shipment.status,
@@ -1577,41 +1425,7 @@ export const linkOrderShipmentTracking = async (req, res) => {
   }
 };
 
-export const syncOrderShipmentTracking = async (req, res) => {
-  try {
-    const order = await Order.findById(req.params.id);
-    if (!order) {
-      return res.status(404).json({ success: false, message: "Order not found" });
-    }
-
-    const trackingNumber = order.shipment?.trackingNumber;
-    if (!trackingNumber) {
-      return res.status(400).json({
-        success: false,
-        message: "No tracking number found for this order",
-      });
-    }
-
-    const tracking = await trackEnviaShipment(trackingNumber);
-    await applyTrackingToOrder(order, tracking, { notify: true });
-    const populated = await populateOrderItems(
-      Order.findById(order._id).populate("user", "name email phone")
-    );
-
-    res.status(200).json({
-      success: true,
-      message: "Tracking synced successfully",
-      data: enrichOrderForResponse(populated),
-    });
-  } catch (error) {
-    res.status(400).json({
-      success: false,
-      message: error.response?.data?.message || error.message || "Failed to sync tracking",
-    });
-  }
-};
-
-export const cancelOrderShipment = async (req, res) => {
+export const clearOrderShipment = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
     if (!order) {
@@ -1622,52 +1436,15 @@ export const cancelOrderShipment = async (req, res) => {
     if (!trackingNumber) {
       return res.status(400).json({
         success: false,
-        message: "No shipment label found on this order",
+        message: "No shipment tracking found on this order",
       });
     }
 
     if (order.status === "delivered") {
       return res.status(400).json({
         success: false,
-        message: "Cannot cancel shipment for a delivered order",
+        message: "Cannot clear shipment for a delivered order",
       });
-    }
-
-    const clearOnly = Boolean(req.body?.clearOnly);
-    const forceClear = Boolean(req.body?.forceClear);
-    const carrier = String(order.shipment?.carrier || "").trim();
-    let enviaCancelled = false;
-    let enviaWarning = "";
-
-    if (!clearOnly) {
-      if (!carrier) {
-        return res.status(400).json({
-          success: false,
-          message:
-            "Carrier is missing on this shipment. Clear the shipment locally, then create a new label.",
-          canForceClear: true,
-        });
-      }
-
-      try {
-        await cancelEnviaShipment({
-          carrier,
-          trackingNumber,
-          folio: order.shipment?.shipmentId || order.orderNumber || "",
-        });
-        enviaCancelled = true;
-      } catch (error) {
-        const message = error.message || "Failed to cancel Envia label";
-        if (isRecoverableEnviaCancelError(message) || forceClear) {
-          enviaWarning = message;
-        } else {
-          return res.status(400).json({
-            success: false,
-            message,
-            canForceClear: true,
-          });
-        }
-      }
     }
 
     const previousStatus = order.status;
@@ -1688,26 +1465,15 @@ export const cancelOrderShipment = async (req, res) => {
       void notifyOrderStatusChange(populated, previousStatus);
     }
 
-    let message = "Shipment cleared. You can create a new label.";
-    if (enviaCancelled) {
-      message = "Envia label cancelled. You can create a new shipment label.";
-    } else if (clearOnly) {
-      message = "Shipment cleared from this order. Create a new label when ready.";
-    } else if (enviaWarning) {
-      message = `Shipment cleared from this order. Envia note: ${enviaWarning}`;
-    }
-
     res.status(200).json({
       success: true,
-      message,
+      message: "Shipment tracking cleared from this order.",
       data: enrichOrderForResponse(populated),
-      enviaCancelled,
-      ...(enviaWarning ? { enviaWarning } : {}),
     });
   } catch (error) {
     res.status(400).json({
       success: false,
-      message: error.message || "Failed to cancel shipment",
+      message: error.message || "Failed to clear shipment",
     });
   }
 };

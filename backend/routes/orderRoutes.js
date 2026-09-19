@@ -9,11 +9,8 @@ import {
   getAllOrders,
   getEligibleOrderCoupons,
   updateOrder,
-  createOrderShipment,
-  quoteOrderShipmentRates,
   linkOrderShipmentTracking,
-  syncOrderShipmentTracking,
-  cancelOrderShipment,
+  clearOrderShipment,
   cancelOrder,
   getDashboardStats,
   getOrderUnreadCount,
@@ -35,11 +32,8 @@ router.get("/admin/:id/eligible-coupons", requireAdmin, getEligibleOrderCoupons)
 router.post("/admin/create", requireAdmin, adminPlaceOrder);
 router.patch("/admin/:id", requireAdmin, updateOrder);
 router.delete("/admin/:id", requireAdmin, deleteOrder);
-router.post("/admin/:id/shipment/envia/rates", requireAdmin, quoteOrderShipmentRates);
-router.post("/admin/:id/shipment/envia", requireAdmin, createOrderShipment);
-router.post("/admin/:id/shipment/envia/link", requireAdmin, linkOrderShipmentTracking);
-router.post("/admin/:id/shipment/envia/sync", requireAdmin, syncOrderShipmentTracking);
-router.post("/admin/:id/shipment/envia/cancel", requireAdmin, cancelOrderShipment);
+router.post("/admin/:id/shipment/link", requireAdmin, linkOrderShipmentTracking);
+router.post("/admin/:id/shipment/clear", requireAdmin, clearOrderShipment);
 router.post("/checkout-attempt", createCheckoutAttempt);
 router.post("/", placeOrder);
 router.get("/", getMyOrders);

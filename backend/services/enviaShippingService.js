@@ -539,7 +539,7 @@ async function buildShipmentPayload(order, config, overrides = {}) {
     destination,
     packages,
     settings: {
-      currency: "INR",
+      currency: "GBP",
       printFormat: "PDF",
       printSize: "STOCK_4X6",
       ...(enviaComments ? { comments: enviaComments } : {}),
@@ -562,7 +562,7 @@ async function buildRateQuotePayload(order, config, overrides = {}, carrier) {
     destination,
     packages,
     settings: {
-      currency: "INR",
+      currency: "GBP",
     },
     shipment: {
       type: 1,
@@ -639,7 +639,7 @@ function pickRateQuotes(responseData = {}, carrier = "") {
         row.serviceDescription || row.description || row.serviceName || row.service
       ),
       totalPrice: Number(row.totalPrice ?? row.total ?? row.price ?? 0),
-      currency: safeTrim(row.currency || "INR"),
+      currency: safeTrim(row.currency || "GBP"),
       deliveryEstimate: safeTrim(
         row.deliveryEstimate || row.deliveryDate || row.estimatedDelivery || ""
       ),

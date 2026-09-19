@@ -168,7 +168,7 @@ const storeSettingsSchema = new mongoose.Schema(
     },
     minimumOrderValue: {
       type: Number,
-      default: 3000,
+      default: 0,
       min: [0, "Minimum order value must be 0 or more"],
     },
     minimumShippingCharge: {
@@ -213,9 +213,9 @@ const storeSettingsSchema = new mongoose.Schema(
       type: [String],
       default: () => [
         "Please Verify Your Address Before Placing Your Order.",
-        "Minimum order value ₹{{minOrder}}",
+        "Minimum order value £{{minOrder}}",
         "Parcel opening video is must for return.",
-        "Shipping depends on parcel weight minimum Rs {{minShipping}}.",
+        "Shipping depends on parcel weight minimum £{{minShipping}}.",
         "User have to pay shipping charges in advance.",
       ],
     },

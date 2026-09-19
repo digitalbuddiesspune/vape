@@ -8,13 +8,7 @@ import DesktopSearchBar from "./DesktopSearchBar";
 import CategoryNavbar from "../layout/CategoryNavbar";
 import { NavIconWrap } from "./NavIconWrap";
 
-const formatPrice = (amount) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
+import { formatPrice } from "../../utils/currency";
 
 function TopNav() {
   const { user, openAuthModal } = useAuth();

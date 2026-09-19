@@ -19,12 +19,7 @@ import {
   modalPanelClass,
 } from "./adminStyles";
 
-const formatPrice = (amount) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(amount);
+import { formatPrice } from "../../utils/currency";
 
 function DetailRow({ label, value, children }) {
   return (

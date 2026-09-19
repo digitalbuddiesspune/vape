@@ -186,7 +186,7 @@ function BlinkitOrderDetail({ order, onCancel, cancelling, cancelError }) {
               <span>Delivery fee</span>
               <div className="flex items-center gap-2">
                 {deliveryFree ? (
-                  <span className="text-xs text-text-muted line-through">₹30</span>
+                  <span className="text-xs text-text-muted line-through">£30</span>
                 ) : null}
                 <span className={`font-bold ${deliveryFree ? "text-[#2E7D32]" : "text-text-primary"}`}>
                   {deliveryFree ? "FREE" : formatOrderPrice(order.deliveryCharges)}

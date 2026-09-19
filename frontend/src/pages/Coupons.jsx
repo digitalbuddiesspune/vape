@@ -9,12 +9,7 @@ import {
   formatCouponValidity,
 } from "../utils/couponDisplay";
 
-const formatPrice = (amount) =>
-  Number(amount || 0).toLocaleString("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  });
+import { formatPrice } from "../utils/currency";
 
 function CouponIcon() {
   return (

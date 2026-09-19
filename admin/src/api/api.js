@@ -84,8 +84,6 @@ export const deleteWhatsRightForYouItem = (id) =>
 
 export const getStoreSettings = () => api.get("/api/settings/admin");
 export const updateStoreSettings = (data) => api.put("/api/settings", data);
-export const getEnviaWebhookSetup = () => api.get("/api/settings/envia/webhook");
-export const registerEnviaWebhook = () => api.post("/api/settings/envia/webhook/register");
 
 export const getAllProducts = (params) => api.get("/api/products/all", { params });
 export const addProduct = (data) => api.post("/api/products", data);
@@ -131,16 +129,10 @@ export const getAdminGiftHamperOrders = (params) =>
   api.get("/api/orders/admin/gift-hampers", { params });
 export const updateAdminGiftHamper = (id, data) =>
   api.patch(`/api/orders/admin/${id}/gift-hamper`, data);
-export const quoteAdminOrderShipmentRates = (id, data) =>
-  api.post(`/api/orders/admin/${id}/shipment/envia/rates`, data);
-export const createAdminOrderShipment = (id, data) =>
-  api.post(`/api/orders/admin/${id}/shipment/envia`, data);
-export const syncAdminOrderShipment = (id) =>
-  api.post(`/api/orders/admin/${id}/shipment/envia/sync`);
-export const cancelAdminOrderShipment = (id, data) =>
-  api.post(`/api/orders/admin/${id}/shipment/envia/cancel`, data);
 export const linkAdminOrderShipment = (id, data) =>
-  api.post(`/api/orders/admin/${id}/shipment/envia/link`, data);
+  api.post(`/api/orders/admin/${id}/shipment/link`, data);
+export const clearAdminOrderShipment = (id) =>
+  api.post(`/api/orders/admin/${id}/shipment/clear`);
 
 export const getAdminRazorpayTransactions = (params) =>
   api.get("/api/payments/admin/razorpay", { params });

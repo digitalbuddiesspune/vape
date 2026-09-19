@@ -3,6 +3,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
 import AddToCartButton from "./AddToCartButton";
 import ProductImageFrame from "./ProductImageFrame";
+import { formatPrice } from "../../utils/currency";
 
 function orderItemToCartProduct(item) {
   return {
@@ -23,14 +24,6 @@ function findBuyAgainCartLine(items, item) {
         (cartItem.colorName || "") === (item.colorName || "")
     ) || null
   );
-}
-
-function formatPrice(amount) {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(amount);
 }
 
 function BuyAgainCard({ item }) {

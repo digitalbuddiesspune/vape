@@ -15,7 +15,6 @@ import {
 import {
   calculateShippingCharge,
   getStoreSettings,
-  meetsMinimumOrder,
 } from "./storeSettingsHelpers.js";
 import { calculateOrderTotal } from "./gstHelpers.js";
 import { getRecordedAdvancePaidAmount } from "./paymentHelpers.js";
@@ -407,15 +406,6 @@ export async function prepareOrderData(userId, addressId, options = {}) {
 
   const { storeSettings, deliveryCharges, gstAmount, total, couponCode, couponDiscount } =
     pricing;
-
-  if (!meetsMinimumOrder(subtotal, storeSettings)) {
-    return {
-      error: `Minimum order value is ₹${storeSettings.minimumOrderValue}. Please add more items to your cart.`,
-      status: 400,
-      code: "MINIMUM_ORDER_NOT_MET",
-      minimumOrderValue: storeSettings.minimumOrderValue,
-    };
-  }
 
   const deliveryAddress = addressToSnapshot(address);
   const requiredSnapshotFields = [

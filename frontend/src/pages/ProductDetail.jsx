@@ -32,17 +32,10 @@ import ProductAdminShareMenu from "../components/product/ProductAdminShareMenu";
 import { updateProductShareMeta } from "../utils/productShare";
 import { tryOpenProductInApp } from "../utils/openMobileApp";
 import { trackViewContent } from "../meta";
+import { formatPrice } from "../utils/currency";
 
 const DEFAULT_MOQ = 1;
 const REVIEW_COUNT = 128;
-
-const formatPrice = (amount) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
 
 function productSku(product) {
   if (product.sku?.trim()) {

@@ -204,7 +204,7 @@ function AddCouponSection() {
               className={inputClass}
             >
               <option value="percentage">Percentage (%)</option>
-              <option value="fixed">Fixed amount (₹)</option>
+              <option value="fixed">Fixed amount (£)</option>
             </select>
           </div>
           <div>
@@ -254,7 +254,7 @@ function AddCouponSection() {
           </div>
           <div>
             <label className={labelClass} htmlFor="coupon-min-order">
-              Minimum Order Amount (₹)
+              Minimum Order Amount (£)
             </label>
             <input
               id="coupon-min-order"

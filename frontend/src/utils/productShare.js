@@ -9,9 +9,9 @@ function formatSharePrice(amount) {
   const value = Number(amount) || 0;
   if (value <= 0) return "";
 
-  return new Intl.NumberFormat("en-IN", {
+  return new Intl.NumberFormat("en-GB", {
     style: "currency",
-    currency: "INR",
+    currency: "GBP",
     maximumFractionDigits: 0,
   }).format(value);
 }

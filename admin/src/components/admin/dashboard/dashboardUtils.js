@@ -16,9 +16,9 @@ export function getDayChange(todayValue, yesterdayValue) {
 }
 
 export function formatCurrency(amount) {
-  return new Intl.NumberFormat("en-IN", {
+  return new Intl.NumberFormat("en-GB", {
     style: "currency",
-    currency: "INR",
+    currency: "GBP",
     maximumFractionDigits: 0,
   }).format(Number(amount) || 0);
 }
@@ -32,10 +32,10 @@ export function formatNumber(value) {
 export function formatCompactCurrency(amount) {
   const value = Number(amount) || 0;
   if (value >= 100000) {
-    return `₹ ${(value / 100000).toFixed(1)}L`;
+    return `£ ${(value / 100000).toFixed(1)}M`;
   }
   if (value >= 1000) {
-    return `₹ ${(value / 1000).toFixed(1)}K`;
+    return `£ ${(value / 1000).toFixed(1)}K`;
   }
   return formatCurrency(value);
 }

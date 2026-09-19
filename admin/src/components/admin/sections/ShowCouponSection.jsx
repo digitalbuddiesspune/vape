@@ -31,7 +31,7 @@ function formatDiscount(coupon) {
   if (coupon.discountType === "percentage") {
     return `${coupon.discountValue}% off`;
   }
-  return `₹${coupon.discountValue} off`;
+  return `£${coupon.discountValue} off`;
 }
 
 function formatDateTime(value) {
@@ -197,7 +197,7 @@ function ShowCouponSection() {
                     <td className={adminCompactTdClass}>{formatDiscount(coupon)}</td>
                     <td className={adminCompactTdClass}>{formatDateTime(coupon.startDate)}</td>
                     <td className={adminCompactTdClass}>{formatDateTime(coupon.endDate)}</td>
-                    <td className={adminCompactTdClass}>₹{coupon.minOrderAmount || 0}</td>
+                    <td className={adminCompactTdClass}>£{coupon.minOrderAmount || 0}</td>
                     <td className={adminCompactTdClass}>
                       {formatRedemptionLimit(coupon.maxRedemptionsPerUser)}
                     </td>

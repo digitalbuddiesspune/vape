@@ -81,7 +81,7 @@ export function buildUpiQuery(amount, note, config = {}) {
   const parts = [
     `pa=${encodeURIComponent(upiId)}`,
     `am=${encodeURIComponent(amount.toFixed(2))}`,
-    `cu=INR`,
+    `cu=GBP`,
   ];
 
   if (upiName) {
