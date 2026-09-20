@@ -193,13 +193,6 @@ export const login = async (req, res) => {
       });
     }
 
-    if (user.role === "admin") {
-      return res.status(403).json({
-        success: false,
-        message: "Please use the admin panel to sign in.",
-      });
-    }
-
     if (!user.password) {
       return res.status(401).json({
         success: false,
