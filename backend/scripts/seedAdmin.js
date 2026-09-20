@@ -4,10 +4,10 @@ import User from "../models/user.js";
 
 const [emailArg, passwordArg, nameArg, phoneArg] = process.argv.slice(2);
 
-const email = (emailArg || "admin@bulkmobilemart.in").trim().toLowerCase();
+const email = (emailArg || "admin@vapeavenue.co.uk").trim().toLowerCase();
 const password = passwordArg || "admin@2026";
 const name = (nameArg || "Admin User").trim();
-const phone = (phoneArg || "9876543210").trim();
+const phone = (phoneArg || "7418964327").trim();
 
 if (!email || !password) {
   console.error(
