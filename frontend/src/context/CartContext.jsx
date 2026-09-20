@@ -196,6 +196,7 @@ export function CartProvider({ children }) {
           quantity: qty,
           variantName: options.variantName || "",
           colorName: options.colorName || "",
+          strength: options.strength || "",
           flySource: options.flySource || null,
         };
         openAuthModal("login");
@@ -204,6 +205,7 @@ export function CartProvider({ children }) {
 
       const variantName = options.variantName || "";
       const colorName = options.colorName || "";
+      const strength = options.strength || "";
 
       if (options.flySource) {
         playFlyToCart(product, options.flySource);
@@ -219,13 +221,14 @@ export function CartProvider({ children }) {
       });
 
       return runCartMutation((current) => ({
-        optimisticItems: addOrMergeLine(current, product, qty, variantName, colorName),
+        optimisticItems: addOrMergeLine(current, product, qty, variantName, colorName, strength),
         apiCall: () =>
           addToCartItem({
             productId: product._id,
             quantity: qty,
             variantName,
             colorName,
+            strength,
           }),
       }));
     },
@@ -241,21 +244,22 @@ export function CartProvider({ children }) {
     addToCart(pending.product, pending.quantity, {
       variantName: pending.variantName,
       colorName: pending.colorName,
+      strength: pending.strength,
       flySource: pending.flySource || undefined,
     });
   }, [user, addToCart]);
 
   const removeFromCart = useCallback(
-    (productId, variantName = "", colorName = "") => {
+    (productId, variantName = "", colorName = "", strength = "") => {
       if (!user) return Promise.resolve();
 
       return runCartMutation((current) => {
-        const line = findCartLine(current, productId, variantName, colorName);
+        const line = findCartLine(current, productId, variantName, colorName, strength);
         if (!line) return null;
 
         return {
-          optimisticItems: removeLine(current, productId, variantName, colorName),
-          apiCall: () => removeFromCartItem(productId, variantName, colorName),
+          optimisticItems: removeLine(current, productId, variantName, colorName, strength),
+          apiCall: () => removeFromCartItem(productId, variantName, colorName, strength),
         };
       });
     },
@@ -263,26 +267,34 @@ export function CartProvider({ children }) {
   );
 
   const updateQuantity = useCallback(
-    (productId, quantity, variantName = "", colorName = "") => {
+    (productId, quantity, variantName = "", colorName = "", strength = "") => {
       if (!user) return Promise.resolve();
 
       const qty = Number(quantity);
       if (!Number.isFinite(qty)) return Promise.resolve({ success: false });
 
       return runCartMutation((current) => {
-        const line = findCartLine(current, productId, variantName, colorName);
+        const line = findCartLine(current, productId, variantName, colorName, strength);
         if (!line) return null;
 
         if (qty < 1) {
           return {
-            optimisticItems: removeLine(current, productId, variantName, colorName),
-            apiCall: () => removeFromCartItem(productId, variantName, colorName),
+            optimisticItems: removeLine(current, productId, variantName, colorName, strength),
+            apiCall: () => removeFromCartItem(productId, variantName, colorName, strength),
           };
         }
 
         return {
-          optimisticItems: setLineQuantity(current, productId, variantName, colorName, qty),
-          apiCall: () => updateCartItemQty(productId, qty, variantName, colorName),
+          optimisticItems: setLineQuantity(
+            current,
+            productId,
+            variantName,
+            colorName,
+            strength,
+            qty
+          ),
+          apiCall: () =>
+            updateCartItemQty(productId, qty, variantName, colorName, strength),
         };
       });
     },
@@ -290,14 +302,21 @@ export function CartProvider({ children }) {
   );
 
   const incrementCartItem = useCallback(
-    ({ productId, variantName = "", colorName = "", step = 1, maxQuantity }) => {
+    ({
+      productId,
+      variantName = "",
+      colorName = "",
+      strength = "",
+      step = 1,
+      maxQuantity,
+    }) => {
       if (!user) return Promise.resolve({ success: false });
 
       const safeStep = Number(step) || 1;
       const maxQty = Number.isFinite(Number(maxQuantity)) ? Number(maxQuantity) : null;
 
       return runCartMutation((current) => {
-        const line = findCartLine(current, productId, variantName, colorName);
+        const line = findCartLine(current, productId, variantName, colorName, strength);
         if (!line) return null;
 
         let nextQty = line.quantity + safeStep;
@@ -307,8 +326,16 @@ export function CartProvider({ children }) {
         if (nextQty === line.quantity) return null;
 
         return {
-          optimisticItems: setLineQuantity(current, productId, variantName, colorName, nextQty),
-          apiCall: () => updateCartItemQty(productId, nextQty, variantName, colorName),
+          optimisticItems: setLineQuantity(
+            current,
+            productId,
+            variantName,
+            colorName,
+            strength,
+            nextQty
+          ),
+          apiCall: () =>
+            updateCartItemQty(productId, nextQty, variantName, colorName, strength),
         };
       });
     },
@@ -316,11 +343,11 @@ export function CartProvider({ children }) {
   );
 
   const decrementCartItem = useCallback(
-    ({ productId, variantName = "", colorName = "", resolveNextQuantity }) => {
+    ({ productId, variantName = "", colorName = "", strength = "", resolveNextQuantity }) => {
       if (!user) return Promise.resolve({ success: false });
 
       return runCartMutation((current) => {
-        const line = findCartLine(current, productId, variantName, colorName);
+        const line = findCartLine(current, productId, variantName, colorName, strength);
         if (!line) return null;
 
         const nextQty =
@@ -332,14 +359,22 @@ export function CartProvider({ children }) {
 
         if (nextQty < 1) {
           return {
-            optimisticItems: removeLine(current, productId, variantName, colorName),
-            apiCall: () => removeFromCartItem(productId, variantName, colorName),
+            optimisticItems: removeLine(current, productId, variantName, colorName, strength),
+            apiCall: () => removeFromCartItem(productId, variantName, colorName, strength),
           };
         }
 
         return {
-          optimisticItems: setLineQuantity(current, productId, variantName, colorName, nextQty),
-          apiCall: () => updateCartItemQty(productId, nextQty, variantName, colorName),
+          optimisticItems: setLineQuantity(
+            current,
+            productId,
+            variantName,
+            colorName,
+            strength,
+            nextQty
+          ),
+          apiCall: () =>
+            updateCartItemQty(productId, nextQty, variantName, colorName, strength),
         };
       });
     },

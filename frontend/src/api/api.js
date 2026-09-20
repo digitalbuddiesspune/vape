@@ -64,10 +64,22 @@ export const getSimilarProducts = (id, params) =>
 
 export const getCart = () => api.get("/api/cart");
 export const addToCartItem = (data) => api.post("/api/cart", data);
-export const removeFromCartItem = (productId, variantName = "", colorName = "") =>
-  api.delete(`/api/cart/${productId}`, { params: { variantName, colorName } });
-export const updateCartItemQty = (productId, quantity, variantName = "", colorName = "") =>
-  api.put(`/api/cart/${productId}`, { quantity, variantName, colorName });
+export const removeFromCartItem = (
+  productId,
+  variantName = "",
+  colorName = "",
+  strength = ""
+) =>
+  api.delete(`/api/cart/${productId}`, {
+    params: { variantName, colorName, strength },
+  });
+export const updateCartItemQty = (
+  productId,
+  quantity,
+  variantName = "",
+  colorName = "",
+  strength = ""
+) => api.put(`/api/cart/${productId}`, { quantity, variantName, colorName, strength });
 
 export const getWishlist = () => api.get("/api/wishlist");
 export const toggleWishlistItem = (productId) =>

@@ -545,8 +545,15 @@ export const adminPlaceOrder = async (req, res) => {
 
 export const placeOrder = async (req, res) => {
   try {
-    const { addressId, paymentMethod, attemptedOrderId, checkoutMode, buyNow, couponCode } =
-      req.body;
+    const {
+      addressId,
+      paymentMethod,
+      attemptedOrderId,
+      checkoutMode,
+      buyNow,
+      couponCode,
+      checkoutItems,
+    } = req.body;
     const orderMessage = normalizeOrderMessage(req.body);
 
     if (!addressId) {
@@ -574,6 +581,7 @@ export const placeOrder = async (req, res) => {
       checkoutMode,
       buyNow,
       couponCode,
+      checkoutItems,
       excludeOrderId: attemptedOrderId || undefined,
     });
     if (result.error) {

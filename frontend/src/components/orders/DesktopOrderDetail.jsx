@@ -292,6 +292,11 @@ function DesktopOrderDetail({ order, onCancel, cancelling, cancelError }) {
                         {item.brandName ? (
                           <p className="mt-0.5 text-xs text-text-muted">{item.brandName}</p>
                         ) : null}
+                        {item.strength ? (
+                          <p className="mt-0.5 text-xs text-text-secondary">
+                            Strength: {item.strength}
+                          </p>
+                        ) : null}
                       </div>
                     </div>
                     <p className="text-sm font-semibold text-text-secondary sm:text-center">

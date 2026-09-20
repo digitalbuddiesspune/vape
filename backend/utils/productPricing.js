@@ -375,4 +375,4 @@ export function resolvePricingFields(payload) {
 }
 
 export const PRODUCT_PRICING_SELECT =
-  "name brandName price discountedPrice discountedPercent productImages stock inStock subcategory subcategories pricingType bulkPricing variantType variants colors minOrderQuantity stepByQuantity isActive";
+  "name brandName price discountedPrice discountedPercent productImages stock inStock subcategory subcategories pricingType bulkPricing variantType variants colors strength minOrderQuantity stepByQuantity isActive";

@@ -1,15 +1,33 @@
 import { getUnitPriceForQuantity, getVariantStock } from "./productPricing";
+import { matchesCartLineOptions } from "./cartLine";
 
-export function matchesCartLine(item, productId, variantName = "", colorName = "") {
-  return (
-    String(item._id) === String(productId) &&
-    (item.variantName || "") === (variantName || "") &&
-    (item.colorName || "") === (colorName || "")
-  );
+export function matchesCartLine(
+  item,
+  productId,
+  variantName = "",
+  colorName = "",
+  strength = ""
+) {
+  return matchesCartLineOptions(item, {
+    productId,
+    variantName,
+    colorName,
+    strength,
+  });
 }
 
-export function findCartLine(items, productId, variantName = "", colorName = "") {
-  return items.find((item) => matchesCartLine(item, productId, variantName, colorName)) || null;
+export function findCartLine(
+  items,
+  productId,
+  variantName = "",
+  colorName = "",
+  strength = ""
+) {
+  return (
+    items.find((item) =>
+      matchesCartLine(item, productId, variantName, colorName, strength)
+    ) || null
+  );
 }
 
 export function mapCartItems(cart) {
@@ -25,6 +43,8 @@ export function mapCartItems(cart) {
         _id: item.product._id,
         variantName,
         colorName: item.colorName || "",
+        strength: item.strength || "",
+        strengthOptions: Array.isArray(item.product.strength) ? item.product.strength : [],
         name: item.product.name,
         brandName: item.product.brandName,
         price: item.product.price,
@@ -55,13 +75,21 @@ function pricingFromLine(item) {
   };
 }
 
-export function buildCartLine(product, quantity, variantName = "", colorName = "") {
+export function buildCartLine(
+  product,
+  quantity,
+  variantName = "",
+  colorName = "",
+  strength = ""
+) {
   const qty = Number(quantity) || 0;
 
   return {
     _id: product._id,
     variantName: variantName || "",
     colorName: colorName || "",
+    strength: strength || "",
+    strengthOptions: Array.isArray(product.strength) ? product.strength : [],
     name: product.name,
     brandName: product.brandName,
     price: product.price,
@@ -78,19 +106,34 @@ export function buildCartLine(product, quantity, variantName = "", colorName = "
   };
 }
 
-export function removeLine(items, productId, variantName = "", colorName = "") {
-  return items.filter((item) => !matchesCartLine(item, productId, variantName, colorName));
+export function removeLine(
+  items,
+  productId,
+  variantName = "",
+  colorName = "",
+  strength = ""
+) {
+  return items.filter(
+    (item) => !matchesCartLine(item, productId, variantName, colorName, strength)
+  );
 }
 
-export function setLineQuantity(items, productId, variantName, colorName, quantity) {
+export function setLineQuantity(
+  items,
+  productId,
+  variantName,
+  colorName,
+  strength,
+  quantity
+) {
   const qty = Number(quantity);
 
   if (!Number.isFinite(qty) || qty < 1) {
-    return removeLine(items, productId, variantName, colorName);
+    return removeLine(items, productId, variantName, colorName, strength);
   }
 
   return items.map((item) => {
-    if (!matchesCartLine(item, productId, variantName, colorName)) return item;
+    if (!matchesCartLine(item, productId, variantName, colorName, strength)) return item;
 
     const pricing = pricingFromLine(item);
     return {
@@ -101,14 +144,28 @@ export function setLineQuantity(items, productId, variantName, colorName, quanti
   });
 }
 
-export function addOrMergeLine(items, product, quantity, variantName = "", colorName = "") {
+export function addOrMergeLine(
+  items,
+  product,
+  quantity,
+  variantName = "",
+  colorName = "",
+  strength = ""
+) {
   const qty = Number(quantity);
   if (!Number.isFinite(qty) || qty < 1) return items;
 
-  const existing = findCartLine(items, product._id, variantName, colorName);
+  const existing = findCartLine(items, product._id, variantName, colorName, strength);
   if (existing) {
-    return setLineQuantity(items, product._id, variantName, colorName, existing.quantity + qty);
+    return setLineQuantity(
+      items,
+      product._id,
+      variantName,
+      colorName,
+      strength,
+      existing.quantity + qty
+    );
   }
 
-  return [...items, buildCartLine(product, qty, variantName, colorName)];
+  return [...items, buildCartLine(product, qty, variantName, colorName, strength)];
 }

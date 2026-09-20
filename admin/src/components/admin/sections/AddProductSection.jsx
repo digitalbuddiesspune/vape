@@ -23,6 +23,7 @@ import VariantPricingFields, {
   ProductQuantityRulesFields,
 } from "../VariantPricingFields";
 import ProductSpecificationsField from "../ProductSpecificationsField";
+import StringListField from "../StringListField";
 import UploadProgressBar from "../UploadProgressBar";
 import VideoUrlPreview from "../VideoUrlPreview";
 import {
@@ -150,6 +151,8 @@ const EMPTY_FORM = {
   videoUrl: "",
   videoInputType: "url",
   specifications: [],
+  flavour: [],
+  strength: [],
   isActive: true,
   justArrived: false,
   hotSelling: false,
@@ -213,6 +216,8 @@ function AddProductSection() {
                 value: spec.value || "",
               }))
             : [],
+        flavour: Array.isArray(editProduct.flavour) ? editProduct.flavour : [],
+        strength: Array.isArray(editProduct.strength) ? editProduct.strength : [],
         isActive: editProduct.isActive,
         justArrived: Boolean(editProduct.justArrived),
         hotSelling: Boolean(editProduct.hotSelling),
@@ -317,6 +322,8 @@ function AddProductSection() {
             value: spec.value?.trim(),
           }))
           .filter((spec) => spec.name && spec.value),
+        flavour: form.flavour.map((item) => item.trim()).filter(Boolean),
+        strength: form.strength.map((item) => item.trim()).filter(Boolean),
         isActive: form.isActive,
         justArrived: form.justArrived,
         hotSelling: form.hotSelling,
@@ -435,6 +442,27 @@ function AddProductSection() {
       specs.splice(toIndex, 0, item);
       return { ...prev, specifications: specs };
     });
+  };
+
+  const addStringListItem = (field) => {
+    setForm((prev) => ({
+      ...prev,
+      [field]: [...prev[field], ""],
+    }));
+  };
+
+  const updateStringListItem = (field, index, value) => {
+    setForm((prev) => ({
+      ...prev,
+      [field]: prev[field].map((item, i) => (i === index ? value : item)),
+    }));
+  };
+
+  const removeStringListItem = (field, index) => {
+    setForm((prev) => ({
+      ...prev,
+      [field]: prev[field].filter((_, i) => i !== index),
+    }));
   };
 
   const handleVideoUpload = async (event) => {
@@ -948,6 +976,24 @@ function AddProductSection() {
             className={inputClass}
           />
         </div>
+
+        <StringListField
+          label="Flavour"
+          items={form.flavour}
+          placeholder="e.g. Mango Ice"
+          onAdd={() => addStringListItem("flavour")}
+          onUpdate={(index, value) => updateStringListItem("flavour", index, value)}
+          onRemove={(index) => removeStringListItem("flavour", index)}
+        />
+
+        <StringListField
+          label="Strength"
+          items={form.strength}
+          placeholder="e.g. 20mg"
+          onAdd={() => addStringListItem("strength")}
+          onUpdate={(index, value) => updateStringListItem("strength", index, value)}
+          onRemove={(index) => removeStringListItem("strength", index)}
+        />
 
         <ProductSpecificationsField
           specifications={form.specifications}

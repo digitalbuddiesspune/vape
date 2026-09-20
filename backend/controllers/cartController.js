@@ -20,10 +20,43 @@ const normalizeVariantName = (value) =>
 const normalizeColorName = (value) =>
   typeof value === "string" ? value.trim() : "";
 
-const matchesCartItem = (item, productId, variantName, colorName) =>
+const normalizeStrength = (value) =>
+  typeof value === "string" ? value.trim() : "";
+
+const matchesCartItem = (item, productId, variantName, colorName, strength) =>
   String(item?.product || "") === String(productId || "") &&
   normalizeVariantName(item.variantName) === normalizeVariantName(variantName) &&
-  normalizeColorName(item.colorName) === normalizeColorName(colorName);
+  normalizeColorName(item.colorName) === normalizeColorName(colorName) &&
+  normalizeStrength(item.strength) === normalizeStrength(strength);
+
+function resolveCartItemStrength(product, strength) {
+  const normalized = normalizeStrength(strength);
+  const options = Array.isArray(product?.strength) ? product.strength : [];
+
+  if (options.length === 0) {
+    return { strength: "" };
+  }
+
+  if (!normalized) {
+    return {
+      valid: false,
+      message: "Strength selection is required for this product",
+    };
+  }
+
+  const match = options.find(
+    (option) => option?.trim().toLowerCase() === normalized.toLowerCase()
+  );
+
+  if (!match) {
+    return {
+      valid: false,
+      message: "Selected strength is not available",
+    };
+  }
+
+  return { strength: match.trim() };
+}
 
 function validateCartQuantity(product, variantName, qty) {
   const moq = getMinOrderQuantity(product, variantName);
@@ -80,7 +113,7 @@ export const getCart = async (req, res) => {
 
 export const addToCart = async (req, res) => {
   try {
-    const { productId, quantity, variantName, colorName } = req.body;
+    const { productId, quantity, variantName, colorName, strength } = req.body;
     const normalizedVariantName = normalizeVariantName(variantName);
     const normalizedColorName = normalizeColorName(colorName);
 
@@ -163,6 +196,15 @@ export const addToCart = async (req, res) => {
       }
     }
 
+    const strengthResult = resolveCartItemStrength(product, strength);
+    if (strengthResult.valid === false) {
+      return res.status(400).json({
+        success: false,
+        message: strengthResult.message,
+      });
+    }
+    const resolvedStrength = strengthResult.strength;
+
     const qtyCheck = validateCartQuantity(product, normalizedVariantName, qty);
     if (!qtyCheck.valid) {
       return res.status(400).json({
@@ -192,6 +234,7 @@ export const addToCart = async (req, res) => {
               quantity: qty,
               variantName: normalizedVariantName,
               colorName: resolvedColorName,
+              strength: resolvedStrength,
             },
           ],
         });
@@ -202,7 +245,13 @@ export const addToCart = async (req, res) => {
 
           cart.email = getUserContactEmail(req.user);
           const existingIndex = cart.items.findIndex((item) =>
-            matchesCartItem(item, productId, normalizedVariantName, resolvedColorName)
+            matchesCartItem(
+              item,
+              productId,
+              normalizedVariantName,
+              resolvedColorName,
+              resolvedStrength
+            )
           );
 
           if (existingIndex >= 0) {
@@ -213,6 +262,7 @@ export const addToCart = async (req, res) => {
               quantity: qty,
               variantName: normalizedVariantName,
               colorName: resolvedColorName,
+              strength: resolvedStrength,
             });
           }
 
@@ -224,7 +274,13 @@ export const addToCart = async (req, res) => {
     } else {
       cart.email = getUserContactEmail(req.user);
       const existingIndex = cart.items.findIndex((item) =>
-        matchesCartItem(item, productId, normalizedVariantName, resolvedColorName)
+        matchesCartItem(
+          item,
+          productId,
+          normalizedVariantName,
+          resolvedColorName,
+          resolvedStrength
+        )
       );
 
       if (existingIndex >= 0) {
@@ -253,6 +309,7 @@ export const addToCart = async (req, res) => {
           quantity: qty,
           variantName: normalizedVariantName,
           colorName: resolvedColorName,
+          strength: resolvedStrength,
         });
       }
 
@@ -276,6 +333,7 @@ export const removeFromCart = async (req, res) => {
     const { productId } = req.params;
     const variantName = normalizeVariantName(req.query.variantName);
     const colorName = normalizeColorName(req.query.colorName);
+    const strength = normalizeStrength(req.query.strength);
 
     const cart = await Cart.findOne({ user: req.user._id });
     if (!cart) {
@@ -291,7 +349,7 @@ export const removeFromCart = async (req, res) => {
     }
 
     cart.items = cart.items.filter(
-      (item) => !matchesCartItem(item, productId, variantName, colorName)
+      (item) => !matchesCartItem(item, productId, variantName, colorName, strength)
     );
     await cart.save();
 
@@ -310,9 +368,10 @@ export const removeFromCart = async (req, res) => {
 export const updateCartItem = async (req, res) => {
   try {
     const { productId } = req.params;
-    const { quantity, variantName, colorName } = req.body;
+    const { quantity, variantName, colorName, strength } = req.body;
     const normalizedVariantName = normalizeVariantName(variantName);
     const normalizedColorName = normalizeColorName(colorName);
+    const normalizedStrength = normalizeStrength(strength);
 
     const qty = Number(quantity);
     if (!Number.isFinite(qty)) {
@@ -336,7 +395,13 @@ export const updateCartItem = async (req, res) => {
     }
 
     const itemIndex = cart.items.findIndex((item) =>
-      matchesCartItem(item, productId, normalizedVariantName, normalizedColorName)
+      matchesCartItem(
+        item,
+        productId,
+        normalizedVariantName,
+        normalizedColorName,
+        normalizedStrength
+      )
     );
 
     if (itemIndex < 0) {

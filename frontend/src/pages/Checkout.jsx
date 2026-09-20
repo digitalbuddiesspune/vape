@@ -24,6 +24,7 @@ import { calculateShippingCharge } from "../utils/orderSettings";
 import { calculateOrderTotal } from "../utils/gst";
 import { trackInitiateCheckout, trackPurchase } from "../meta";
 import { formatPrice as formatCurrency } from "../utils/currency";
+import { getCheckoutLineKey } from "../utils/checkoutLine";
 
 const MAX_ORDER_NOTE_LENGTH = 200;
 
@@ -120,6 +121,7 @@ function Checkout() {
   const buyNowItem = getBuyNowCheckout();
   const isBuyNow = Boolean(buyNowItem);
   const checkoutItems = isBuyNow ? [buyNowItem] : items;
+
   const checkoutItemsPayload = useMemo(
     () =>
       checkoutItems.map((item) => ({
@@ -127,6 +129,7 @@ function Checkout() {
         quantity: item.quantity,
         variantName: item.variantName || "",
         colorName: item.colorName || "",
+        strength: item.strength || "",
       })),
     [checkoutItems]
   );
@@ -170,6 +173,7 @@ function Checkout() {
           quantity: item.quantity,
           variantName: item.variantName || "",
           colorName: item.colorName || "",
+          strength: item.strength || "",
         })),
         couponCode: appliedCoupon?.code || "",
       }),
@@ -479,6 +483,7 @@ function Checkout() {
         customerMessage: safeTrim(messageRef.current),
         checkoutMode: isBuyNow ? "buyNow" : "cart",
         buyNow: isBuyNow,
+        checkoutItems: checkoutItemsPayload,
         couponCode: appliedCouponRef.current?.code || undefined,
         orderSource: "website",
         attemptedOrderId: getCheckoutAttemptedOrderId() || undefined,
@@ -776,7 +781,7 @@ function Checkout() {
 
                 <ul className="mb-3 max-h-40 space-y-3 overflow-y-auto sm:mb-5 sm:max-h-56 sm:space-y-4">
                   {checkoutItems.map((item) => (
-                    <li key={`${item.productId || item._id}-${item.variantName || "default"}-${item.colorName || "default"}`} className="flex items-center gap-3">
+                    <li key={getCheckoutLineKey(item)} className="flex items-center gap-3">
                       <div className="w-14 shrink-0 overflow-hidden rounded-lg border border-border-light">
                         <ProductImageFrame
                           src={item.productImages?.[0]}
@@ -788,6 +793,11 @@ function Checkout() {
                           {item.name}
                         </p>
                         <p className="mt-0.5 text-xs text-text-secondary">Qty: {item.quantity}</p>
+                        {item.strength ? (
+                          <p className="mt-0.5 text-xs text-text-secondary">
+                            Strength: {item.strength}
+                          </p>
+                        ) : null}
                       </div>
                       <span className="shrink-0 text-sm font-semibold text-text-primary">
                         {formatPrice(item.discountedPrice * item.quantity)}

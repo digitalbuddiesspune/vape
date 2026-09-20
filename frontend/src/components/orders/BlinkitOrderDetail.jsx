@@ -154,6 +154,11 @@ function BlinkitOrderDetail({ order, onCancel, cancelling, cancelError }) {
                   {item.quantity} item{item.quantity === 1 ? "" : "s"} · {item.quantity} unit
                   {item.quantity === 1 ? "" : "s"}
                 </p>
+                {item.strength ? (
+                  <p className="mt-0.5 text-xs text-text-secondary">
+                    Strength: {item.strength}
+                  </p>
+                ) : null}
               </div>
               <p className="shrink-0 text-sm font-extrabold text-text-primary">
                 {formatOrderPrice(item.price * item.quantity)}

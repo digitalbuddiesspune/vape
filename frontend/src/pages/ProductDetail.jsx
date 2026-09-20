@@ -409,6 +409,7 @@ function ActionButtons({
   cartQuantity,
   min,
   max,
+  canAddToCart = true,
   onAddToCart,
   onDecrease,
   onIncrease,
@@ -431,7 +432,7 @@ function ActionButtons({
         <button
           type="button"
           onClick={(e) => onAddToCart(e.currentTarget)}
-          disabled={!inStock}
+          disabled={!inStock || !canAddToCart}
           className="flex-1 rounded-md bg-primary px-6 py-3.5 text-sm font-bold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
         >
           Add to Cart
@@ -458,6 +459,7 @@ function ProductDetail() {
   const [quantity, setQuantity] = useState(DEFAULT_MOQ);
   const [selectedVariant, setSelectedVariant] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
+  const [selectedStrength, setSelectedStrength] = useState("");
   const [downloadingImage, setDownloadingImage] = useState(false);
   const canViewPrice = useCanViewProductPrice(product);
 
@@ -482,6 +484,7 @@ function ProductDetail() {
         setProduct(nextProduct);
         setSelectedVariant(initialVariant);
         setSelectedColor(initialColors[0]?.name || "");
+        setSelectedStrength("");
         setActiveMedia(0);
         setActiveTab("description");
 
@@ -497,6 +500,7 @@ function ProductDetail() {
         setProduct(null);
         setSelectedVariant("");
         setSelectedColor("");
+        setSelectedStrength("");
         setError("Product not found.");
       } finally {
         setLoading(false);
@@ -570,6 +574,16 @@ function ProductDetail() {
     return getAvailableColors(product, activeVariantName);
   }, [product, activeVariantName]);
 
+  const availableStrengths = useMemo(() => {
+    if (!Array.isArray(product?.strength)) return [];
+    return product.strength.filter((item) => item?.trim());
+  }, [product?.strength]);
+
+  const requiresStrength = availableStrengths.length > 0;
+  const canAddToCart =
+    (!availableColors.length || selectedColor) &&
+    (!requiresStrength || selectedStrength);
+
   const bulkTiers = useMemo(() => {
     if (!product || !isBulkPricing(product, activeVariantName)) return [];
     return getBulkTierRows(product, activeVariantName);
@@ -595,7 +609,8 @@ function ProductDetail() {
         (item) =>
           item._id === product._id &&
           (item.variantName || "") === activeVariantName &&
-          (item.colorName || "") === selectedColor
+          (item.colorName || "") === selectedColor &&
+          (item.strength || "") === selectedStrength
       ) || null
     );
   };
@@ -606,16 +621,17 @@ function ProductDetail() {
       (item) =>
         item._id === product._id &&
         (item.variantName || "") === activeVariantName &&
-        (item.colorName || "") === selectedColor
+        (item.colorName || "") === selectedColor &&
+        (item.strength || "") === selectedStrength
     );
     return line?.quantity ?? null;
-  }, [cartItems, product?._id, activeVariantName, selectedColor]);
+  }, [cartItems, product?._id, activeVariantName, selectedColor, selectedStrength]);
 
   useEffect(() => {
     if (!product) return;
     const moq = getMinOrderQuantity(product, activeVariantName, DEFAULT_MOQ);
     setQuantity(cartLineQuantity ?? moq);
-  }, [product, activeVariantName, selectedColor, cartLineQuantity]);
+  }, [product, activeVariantName, selectedColor, selectedStrength, cartLineQuantity]);
 
   const currentUnitPrice = product
     ? getUnitPriceForQuantity(product, quantity, activeVariantName)
@@ -624,10 +640,12 @@ function ProductDetail() {
   const handleAddToCart = async (flySource) => {
     if (!product) return;
     if (availableColors.length > 0 && !selectedColor) return;
+    if (requiresStrength && !selectedStrength) return;
 
     const result = await addToCart(product, quantity, {
       variantName: activeVariantName,
       colorName: selectedColor,
+      strength: selectedStrength,
       flySource,
     });
     if (result?.requiresLogin) {
@@ -645,6 +663,7 @@ function ProductDetail() {
         productId: product._id,
         variantName: activeVariantName,
         colorName: selectedColor,
+        strength: selectedStrength,
         resolveNextQuantity: (currentQty) =>
           getDecreasedCartQuantityForProduct(product, currentQty, activeVariantName),
       });
@@ -669,6 +688,7 @@ function ProductDetail() {
         productId: product._id,
         variantName: activeVariantName,
         colorName: selectedColor,
+        strength: selectedStrength,
         step,
         maxQuantity: maxQty,
       });
@@ -857,6 +877,47 @@ function ProductDetail() {
               </div>
             ) : null}
 
+            {Array.isArray(product.flavour) && product.flavour.length > 0 ? (
+              <div className="mt-3">
+                <p className="mb-2 text-sm font-semibold text-text-primary">Flavour</p>
+                <div className="flex flex-wrap gap-2">
+                  {product.flavour.map((item) => (
+                    <span
+                      key={item}
+                      className="rounded-full border border-border-light bg-white px-3 py-1.5 text-sm font-medium text-text-primary"
+                    >
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            {availableStrengths.length > 0 ? (
+              <div className="mt-3">
+                <p className="mb-2 text-sm font-semibold text-text-primary">Select strength</p>
+                <div className="flex flex-wrap gap-2">
+                  {availableStrengths.map((item) => {
+                    const isActive = selectedStrength === item;
+                    return (
+                      <button
+                        key={item}
+                        type="button"
+                        onClick={() => setSelectedStrength(item)}
+                        className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
+                          isActive
+                            ? "border-primary bg-primary/5 text-primary"
+                            : "border-border-light bg-white text-text-primary hover:border-primary/40"
+                        }`}
+                      >
+                        {item}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
+
             {availableColors.length > 0 ? (
               <div className="mt-3">
                 <p className="mb-2 text-sm font-semibold text-text-primary">Select color</p>
@@ -951,6 +1012,7 @@ function ProductDetail() {
               cartQuantity={cartLineQuantity ?? quantity}
               min={minOrderQuantity}
               max={maxQuantity}
+              canAddToCart={canAddToCart}
               onAddToCart={handleAddToCart}
               onDecrease={handleQuantityDecrease}
               onIncrease={handleQuantityIncrease}

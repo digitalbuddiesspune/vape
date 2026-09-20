@@ -13,6 +13,7 @@ import { calculateShippingCharge } from "../utils/orderSettings";
 import { calculateOrderTotal } from "../utils/gst";
 
 import { formatPrice } from "../utils/currency";
+import { getCartLineKey } from "../utils/cartLine";
 
 function QuantityControl({ quantity, onDecrease, onIncrease, disabled, compact = false }) {
   const btnClass = compact
@@ -55,7 +56,7 @@ function CartItemMobile({ item, loading, onRemove, onIncrease, onDecrease }) {
       <div className="relative flex items-stretch gap-3 sm:gap-4">
         <button
           type="button"
-          onClick={() => onRemove(item._id, item.variantName, item.colorName)}
+          onClick={() => onRemove(item._id, item.variantName, item.colorName, item.strength)}
           className="absolute right-0 top-0 z-10 flex h-6 w-6 shrink-0 items-center justify-center text-lg leading-none text-text-muted transition hover:text-red-500"
           aria-label="Remove item"
         >
@@ -87,7 +88,7 @@ function CartItemMobile({ item, loading, onRemove, onIncrease, onDecrease }) {
             </p>
           </Link>
 
-          {item.variantName || item.colorName ? (
+          {item.variantName || item.colorName || item.strength ? (
             <div className="mt-1">
               {item.variantName ? (
                 <span className="block text-xs font-medium text-text-secondary">
@@ -97,6 +98,11 @@ function CartItemMobile({ item, loading, onRemove, onIncrease, onDecrease }) {
               {item.colorName ? (
                 <span className="block text-xs font-medium text-text-secondary">
                   Color: {item.colorName}
+                </span>
+              ) : null}
+              {item.strength ? (
+                <span className="block text-xs font-medium text-text-secondary">
+                  Strength: {item.strength}
                 </span>
               ) : null}
             </div>
@@ -127,7 +133,7 @@ function CartItemDesktop({ item, loading, onRemove, onIncrease, onDecrease }) {
     <li className="relative border-b border-border-light px-5 py-5 last:border-b-0">
       <button
         type="button"
-        onClick={() => onRemove(item._id, item.variantName, item.colorName)}
+        onClick={() => onRemove(item._id, item.variantName, item.colorName, item.strength)}
         className="absolute right-4 top-4 flex h-7 w-7 items-center justify-center text-lg leading-none text-text-muted transition hover:text-red-500"
         aria-label="Remove item"
       >
@@ -161,6 +167,11 @@ function CartItemDesktop({ item, loading, onRemove, onIncrease, onDecrease }) {
                 Color: {item.colorName}
               </span>
             ) : null}
+            {item.strength ? (
+              <span className="mt-1 block text-xs font-medium text-text-secondary">
+                Strength: {item.strength}
+              </span>
+            ) : null}
           </Link>
         </div>
 
@@ -188,7 +199,7 @@ function CartItemsSection({ items, loading, onRemove, onIncrease, onDecrease }) 
       <div className="space-y-3 lg:hidden">
         {items.map((item) => (
           <CartItemMobile
-            key={`${item._id}-${item.variantName || "default"}-${item.colorName || "default"}`}
+            key={getCartLineKey(item)}
             item={item}
             loading={loading}
             onRemove={onRemove}
@@ -205,7 +216,7 @@ function CartItemsSection({ items, loading, onRemove, onIncrease, onDecrease }) 
         <ul>
           {items.map((item) => (
             <CartItemDesktop
-              key={`${item._id}-${item.variantName || "default"}-${item.colorName || "default"}`}
+              key={getCartLineKey(item)}
               item={item}
               loading={loading}
               onRemove={onRemove}
@@ -348,7 +359,7 @@ function Cart() {
     try {
       // Delete sequentially to avoid concurrent cart document writes on backend.
       for (const item of items) {
-        await removeFromCart(item._id, item.variantName, item.colorName);
+        await removeFromCart(item._id, item.variantName, item.colorName, item.strength);
       }
     } finally {
       setClearing(false);
@@ -421,6 +432,7 @@ function Cart() {
                     productId: item._id,
                     variantName: item.variantName || "",
                     colorName: item.colorName || "",
+                    strength: item.strength || "",
                     step: getCartStepForItem(item),
                   })
                 }
@@ -429,6 +441,7 @@ function Cart() {
                     productId: item._id,
                     variantName: item.variantName || "",
                     colorName: item.colorName || "",
+                    strength: item.strength || "",
                     resolveNextQuantity: (currentQty) =>
                       getDecreasedCartQuantityForItem({ ...item, quantity: currentQty }),
                   })

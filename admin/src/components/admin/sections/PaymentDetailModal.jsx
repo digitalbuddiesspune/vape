@@ -259,6 +259,7 @@ function PaymentDetailModal({ order, proofId, onClose, onUpdated }) {
                   items.map((item, index) => (
                     <li key={`${item.product || item.name}-${index}`} className="py-0.5">
                       {item.name} × {item.quantity}
+                      {item.strength ? ` · ${item.strength}` : ""}
                       {item.price != null ? ` — ${formatPrice(item.price * item.quantity)}` : ""}
                     </li>
                   ))

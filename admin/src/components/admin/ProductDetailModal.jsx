@@ -135,6 +135,12 @@ function ProductDetailModal({ product, onClose, onEdit }) {
             <DetailRow label="Description">
               {product.description || "—"}
             </DetailRow>
+            <DetailRow label="Flavour">
+              {product.flavour?.length ? product.flavour.join(", ") : "—"}
+            </DetailRow>
+            <DetailRow label="Strength">
+              {product.strength?.length ? product.strength.join(", ") : "—"}
+            </DetailRow>
             <DetailRow label="Product Specifications">
               {product.specifications?.length ? (
                 <ul className="space-y-1">

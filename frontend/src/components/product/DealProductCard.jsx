@@ -5,7 +5,9 @@ import WishlistButton from "./WishlistButton";
 import ProductImageFrame from "./ProductImageFrame";
 import ProductPriceDisplay from "./ProductPriceDisplay";
 import MobileVariantPickerSheet from "./MobileVariantPickerSheet";
+import StrengthPickerSheet from "./StrengthPickerSheet";
 import { getTotalProductStock, isMultiVariant } from "../../utils/productPricing";
+import { hasStrengthOptions } from "../../utils/productOptions";
 
 function DealProductCard({
   product,
@@ -18,7 +20,9 @@ function DealProductCard({
 }) {
   const image = product.productImages?.[0];
   const multiVariant = isMultiVariant(product);
+  const strengthOptions = hasStrengthOptions(product);
   const [variantSheetOpen, setVariantSheetOpen] = useState(false);
+  const [strengthSheetOpen, setStrengthSheetOpen] = useState(false);
   const inStock = getTotalProductStock(product) > 0;
   const disabled = addDisabled || !inStock;
 
@@ -37,30 +41,35 @@ function DealProductCard({
     setVariantSheetOpen(true);
   };
 
-  const mobileMultiVariantStepper = (
+  const openStrengthSheet = () => {
+    if (disabled) return;
+    setStrengthSheetOpen(true);
+  };
+
+  const optionsSheetStepper = (openSheet) => (
     <div className="mt-1.5 inline-flex w-full items-center overflow-hidden rounded-lg border border-border-light bg-white">
       <button
         type="button"
-        onClick={openVariantSheet}
+        onClick={openSheet}
         className="flex h-8 w-9 items-center justify-center text-base text-text-secondary transition hover:bg-mobile-surface hover:text-text-primary sm:h-9 sm:w-10"
-        aria-label="Choose variant to decrease"
+        aria-label="Open options to decrease"
       >
         −
       </button>
       <button
         type="button"
-        onClick={openVariantSheet}
+        onClick={openSheet}
         className="flex h-8 flex-1 items-center justify-center border-x border-border-light text-sm font-bold text-text-primary sm:h-9"
-        aria-label="View variants in cart"
+        aria-label="View options in cart"
       >
         {cartQuantity}
       </button>
       <button
         type="button"
-        onClick={openVariantSheet}
+        onClick={openSheet}
         disabled={disabled}
         className="flex h-8 w-9 items-center justify-center text-base text-text-secondary transition hover:bg-mobile-surface hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-40 sm:h-9 sm:w-10"
-        aria-label="Choose variant to increase"
+        aria-label="Open options to increase"
       >
         +
       </button>
@@ -117,39 +126,35 @@ function DealProductCard({
         </Link>
 
         <div className="mt-auto pt-1.5">
-          <div className="lg:hidden">
-            {multiVariant ? (
-              cartQuantity > 0 ? (
-                mobileMultiVariantStepper
-              ) : (
-                <AddToCartButton
-                  onClick={openVariantSheet}
-                  disabled={disabled}
-                  className="w-full"
-                />
-              )
-            ) : cartQuantity > 0 ? (
-              quantityStepper
+          {multiVariant ? (
+            cartQuantity > 0 ? (
+              optionsSheetStepper(openVariantSheet)
             ) : (
               <AddToCartButton
-                onClick={handleDirectAdd}
+                onClick={openVariantSheet}
                 disabled={disabled}
                 className="w-full"
               />
-            )}
-          </div>
-
-          <div className="hidden lg:block">
-            {cartQuantity > 0 ? (
-              quantityStepper
+            )
+          ) : strengthOptions ? (
+            cartQuantity > 0 ? (
+              optionsSheetStepper(openStrengthSheet)
             ) : (
               <AddToCartButton
-                onClick={handleDirectAdd}
+                onClick={openStrengthSheet}
                 disabled={disabled}
                 className="w-full"
               />
-            )}
-          </div>
+            )
+          ) : cartQuantity > 0 ? (
+            quantityStepper
+          ) : (
+            <AddToCartButton
+              onClick={handleDirectAdd}
+              disabled={disabled}
+              className="w-full"
+            />
+          )}
         </div>
       </div>
 
@@ -158,6 +163,14 @@ function DealProductCard({
           product={product}
           open={variantSheetOpen}
           onClose={() => setVariantSheetOpen(false)}
+        />
+      ) : null}
+
+      {!multiVariant && strengthOptions ? (
+        <StrengthPickerSheet
+          product={product}
+          open={strengthSheetOpen}
+          onClose={() => setStrengthSheetOpen(false)}
         />
       ) : null}
     </div>

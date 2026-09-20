@@ -268,6 +268,14 @@ const productSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
+    flavour: {
+      type: [String],
+      default: [],
+    },
+    strength: {
+      type: [String],
+      default: [],
+    },
     specifications: {
       type: [productSpecificationSchema],
       default: [],

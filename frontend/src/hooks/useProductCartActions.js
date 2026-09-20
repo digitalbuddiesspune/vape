@@ -7,6 +7,7 @@ import {
   resolveCartDefaults,
 } from "../utils/cartDefaults";
 import { isMultiVariant } from "../utils/productPricing";
+import { hasStrengthOptions } from "../utils/productOptions";
 
 function findCartLine(items, product) {
   if (!product?._id) return null;
@@ -35,7 +36,7 @@ export function useProductCartActions() {
     (product) => {
       if (!product?._id) return 0;
 
-      if (isMultiVariant(product)) {
+      if (isMultiVariant(product) || hasStrengthOptions(product)) {
         return items
           .filter((item) => String(item._id) === String(product._id))
           .reduce((sum, item) => sum + (item.quantity || 0), 0);
@@ -79,6 +80,7 @@ export function useProductCartActions() {
           productId: line._id,
           variantName: line.variantName || "",
           colorName: line.colorName || "",
+          strength: line.strength || "",
           step,
         });
         return { success: true };
@@ -108,6 +110,7 @@ export function useProductCartActions() {
         productId: line._id,
         variantName: line.variantName || "",
         colorName: line.colorName || "",
+        strength: line.strength || "",
         resolveNextQuantity: (currentQty) =>
           getDecreasedCartQuantityForProduct(product, currentQty, line.variantName || ""),
       });

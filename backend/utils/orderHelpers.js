@@ -63,6 +63,92 @@ const normalizeVariantName = (value) =>
 const normalizeColorName = (value) =>
   typeof value === "string" ? value.trim() : "";
 
+const normalizeStrength = (value) =>
+  typeof value === "string" ? value.trim() : "";
+
+const buildCheckoutLineKey = (
+  productId,
+  variantName = "",
+  colorName = "",
+  strength = ""
+) =>
+  `${String(productId || "")}::${normalizeVariantName(variantName)}::${normalizeColorName(colorName)}::${normalizeStrength(strength)}`;
+
+function resolveItemStrength(product, strength) {
+  const normalized = normalizeStrength(strength);
+  const options = Array.isArray(product?.strength) ? product.strength : [];
+
+  if (options.length === 0) {
+    return { strength: "" };
+  }
+
+  if (!normalized) {
+    return {
+      error: `Strength selection is required for ${product?.name || "this product"}`,
+      status: 400,
+    };
+  }
+
+  const match = options.find(
+    (option) => option?.trim().toLowerCase() === normalized.toLowerCase()
+  );
+
+  if (!match) {
+    return {
+      error: `Selected strength is not available for ${product?.name || "this product"}`,
+      status: 400,
+    };
+  }
+
+  return { strength: match.trim() };
+}
+
+function applyCheckoutItemOverrides(itemsToProcess, checkoutItems) {
+  const overrideMap = new Map();
+
+  if (Array.isArray(checkoutItems)) {
+    checkoutItems.forEach((entry) => {
+      const key = buildCheckoutLineKey(
+        entry.productId || entry._id,
+        entry.variantName,
+        entry.colorName,
+        entry.strength
+      );
+      overrideMap.set(key, normalizeStrength(entry.strength));
+    });
+  }
+
+  return itemsToProcess.map((item) => {
+    const productId = item.product?._id || item.product;
+    const key = buildCheckoutLineKey(
+      productId,
+      item.variantName,
+      item.colorName,
+      item.strength
+    );
+    const strength = overrideMap.has(key)
+      ? overrideMap.get(key)
+      : normalizeStrength(item.strength);
+
+    return {
+      ...item,
+      strength,
+    };
+  });
+}
+
+function validateResolvedItemStrengths(items) {
+  for (const item of items) {
+    const result = resolveItemStrength(item.product, item.strength);
+    if (result.error) {
+      return { error: result.error, status: result.status || 400 };
+    }
+    item.strength = result.strength;
+  }
+
+  return { items };
+}
+
 const matchesOrderedItem = (cartItem, orderItem) => {
   const cartProductId = String(cartItem?.product?._id || cartItem?.product || "");
   const orderProductId = String(orderItem?.product?._id || orderItem?.product || "");
@@ -71,7 +157,8 @@ const matchesOrderedItem = (cartItem, orderItem) => {
     cartProductId === orderProductId &&
     normalizeVariantName(cartItem.variantName) ===
       normalizeVariantName(orderItem.variantName) &&
-    normalizeColorName(cartItem.colorName) === normalizeColorName(orderItem.colorName)
+    normalizeColorName(cartItem.colorName) === normalizeColorName(orderItem.colorName) &&
+    normalizeStrength(cartItem.strength) === normalizeStrength(orderItem.strength)
   );
 };
 
@@ -231,6 +318,7 @@ async function resolveCheckoutItems(rawItems, { skipStockCheck = false } = {}) {
     const productId = entry.productId || entry._id;
     const normalizedVariantName = normalizeVariantName(entry.variantName);
     const normalizedColorName = normalizeColorName(entry.colorName);
+    const normalizedStrength = normalizeStrength(entry.strength);
     const qty = Number(entry.quantity);
 
     if (!productId || !Number.isFinite(qty) || qty < 1) {
@@ -295,11 +383,20 @@ async function resolveCheckoutItems(rawItems, { skipStockCheck = false } = {}) {
       };
     }
 
+    const strengthResult = resolveItemStrength(product, normalizedStrength);
+    if (strengthResult.error) {
+      return {
+        error: strengthResult.error,
+        status: strengthResult.status || 400,
+      };
+    }
+
     resolved.push({
       product,
       quantity: qty,
       variantName: normalizedVariantName,
       colorName: normalizedColorName,
+      strength: strengthResult.strength,
     });
   }
 
@@ -321,6 +418,7 @@ function buildOrderItemsFromResolved(items) {
 
     const variantName = item.variantName || "";
     const colorName = item.colorName || "";
+    const strength = item.strength || "";
 
     if (!isProductInStock(item.product, variantName)) {
       return {
@@ -339,6 +437,7 @@ function buildOrderItemsFromResolved(items) {
       brandName: item.product.brandName || "",
       variantName,
       colorName,
+      strength,
       price,
       quantity: item.quantity,
       image: item.product.productImages?.[0] || "",
@@ -388,6 +487,13 @@ export async function prepareOrderData(userId, addressId, options = {}) {
 
     itemsToProcess = cart.items;
   }
+
+  itemsToProcess = applyCheckoutItemOverrides(itemsToProcess, options.checkoutItems);
+  const strengthValidation = validateResolvedItemStrengths(itemsToProcess);
+  if (strengthValidation.error) {
+    return strengthValidation;
+  }
+  itemsToProcess = strengthValidation.items;
 
   const built = buildOrderItemsFromResolved(itemsToProcess);
   if (built.error) {
@@ -542,6 +648,13 @@ async function resolveItemsForCheckout(userId, options = {}) {
 
     itemsToProcess = cart.items;
   }
+
+  itemsToProcess = applyCheckoutItemOverrides(itemsToProcess, options.checkoutItems);
+  const strengthValidation = validateResolvedItemStrengths(itemsToProcess);
+  if (strengthValidation.error) {
+    return strengthValidation;
+  }
+  itemsToProcess = strengthValidation.items;
 
   return { itemsToProcess, cart, checkoutMode };
 }
