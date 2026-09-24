@@ -146,16 +146,15 @@ function CategoryHeaderSection({
 
   return (
     <section className="overflow-visible rounded-lg border border-border-light bg-white px-2.5 py-2 shadow-sm sm:px-3 sm:py-2.5">
-      <div className="flex flex-nowrap items-center justify-between gap-1.5 sm:gap-3">
-        <div className="flex min-w-0 flex-1 items-center gap-1.5 sm:gap-2.5">
+      <div className="flex items-center justify-between gap-2 sm:gap-3">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-2.5">
           <CategoryHeaderImage image={category?.categoryImage} name={categoryName} />
-          <h1 className="min-w-0 flex-1 overflow-hidden text-ellipsis text-sm font-bold leading-tight text-text-primary line-clamp-1 sm:text-base lg:line-clamp-none lg:whitespace-normal lg:overflow-visible">
+          <h1 className="min-w-0 line-clamp-1 text-sm font-bold leading-tight text-text-primary lg:line-clamp-none sm:text-base">
             {categoryName}
           </h1>
         </div>
         <ProductFiltersBar
           embedded
-          compact
           selectedBrand={selectedBrand}
           onBrandChange={onBrandChange}
           sortBy={sortBy}
