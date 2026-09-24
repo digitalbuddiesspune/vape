@@ -81,7 +81,7 @@ function Orders() {
   );
 
   return (
-    <div className="min-h-screen bg-[#F4F5F7] px-3 pb-24 pt-3 sm:px-4 lg:px-6 lg:pb-8 lg:pt-6">
+    <div className="store-page-x store-section-y min-h-screen bg-mobile-bg pb-24 lg:pb-8">
       <div className="mx-auto max-w-3xl lg:max-w-6xl">
         {authLoading || (user && loading && orders.length === 0 && !error) ? (
           <>

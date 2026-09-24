@@ -28,7 +28,7 @@ const posts = [
 function Blog() {
   return (
     <div className="bg-black text-white">
-      <section className="page-hero-section px-3 sm:px-4">
+      <section className="page-hero-section">
         <div className="max-w-7xl mx-auto">
           <h1 className="page-title">Blog</h1>
           <p className="text-neutral-400 text-lg max-w-3xl leading-relaxed">
@@ -38,7 +38,7 @@ function Blog() {
         </div>
       </section>
 
-      <section className="py-10 sm:py-12 px-3 sm:px-4">
+      <section className="store-page-x store-section-y">
         <div className="max-w-7xl mx-auto space-y-6">
           {posts.map((post) => (
             <article

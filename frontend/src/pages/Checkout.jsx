@@ -537,7 +537,7 @@ function Checkout() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-mobile-bg px-3 py-6 sm:px-4 lg:px-8">
+      <div className="store-page-x store-section-y min-h-screen bg-mobile-bg">
         <div className="mx-auto max-w-7xl animate-pulse space-y-4">
           <div className="h-8 w-40 rounded-lg bg-white" />
           <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
@@ -555,7 +555,7 @@ function Checkout() {
 
   if (!user) {
     return (
-      <div className="min-h-[60vh] bg-mobile-bg px-4 py-16 text-text-primary sm:px-6">
+      <div className="store-page-x min-h-[60vh] bg-mobile-bg py-16 text-text-primary">
         <div className="mx-auto max-w-2xl text-center">
           <h1 className="mb-3 text-2xl font-bold sm:text-3xl">Checkout</h1>
           <p className="mb-6 text-text-secondary">Please login to proceed with checkout.</p>
@@ -686,7 +686,7 @@ function Checkout() {
         />
       </CheckoutModal>
 
-      <section className="px-3 pb-24 pt-1 sm:px-4 sm:pb-14 lg:px-8 lg:pb-10 lg:pt-2">
+      <section className="store-page-x pb-24 pt-2 sm:pb-14 lg:pb-10 lg:pt-4">
         <div className="mx-auto max-w-7xl">
           <nav className="mb-3 text-xs text-text-secondary sm:text-sm">
             <Link to="/" className="hover:text-primary">

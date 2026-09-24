@@ -21,7 +21,7 @@ function HomeProductRow({ title, viewAllTo, products, loading }) {
   }
 
   return (
-    <section className="bg-white px-4 py-3 sm:px-6 md:px-8">
+    <section className="store-section-pad bg-white">
       <SectionHeader title={title} viewAllTo={viewAllTo} className="mb-2" />
 
       {loading ? (

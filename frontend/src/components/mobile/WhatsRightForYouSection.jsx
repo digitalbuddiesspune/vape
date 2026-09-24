@@ -8,8 +8,8 @@ function WhatsRightForYouSection() {
   const displayItems = useMemo(() => withFindTheBestOneCard(items), [items]);
 
   return (
-    <section className="bg-mobile-bg py-5 sm:py-6 lg:py-8">
-      <div className="mb-5 px-4 text-center sm:mb-6 sm:px-6 lg:px-8">
+    <section className="store-section-y bg-mobile-bg">
+      <div className="store-page-x mb-5 text-center sm:mb-6">
         <h2 className="text-2xl font-bold text-text-primary sm:text-3xl lg:text-4xl">
           What&apos;s Right for You?
         </h2>
@@ -19,15 +19,15 @@ function WhatsRightForYouSection() {
       </div>
 
       {isLoading ? (
-        <p className="px-4 text-center text-text-secondary sm:px-6 lg:px-8">
+        <p className="store-page-x text-center text-text-secondary">
           Loading guides...
         </p>
       ) : isError ? (
-        <p className="px-4 text-center text-text-secondary sm:px-6 lg:px-8">
+        <p className="store-page-x text-center text-text-secondary">
           Guides are coming soon. Check back shortly.
         </p>
       ) : displayItems.length === 0 ? (
-        <p className="px-4 text-center text-text-secondary sm:px-6 lg:px-8">
+        <p className="store-page-x text-center text-text-secondary">
           Guides are coming soon. Check back shortly.
         </p>
       ) : (

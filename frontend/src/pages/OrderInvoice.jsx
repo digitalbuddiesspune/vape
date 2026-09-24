@@ -92,7 +92,7 @@ function OrderInvoice() {
 
   if (!user) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white px-4 py-16 text-center">
+      <div className="store-page-x flex min-h-screen items-center justify-center bg-mobile-bg py-16 text-center">
         <p className="mb-6 text-text-secondary">Please login to view invoice.</p>
         <button
           type="button"
@@ -115,7 +115,7 @@ function OrderInvoice() {
 
   if (error || !order) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white px-4 py-16 text-center">
+      <div className="store-page-x flex min-h-screen items-center justify-center bg-mobile-bg py-16 text-center">
         <p className="mb-6 text-text-secondary">{error || "Order not found"}</p>
         <Link to="/orders" className="text-sm font-semibold text-primary hover:underline">
           ← Back to My Orders

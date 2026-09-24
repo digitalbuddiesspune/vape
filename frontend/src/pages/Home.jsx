@@ -11,13 +11,13 @@ import TestimonialsImpact from "../components/home/TestimonialsImpact";
 
 function Home() {
   return (
-    <div className="bg-mobile-bg">
+    <div className="bg-mobile-bg store-page-stack">
       <HeroBanner />
       <CategoryNav />
       <WhatsRightForYouSection />
       <TopBrands />
       <BestDeals />
-      <div className="flex flex-col gap-1.5 py-1.5 sm:gap-2 sm:py-2">
+      <div className="flex flex-col gap-3 sm:gap-4 lg:gap-5">
         <JustArrived />
         <HotSelling />
         <RecentlyViewed />

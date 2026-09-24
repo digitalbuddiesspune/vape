@@ -31,7 +31,7 @@ function Contact() {
 
   return (
     <div className="info-page">
-      <section className="page-hero-section px-3 sm:px-4">
+      <section className="page-hero-section">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16">
           <div>
             <h1 className="page-title">Contact Us</h1>
@@ -116,7 +116,7 @@ function Contact() {
         </div>
       </section>
 
-      <section className="py-8 sm:py-12 px-3 sm:px-4 text-center border-t border-border-light pb-16">
+      <section className="store-page-x store-section-y text-center border-t border-border-light pb-16">
         <p className="text-text-secondary max-w-xl mx-auto">
           Prefer WhatsApp? Message us at{" "}
           <a href={CONTACT_PHONE_TEL} className="text-primary hover:underline">

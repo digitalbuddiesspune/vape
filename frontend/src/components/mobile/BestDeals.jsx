@@ -42,7 +42,7 @@ function BestDeals() {
   }
 
   return (
-    <section className="bg-white px-4 sm:px-6 md:px-8">
+    <section className="store-section-pad bg-white">
       <SectionHeader title="Vape Deals & Offers" viewAllTo="/product" className="mb-2" />
 
       {loading ? (

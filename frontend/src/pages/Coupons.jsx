@@ -237,9 +237,9 @@ function Coupons() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F4F4F4] pb-24 lg:pb-8">
+    <div className="min-h-screen bg-mobile-bg pb-24 lg:pb-8">
       <div className="sticky top-0 z-20 border-b border-border-light bg-white">
-        <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3">
+        <div className="store-page-x mx-auto flex max-w-3xl items-center justify-between gap-3 py-3">
           <div className="flex min-w-0 items-center gap-3">
             <button
               type="button"
@@ -264,7 +264,7 @@ function Coupons() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-3xl px-4 py-4">
+      <div className="store-page-x store-section-y mx-auto max-w-3xl">
         <p className="text-center text-sm text-text-muted">
           Note: You can apply coupons during checkout.
         </p>

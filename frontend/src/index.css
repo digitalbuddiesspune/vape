@@ -190,9 +190,80 @@ input[type="number"] {
   object-fit: fill;
 }
 
+.store-page-x {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.store-section-y {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.store-section-pad {
+  padding: 1rem;
+}
+
+.store-page-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .store-page-x {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .store-section-y {
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
+  }
+
+  .store-section-pad {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .store-page-stack {
+    gap: 1rem;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .store-page-x {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  .store-page-x.store-page-x-lg-flush {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .store-section-y {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .store-section-pad {
+    padding: 1.5rem 2rem;
+  }
+
+  .store-page-stack {
+    gap: 1.25rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+}
+
 .info-page {
   min-height: 100%;
-  background-color: #ffffff;
+  background-color: #fdfbd4;
   color: #000000;
 }
 
@@ -206,39 +277,69 @@ input[type="number"] {
 
 .legal-page .page-hero-section {
   border-bottom: none;
-  padding: 1rem 0.75rem 0.75rem;
+  padding: 1rem 1rem 0.75rem;
 }
 
 @media (min-width: 640px) {
   .legal-page .page-hero-section {
-    padding: 1.25rem 1rem 1rem;
+    padding: 1.25rem 1.5rem 1rem;
   }
 }
 
 @media (min-width: 768px) {
   .legal-page .page-hero-section {
-    padding: 1.5rem 1rem 1.25rem;
+    padding: 1.5rem 1.5rem 1.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .legal-page .page-hero-section {
+    padding-left: 2rem;
+    padding-right: 2rem;
   }
 }
 
 .legal-page .legal-content {
   padding-top: 0;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .legal-page .legal-content {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .legal-page .legal-content {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
 }
 
 .page-hero-section {
-  padding: 1.5rem 0.75rem 2.5rem;
+  padding: 1.5rem 1rem 2.5rem;
   border-bottom: 1px solid #262626;
 }
 
 @media (min-width: 640px) {
   .page-hero-section {
-    padding: 2.5rem 1rem 4rem;
+    padding: 2.5rem 1.5rem 4rem;
   }
 }
 
 @media (min-width: 768px) {
   .page-hero-section {
-    padding: 3rem 1rem 5rem;
+    padding: 3rem 1.5rem 5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page-hero-section {
+    padding-left: 2rem;
+    padding-right: 2rem;
   }
 }
 

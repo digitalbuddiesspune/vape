@@ -9,7 +9,7 @@ function WhatsRightForYou() {
 
   return (
     <div className="bg-mobile-bg">
-      <section className="page-hero-section px-4 sm:px-6 lg:px-8">
+      <section className="page-hero-section">
         <div className="mx-auto max-w-4xl text-center">
           <h1 className="page-title">What&apos;s Right for You?</h1>
           <p className="mx-auto mt-3 max-w-2xl text-base leading-relaxed text-text-secondary sm:text-lg">

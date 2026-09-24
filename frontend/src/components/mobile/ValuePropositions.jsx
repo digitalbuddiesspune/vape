@@ -66,7 +66,7 @@ function FeatureIcon({ children }) {
 
 function ValuePropositions() {
   return (
-    <section className="bg-mobile-bg px-4 py-4 sm:px-6 sm:py-5 md:px-8">
+    <section className="store-section-pad bg-mobile-bg">
       <div className="rounded-2xl border border-border-light bg-white px-3 py-6 shadow-sm sm:px-5 sm:py-7 md:px-6">
         <div className="grid grid-cols-4 gap-2 sm:gap-4 md:gap-5">
           {ITEMS.map((item) => (

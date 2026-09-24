@@ -700,8 +700,8 @@ function ProductDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white pb-28 lg:pb-10">
-        <div className="mx-auto w-full max-w-7xl px-3 pb-8 pt-4 sm:px-4 md:px-5 lg:px-6 xl:px-8">
+      <div className="min-h-screen bg-mobile-bg pb-28 lg:pb-10">
+        <div className="store-page-x store-section-y mx-auto w-full max-w-7xl">
           <div className="animate-pulse">
             <div className="mb-6 hidden h-4 w-64 rounded bg-mobile-surface lg:block" />
             <div className="grid gap-5 sm:gap-6 md:grid-cols-2 md:gap-8 lg:gap-10">
@@ -720,8 +720,8 @@ function ProductDetail() {
 
   if (error || !product) {
     return (
-      <div className="min-h-screen bg-white pb-28 lg:pb-10">
-        <div className="mx-auto w-full max-w-7xl px-3 py-16 text-center sm:px-4 md:px-5 lg:px-6 xl:px-8">
+      <div className="min-h-screen bg-mobile-bg pb-28 lg:pb-10">
+        <div className="store-page-x mx-auto w-full max-w-7xl py-16 text-center">
           <p className="mb-6 text-text-secondary">{error || "Product not found."}</p>
           <Link to="/product" className="text-sm font-medium text-primary hover:underline">
             ← Back to products
@@ -740,8 +740,8 @@ function ProductDetail() {
     : minOrderQuantity;
 
   return (
-    <div className="min-h-screen bg-white pb-24 text-text-primary lg:pb-10">
-      <div className="mx-auto w-full max-w-7xl px-3 pt-3 sm:px-4 sm:pt-4 md:px-5 lg:px-6 lg:pt-4 xl:px-8">
+    <div className="min-h-screen bg-mobile-bg pb-24 text-text-primary lg:pb-10">
+      <div className="store-page-x store-section-y mx-auto w-full max-w-7xl">
         <nav className="mb-4 hidden flex-wrap items-center gap-1.5 text-xs text-text-secondary sm:mb-5 sm:text-sm lg:flex">
           <Link to="/" className="transition hover:text-primary">
             Home

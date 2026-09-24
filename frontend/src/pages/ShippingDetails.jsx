@@ -3,14 +3,14 @@ import { CONTACT_PHONE_DISPLAY, CONTACT_PHONE_TEL } from "../config/contact";
 function ShippingDetails() {
   return (
     <div className="info-page legal-page">
-      <section className="page-hero-section px-3 sm:px-4">
+      <section className="page-hero-section">
         <div className="max-w-4xl mx-auto">
           <h1 className="page-title">Shipping Details</h1>
           <p className="text-text-secondary">Last updated: June 10, 2026</p>
         </div>
       </section>
 
-      <section className="legal-content px-3 sm:px-4 pb-16 sm:pb-20">
+      <section className="legal-content pb-16 sm:pb-20">
         <div className="max-w-4xl mx-auto space-y-8 text-text-secondary leading-relaxed">
           <div>
             <h2 className="text-xl font-bold text-text-primary mb-3">Delivery Coverage</h2>

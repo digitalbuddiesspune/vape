@@ -235,7 +235,7 @@ function Profile() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-mobile-bg px-4 pb-24 pt-4">
+      <div className="store-page-x store-section-y min-h-screen bg-mobile-bg pb-24">
         <div className="mx-auto max-w-xl rounded-2xl border border-border-light bg-white px-6 py-10 text-center">
           <p className="mb-6 text-sm text-text-secondary">
             Sign in to manage your account and addresses.
@@ -253,7 +253,7 @@ function Profile() {
   }
 
   return (
-    <div className="min-h-screen bg-mobile-bg px-4 pb-24 pt-4 sm:px-6">
+    <div className="store-page-x store-section-y min-h-screen bg-mobile-bg pb-24">
       <div className="mx-auto max-w-xl space-y-4">
         <div className="flex items-start justify-between gap-4">
           <div>

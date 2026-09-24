@@ -17,7 +17,7 @@ function Wishlist() {
 
   if (!user) {
     return (
-      <div className="min-h-[60vh] bg-mobile-bg px-4 py-16 text-text-primary sm:px-6">
+      <div className="store-page-x min-h-[60vh] bg-mobile-bg py-16 text-text-primary">
         <div className="mx-auto max-w-2xl text-center">
           <h1 className="mb-3 text-2xl font-bold sm:text-3xl">My Wishlist</h1>
           <p className="mb-6 text-text-secondary">
@@ -36,8 +36,8 @@ function Wishlist() {
   }
 
   return (
-    <div className="min-h-screen bg-mobile-bg pb-24 text-text-primary lg:pb-8">
-      <section className="bg-white px-4 py-4 pb-6 sm:px-6 md:px-8 md:pb-8">
+    <div className="store-page-stack min-h-screen bg-mobile-bg pb-24 text-text-primary lg:pb-8">
+      <section className="store-section-pad bg-white">
         <div className="mx-auto w-full max-w-[1600px]">
           <h1 className="mb-4 text-xl font-bold sm:mb-6 sm:text-2xl lg:text-3xl">
             My Wishlist

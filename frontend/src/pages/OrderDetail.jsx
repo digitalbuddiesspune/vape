@@ -59,7 +59,7 @@ function OrderDetail() {
 
   if (!user) {
     return (
-      <div className="min-h-[60vh] bg-white px-4 py-16 text-center lg:bg-[#F4F5F7]">
+      <div className="store-page-x min-h-[60vh] bg-mobile-bg py-16 text-center">
         <p className="mb-6 text-text-secondary">Please login to view order details.</p>
         <button
           type="button"
@@ -74,7 +74,7 @@ function OrderDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white px-4 py-8 lg:bg-[#F4F5F7] lg:px-6 lg:py-6">
+      <div className="store-section-pad min-h-screen bg-mobile-bg">
         <div className="mx-auto max-w-3xl animate-pulse space-y-4 lg:max-w-6xl">
           <div className="h-8 w-40 rounded bg-mobile-surface lg:h-5" />
           <div className="h-28 rounded-xl bg-mobile-surface lg:h-32" />
@@ -95,7 +95,7 @@ function OrderDetail() {
 
   if (error || !order) {
     return (
-      <div className="min-h-[60vh] bg-white px-4 py-16 text-center lg:bg-[#F4F5F7]">
+      <div className="store-page-x min-h-[60vh] bg-mobile-bg py-16 text-center">
         <p className="mb-6 text-text-secondary">{error || "Order not found"}</p>
         <Link to="/orders" className="text-sm font-semibold text-primary hover:underline">
           ← Back to My Orders

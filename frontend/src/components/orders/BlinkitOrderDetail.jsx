@@ -45,8 +45,8 @@ function BlinkitOrderDetail({ order, onCancel, cancelling, cancelError }) {
   };
 
   return (
-    <div className="min-h-screen bg-white pb-24 lg:pb-8">
-      <div className="border-b border-border-light px-3 pb-3 pt-3 sm:px-4">
+    <div className="min-h-screen bg-mobile-bg pb-24 lg:pb-8">
+      <div className="store-page-x border-b border-border-light pb-3 pt-3">
         <div className="mx-auto flex max-w-3xl items-start gap-2.5">
           <button
             type="button"
@@ -91,7 +91,7 @@ function BlinkitOrderDetail({ order, onCancel, cancelling, cancelError }) {
         ) : null}
       </div>
 
-      <div className="mx-auto max-w-3xl px-4 py-4">
+      <div className="store-page-x store-section-y mx-auto max-w-3xl">
         {shipment.trackUrl ? (
           <div className="mb-4">
             <ShipmentTrackingBanner shipment={shipment} className="w-full" />

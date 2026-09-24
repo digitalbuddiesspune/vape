@@ -242,7 +242,7 @@ function FilteredProductsView({
             ))}
           </div>
         )}
-        <div className="bg-mobile-bg px-3 py-3">
+        <div className="store-page-x store-section-y bg-mobile-bg">
           <ProductResultsGrid
             products={sortedProducts}
             loading={loading}
@@ -264,7 +264,7 @@ function FilteredProductsView({
             <DesktopCategorySidebar categories={categories} activeCategory="" />
           </div>
           <div className="hide-scrollbar min-h-0 flex-1 overflow-y-auto border-l border-border-light bg-white">
-            <div className="border-b border-border-light px-3 py-4 lg:px-6 lg:py-5">
+            <div className="store-page-x store-section-y border-b border-border-light">
               <h1 className="mb-3 text-xl font-bold text-text-primary">{pageTitle}</h1>
               <ProductFiltersBar
                 showBrand={showBrandFilter}
@@ -277,7 +277,7 @@ function FilteredProductsView({
                 className="px-0"
               />
             </div>
-            <div className="px-3 py-4 lg:px-6 lg:py-5">
+            <div className="store-page-x store-section-y">
               <ProductResultsGrid
                 products={sortedProducts}
                 loading={loading}

@@ -370,7 +370,7 @@ function Cart() {
 
   if (!user) {
     return (
-      <div className="min-h-[60vh] bg-mobile-bg px-4 py-16 text-text-primary sm:px-6">
+      <div className="store-page-x min-h-[60vh] bg-mobile-bg py-16 text-text-primary">
         <div className="mx-auto max-w-2xl text-center">
           <h1 className="mb-3 text-2xl font-bold sm:text-3xl">{pageTitle}</h1>
           <p className="mb-6 text-text-secondary">
@@ -390,7 +390,7 @@ function Cart() {
 
   return (
     <div className="min-h-screen bg-mobile-bg text-text-primary">
-      <section className="px-3 py-4 sm:px-4 sm:py-6 lg:px-8">
+      <section className="store-page-x store-section-y">
         <div className="mx-auto w-full max-w-7xl">
           <div className="mb-4 flex items-center justify-between gap-3 sm:mb-6">
             <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">{pageTitle}</h1>

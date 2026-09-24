@@ -263,7 +263,7 @@ function Support() {
 
   return (
     <div className="bg-mobile-bg text-text-primary">
-      <section className="px-3 py-4 sm:px-4 lg:px-8 lg:py-8">
+      <section className="store-section-pad">
         <div className="mx-auto max-w-7xl">
           <nav className="mb-4 text-xs text-text-secondary sm:text-sm">
             <Link to="/" className="hover:text-primary">
@@ -575,7 +575,7 @@ function Support() {
         </div>
       </section>
 
-      <section className="border-t border-border-light bg-white px-2 py-5 sm:px-4 lg:px-8 lg:py-8">
+      <section className="store-section-pad border-t border-border-light bg-white">
         <div className="mx-auto grid max-w-7xl grid-cols-5 gap-1.5 sm:gap-3 lg:gap-6">
           {TRUST_BADGES.map((badge) => (
             <div key={badge.title} className="flex min-w-0 flex-col items-center text-center">

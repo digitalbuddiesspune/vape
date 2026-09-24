@@ -36,7 +36,7 @@ function TopBrands() {
   }
 
   return (
-    <section className="bg-white px-4 py-5 sm:px-6 sm:py-6 md:px-8 md:py-7">
+    <section className="store-section-pad bg-white">
       <SectionHeader title="Top Brands" viewAllTo="/product" />
       <div className="social-marquee hide-scrollbar">
         <div className="social-marquee-track">

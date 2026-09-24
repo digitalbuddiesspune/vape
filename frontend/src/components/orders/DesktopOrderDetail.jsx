@@ -135,7 +135,7 @@ function DesktopOrderDetail({ order, onCancel, cancelling, cancelError }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#F4F5F7] px-4 pb-8 pt-4 lg:px-6 lg:pt-6">
+    <div className="store-section-pad min-h-screen bg-mobile-bg">
       <div className="mx-auto max-w-6xl">
         <Link
           to="/orders"

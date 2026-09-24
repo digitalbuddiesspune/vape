@@ -144,7 +144,7 @@ function FeaturedProductsPage({
             ))}
           </div>
         )}
-        <div className="bg-mobile-bg px-3 py-3">
+        <div className="store-page-x store-section-y bg-mobile-bg">
           <ProductResultsGrid
             products={sortedProducts}
             loading={loading}
@@ -160,7 +160,7 @@ function FeaturedProductsPage({
       <div className="hidden lg:flex lg:h-full lg:min-h-0 lg:flex-1 lg:flex-col">
         <div className="mx-auto grid h-full min-h-0 w-full max-w-[1600px] grid-cols-[240px_1fr] bg-mobile-bg xl:grid-cols-[260px_1fr]">
           <DesktopCategorySidebar categories={categories} activeCategory="" />
-          <div className="hide-scrollbar min-h-0 flex-1 overflow-y-auto border-l border-border-light bg-white px-3 py-4 lg:px-6 lg:py-5">
+          <div className="store-page-x store-section-y hide-scrollbar min-h-0 flex-1 overflow-y-auto border-l border-border-light bg-white">
             <h1 className="mb-4 text-xl font-bold text-text-primary">{title}</h1>
             <ProductResultsGrid
               products={sortedProducts}

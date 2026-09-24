@@ -195,7 +195,7 @@ function TestimonialsImpact() {
   }
 
   return (
-    <section className="bg-white px-5 py-8 sm:px-6 md:px-8 md:py-10 lg:px-12">
+    <section className="store-section-pad bg-white">
       <div className="mx-auto max-w-[1600px]">
         <h2 className="mb-5 text-center text-2xl font-bold text-text-primary sm:mb-6 sm:text-3xl lg:text-4xl">
           What Our Customers Say
