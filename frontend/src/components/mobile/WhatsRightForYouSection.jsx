@@ -13,9 +13,6 @@ function WhatsRightForYouSection() {
         <h2 className="text-2xl font-bold text-text-primary sm:text-3xl lg:text-4xl">
           What&apos;s Right for You?
         </h2>
-        <p className="mx-auto mt-2 max-w-2xl text-sm leading-relaxed text-text-secondary sm:text-base">
-          Not sure where to start? We&apos;ll help you find your match.
-        </p>
       </div>
 
       {isLoading ? (

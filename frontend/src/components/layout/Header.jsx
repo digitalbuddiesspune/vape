@@ -125,15 +125,15 @@ function UtilityIcons({ user, onLoginClick }) {
 
 function Header({ user, onLoginClick, onMenuToggle, menuOpen }) {
   return (
-    <div className="bg-light-bg border-b border-gray-200 shadow-sm">
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10 py-3">
+    <div className="border-b border-black/[0.06] bg-white/85 backdrop-blur-xl">
+      <div className="mx-auto max-w-[1600px] px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-6 lg:px-10">
         {/* Mobile: logo + menu */}
-        <div className="flex md:hidden items-center justify-between gap-3 min-w-0">
+        <div className="flex min-w-0 items-center justify-between gap-3 md:hidden">
           <SiteBrand variant="headerMobile" className="max-w-[75%]" />
           <button
             type="button"
             onClick={onMenuToggle}
-            className="flex h-9 w-9 items-center justify-center rounded border border-gray-300 text-gray-700 hover:border-purple-600 hover:text-purple-600 transition shrink-0"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-black/[0.05] text-gray-800 transition active:scale-95 hover:bg-black/[0.08]"
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
           >
@@ -161,7 +161,7 @@ function Header({ user, onLoginClick, onMenuToggle, menuOpen }) {
         </div>
       </div>
 
-      <div className="md:hidden px-4 pb-3 bg-light-bg">
+      <div className="md:hidden bg-transparent px-4 pb-3">
         <SearchBar className="w-full" />
       </div>
     </div>

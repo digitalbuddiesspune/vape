@@ -35,8 +35,8 @@ function TopNav() {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 hidden bg-white lg:block">
-      <div className="mx-auto flex max-w-[1600px] items-center gap-4 px-5 py-3 xl:gap-6 xl:px-8">
+    <header className="fixed top-0 left-0 right-0 z-50 hidden border-b border-black/[0.06] bg-white/90 backdrop-blur-xl lg:block">
+      <div className="mx-auto flex max-w-[1600px] items-center gap-4 px-5 py-3.5 xl:gap-6 xl:px-8">
         <div className="flex shrink-0 items-center">
           <SiteBrand variant="header" />
         </div>
@@ -50,7 +50,7 @@ function TopNav() {
             <button
               type="button"
               onClick={() => openAuthModal("login")}
-              className="flex h-10 w-10 items-center justify-center rounded-lg text-text-primary transition hover:text-primary"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-black/[0.04] text-text-primary transition hover:bg-black/[0.07] hover:text-primary"
               aria-label="Login or Register"
             >
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -67,7 +67,7 @@ function TopNav() {
             to="/wishlist"
             data-wishlist-target="desktop"
             onClick={handleWishlistClick}
-            className="relative flex h-10 w-10 items-center justify-center overflow-visible rounded-lg text-primary transition hover:text-primary-dark"
+            className="relative flex h-10 w-10 items-center justify-center overflow-visible rounded-full bg-black/[0.04] text-primary transition hover:bg-black/[0.07] hover:text-primary-dark"
             aria-label={`Wishlist${wishlistCount > 0 ? `, ${wishlistCount} items` : ""}`}
           >
             <NavIconWrap badge={wishlistCount}>
@@ -85,7 +85,7 @@ function TopNav() {
             to="/cart"
             data-cart-target="desktop"
             onClick={handleCartClick}
-            className="relative flex h-10 items-center gap-1.5 overflow-visible rounded-lg px-2 text-text-primary transition hover:text-primary"
+            className="relative flex h-10 items-center gap-1.5 overflow-visible rounded-full bg-black/[0.04] px-3 text-text-primary transition hover:bg-black/[0.07] hover:text-primary"
             aria-label={`Cart, ${cartCount} items, ${formatPrice(cartTotal)}`}
           >
             <NavIconWrap badge={cartCount}>

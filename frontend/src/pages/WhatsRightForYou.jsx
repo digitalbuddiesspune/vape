@@ -12,9 +12,6 @@ function WhatsRightForYou() {
       <section className="page-hero-section">
         <div className="mx-auto max-w-4xl text-center">
           <h1 className="page-title">What&apos;s Right for You?</h1>
-          <p className="mx-auto mt-3 max-w-2xl text-base leading-relaxed text-text-secondary sm:text-lg">
-            Not sure where to start? We&apos;ll help you find your match.
-          </p>
         </div>
       </section>
 

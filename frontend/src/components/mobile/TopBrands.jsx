@@ -28,6 +28,31 @@ function BrandMarqueeGroup({ brands, groupKey, ariaHidden = false }) {
   );
 }
 
+function TopBrandsMobileRows({ brands }) {
+  const splitAt = Math.ceil(brands.length / 2);
+  const topRow = brands.slice(0, splitAt);
+  const bottomRow = brands.slice(splitAt);
+
+  return (
+    <div className="hide-scrollbar overflow-x-auto md:hidden">
+      <div className="inline-flex min-w-min flex-col gap-3">
+        <div className="flex gap-3">
+          {topRow.map((brand) => (
+            <BrandCard key={`top-${brand._id}`} brand={brand} />
+          ))}
+        </div>
+        {bottomRow.length > 0 ? (
+          <div className="flex gap-3">
+            {bottomRow.map((brand) => (
+              <BrandCard key={`bottom-${brand._id}`} brand={brand} />
+            ))}
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 function TopBrands() {
   const { data: brands = [], isLoading: loading } = useBrandsQuery();
 
@@ -38,7 +63,8 @@ function TopBrands() {
   return (
     <section className="store-section-pad bg-white">
       <SectionHeader title="Top Brands" viewAllTo="/product" />
-      <div className="social-marquee hide-scrollbar">
+      <TopBrandsMobileRows brands={brands} />
+      <div className="social-marquee hide-scrollbar hidden md:block">
         <div className="social-marquee-track">
           <BrandMarqueeGroup brands={brands} groupKey="a" />
           <BrandMarqueeGroup brands={brands} groupKey="b" ariaHidden />

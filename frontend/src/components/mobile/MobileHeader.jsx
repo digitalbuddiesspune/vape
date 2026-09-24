@@ -58,16 +58,16 @@ function MobileHeader() {
     <>
       <header
         ref={headerRef}
-        className="fixed top-0 left-0 right-0 z-50 border-b border-border-light bg-white px-4 pt-3 pb-3 shadow-sm sm:px-6 md:px-8 lg:hidden"
+        className="fixed top-0 left-0 right-0 z-50 border-b border-black/[0.06] bg-white/80 px-4 pb-3 pt-[max(0.625rem,env(safe-area-inset-top))] backdrop-blur-xl sm:px-5 lg:hidden"
       >
         <div className="flex items-center justify-between gap-3">
           <SiteBrand variant="headerMobile" />
 
-          <div className="flex shrink-0 items-center gap-0.5 overflow-visible sm:gap-1">
+          <div className="flex shrink-0 items-center gap-1 overflow-visible">
             <button
               type="button"
               onClick={toggleSearch}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-black transition hover:bg-neutral-100 sm:h-9 sm:w-9"
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-black/[0.05] text-neutral-900 transition active:scale-95 hover:bg-black/[0.08]"
               aria-label={searchOpen ? "Close search" : "Open search"}
               aria-expanded={searchOpen}
             >
@@ -84,7 +84,7 @@ function MobileHeader() {
               to="/wishlist"
               data-wishlist-target="mobile"
               onClick={handleWishlistClick}
-              className="relative flex h-8 w-8 items-center justify-center overflow-visible rounded-lg text-black transition hover:bg-neutral-100 sm:h-9 sm:w-9"
+              className="relative flex h-9 w-9 items-center justify-center overflow-visible rounded-full bg-black/[0.05] text-neutral-900 transition active:scale-95 hover:bg-black/[0.08]"
               aria-label={`Wishlist${wishlistCount > 0 ? `, ${wishlistCount} items` : ""}`}
             >
               <NavIconWrap badge={wishlistCount} compact>
@@ -101,7 +101,7 @@ function MobileHeader() {
             <button
               type="button"
               onClick={openMenu}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-black transition hover:bg-neutral-100 sm:h-9 sm:w-9"
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-black/[0.05] text-neutral-900 transition active:scale-95 hover:bg-black/[0.08]"
               aria-label="Open menu"
             >
               <svg className="h-5 w-5 sm:h-[22px] sm:w-[22px]" fill="currentColor" viewBox="0 0 24 24">
