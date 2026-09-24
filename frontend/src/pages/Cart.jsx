@@ -6,6 +6,10 @@ import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import { clearBuyNowCheckout } from "../utils/checkoutSession";
 import {
+  STORE_BTN_PRIMARY_FULL,
+  STORE_BTN_PRIMARY_LG,
+} from "../utils/storeButton";
+import {
   getCartStepForItem,
   getDecreasedCartQuantityForItem,
 } from "../utils/cartDefaults";
@@ -267,7 +271,7 @@ function OrderSummary({ items, storeSettings }) {
         <Link
           to="/checkout"
           onClick={() => clearBuyNowCheckout()}
-          className="mt-4 flex w-full items-center justify-center rounded-md bg-primary px-3 py-2.5 text-xs font-bold text-white transition hover:brightness-110 sm:text-sm"
+          className={STORE_BTN_PRIMARY_FULL}
         >
           Proceed to Checkout
         </Link>
@@ -275,7 +279,7 @@ function OrderSummary({ items, storeSettings }) {
         <button
           type="button"
           disabled
-          className="mt-4 flex w-full cursor-not-allowed items-center justify-center rounded-md bg-primary px-3 py-2.5 text-xs font-bold text-white opacity-50 sm:text-sm"
+          className={`${STORE_BTN_PRIMARY_FULL} cursor-not-allowed opacity-50`}
         >
           Proceed to Checkout
         </button>
@@ -298,7 +302,7 @@ function OrderSummary({ items, storeSettings }) {
 
         <Link
           to="/support"
-          className="flex items-center justify-center gap-1 whitespace-nowrap rounded-md border border-primary px-2 py-1.5 text-[11px] font-bold leading-none text-primary transition hover:bg-primary/5 sm:text-xs"
+          className="flex items-center justify-center gap-1 whitespace-nowrap rounded-md border border-neutral-900 px-2 py-1.5 text-[11px] font-bold leading-none text-neutral-900 transition hover:bg-neutral-100 sm:text-xs"
           title="Support"
         >
           <svg className="h-3 w-3 shrink-0 sm:h-3.5 sm:w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -379,7 +383,7 @@ function Cart() {
           <button
             type="button"
             onClick={() => openAuthModal("login")}
-            className="rounded-lg bg-primary px-8 py-3 text-sm font-bold tracking-wide text-white transition hover:brightness-110"
+            className={STORE_BTN_PRIMARY_LG}
           >
             Login / Sign Up
           </button>
@@ -416,7 +420,7 @@ function Cart() {
               <p className="mb-6 text-text-secondary">Your cart is empty.</p>
               <Link
                 to="/product"
-                className="inline-block rounded-lg bg-primary px-8 py-3 text-sm font-bold tracking-wide text-white transition hover:brightness-110"
+                className={`inline-block ${STORE_BTN_PRIMARY_LG}`}
               >
                 Browse Products
               </Link>

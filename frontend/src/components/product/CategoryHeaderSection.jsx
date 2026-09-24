@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import ProductFiltersBar from "./ProductFiltersBar";
 
 function buildCategoryUrl(categoryName, params = {}) {
   const search = new URLSearchParams();
@@ -15,7 +16,7 @@ function CategoryHeaderImage({ image, name }) {
 
   if (!image || failed) {
     return (
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-md bg-mobile-surface sm:h-11 sm:w-11">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-visible rounded-md bg-mobile-surface sm:h-11 sm:w-11">
         <span className="text-sm font-bold uppercase text-text-muted">
           {name?.charAt(0) || "?"}
         </span>
@@ -24,13 +25,15 @@ function CategoryHeaderImage({ image, name }) {
   }
 
   return (
-    <img
-      src={image}
-      alt={name}
-      className="h-9 w-9 shrink-0 rounded-md object-contain sm:h-11 sm:w-11"
-      loading="lazy"
-      onError={() => setFailed(true)}
-    />
+    <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-visible rounded-md bg-white p-0.5 sm:h-11 sm:w-11">
+      <img
+        src={image}
+        alt={name}
+        className="max-h-full max-w-full object-contain"
+        loading="lazy"
+        onError={() => setFailed(true)}
+      />
+    </div>
   );
 }
 
@@ -40,7 +43,7 @@ function ScrollArrow({ direction, onClick }) {
       type="button"
       onClick={onClick}
       aria-label={direction === "left" ? "Scroll subcategories left" : "Scroll subcategories right"}
-      className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-border-light bg-white text-primary shadow-sm transition hover:border-primary hover:bg-purple-50"
+      className="flex h-7 w-7 shrink-0 items-center justify-center overflow-visible rounded-full border border-border-light bg-white text-neutral-800 shadow-sm transition hover:border-neutral-400 hover:bg-neutral-100"
     >
       <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
         {direction === "left" ? (
@@ -79,15 +82,15 @@ function SubcategoryPillScroller({ categoryName, subcategories, activeSubcategor
   };
 
   return (
-    <div className="relative flex items-center gap-1.5">
+    <div className="flex w-full items-center gap-1.5 overflow-visible">
       {canScrollLeft ? <ScrollArrow direction="left" onClick={() => scroll(-1)} /> : null}
 
-      <div className="relative min-w-0 flex-1">
+      <div className="relative min-w-0 flex-1 overflow-visible">
         <div
           ref={scrollRef}
           onScroll={updateScrollState}
-          className={`hide-scrollbar flex items-center gap-1.5 overflow-x-auto scroll-smooth py-0.5 ${
-            canScrollRight ? "pr-2" : ""
+          className={`hide-scrollbar flex items-center justify-start gap-1.5 overflow-x-auto overflow-y-visible scroll-smooth py-1 ${
+            canScrollRight ? "pr-9" : ""
           }`}
         >
           {pills.map((pill) => {
@@ -101,7 +104,7 @@ function SubcategoryPillScroller({ categoryName, subcategories, activeSubcategor
               <Link
                 key={pill}
                 to={to}
-                className={`shrink-0 whitespace-nowrap rounded-full border px-2 py-0.5 text-[10px] font-medium transition sm:px-2.5 sm:py-1 sm:text-xs ${
+                className={`inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full border px-2.5 py-1 text-center text-[10px] font-medium leading-none transition sm:px-3 sm:py-1.5 sm:text-[11px] ${
                   isActive
                     ? "border-primary bg-primary text-white"
                     : "border-border-light bg-white text-text-primary hover:border-primary/40"
@@ -114,62 +117,63 @@ function SubcategoryPillScroller({ categoryName, subcategories, activeSubcategor
         </div>
 
         {canScrollRight ? (
-          <>
-            <div
-              className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-white via-white/90 to-transparent"
-              aria-hidden="true"
-            />
-            <div className="absolute right-0 top-1/2 z-10 -translate-y-1/2">
-              <ScrollArrow direction="right" onClick={() => scroll(1)} />
-            </div>
-          </>
+          <div className="absolute right-0 top-1/2 z-10 -translate-y-1/2">
+            <ScrollArrow direction="right" onClick={() => scroll(1)} />
+          </div>
         ) : null}
       </div>
     </div>
   );
 }
 
-function CategoryHeaderSection({ category, categoryName, subcategories = [], activeSubcategory }) {
+function CategoryHeaderSection({
+  category,
+  categoryName,
+  subcategories = [],
+  activeSubcategory,
+  selectedBrand = "",
+  onBrandChange,
+  sortBy = "",
+  onSortChange,
+  onClearFilters,
+  hasActiveFilters = false,
+}) {
   const [searchParams] = useSearchParams();
   const preservedFilters = {
     brand: searchParams.get("brand")?.trim() || "",
     sort: searchParams.get("sort")?.trim() || "",
   };
 
-  const subtitle =
-    subcategories.length > 0
-      ? subcategories.join(", ")
-      : `Browse our wholesale ${categoryName} collection.`;
-
   return (
-    <section className="rounded-lg border border-border-light bg-white px-2.5 py-2 shadow-sm sm:px-3 sm:py-2.5">
-      <div className="flex items-center gap-2 sm:gap-2.5">
-        <CategoryHeaderImage image={category?.categoryImage} name={categoryName} />
-        <div className="min-w-0">
-          <h1 className="text-sm font-bold leading-tight text-text-primary sm:text-base">
+    <section className="overflow-visible rounded-lg border border-border-light bg-white px-2.5 py-2 shadow-sm sm:px-3 sm:py-2.5">
+      <div className="flex flex-nowrap items-center justify-between gap-1.5 sm:gap-3">
+        <div className="flex min-w-0 flex-1 items-center gap-1.5 sm:gap-2.5">
+          <CategoryHeaderImage image={category?.categoryImage} name={categoryName} />
+          <h1 className="min-w-0 flex-1 overflow-hidden text-ellipsis text-sm font-bold leading-tight text-text-primary line-clamp-1 sm:text-base lg:line-clamp-none lg:whitespace-normal lg:overflow-visible">
             {categoryName}
           </h1>
-          <p className="mt-0.5 truncate text-[10px] leading-tight text-text-secondary sm:text-xs">
-            {subtitle}
-          </p>
         </div>
+        <ProductFiltersBar
+          embedded
+          compact
+          selectedBrand={selectedBrand}
+          onBrandChange={onBrandChange}
+          sortBy={sortBy}
+          onSortChange={onSortChange}
+          onClear={onClearFilters}
+          hasActiveFilters={hasActiveFilters}
+          className="shrink-0"
+        />
       </div>
 
       {subcategories.length > 0 ? (
-        <div className="mt-1.5 sticky top-[7.25rem] z-20 -mx-2.5 bg-white px-2.5 pt-1.5 sm:-mx-3 sm:px-3 lg:static lg:mx-0 lg:bg-transparent lg:px-0">
-          <div className="mb-1 flex items-center gap-2">
-            <p className="shrink-0 text-[10px] font-semibold text-text-primary sm:text-xs">
-              Subcategory:
-            </p>
-            <div className="min-w-0 flex-1">
-              <SubcategoryPillScroller
-                categoryName={categoryName}
-                subcategories={subcategories}
-                activeSubcategory={activeSubcategory}
-                preservedFilters={preservedFilters}
-              />
-            </div>
-          </div>
+        <div className="mt-2 min-w-0 overflow-visible">
+          <SubcategoryPillScroller
+            categoryName={categoryName}
+            subcategories={subcategories}
+            activeSubcategory={activeSubcategory}
+            preservedFilters={preservedFilters}
+          />
         </div>
       ) : null}
     </section>

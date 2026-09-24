@@ -25,6 +25,11 @@ import { calculateOrderTotal } from "../utils/gst";
 import { trackInitiateCheckout, trackPurchase } from "../meta";
 import { formatPrice as formatCurrency } from "../utils/currency";
 import { getCheckoutLineKey } from "../utils/checkoutLine";
+import {
+  STORE_BTN_PLACE_ORDER,
+  STORE_BTN_PRIMARY_LG,
+  STORE_BTN_PRIMARY_MD,
+} from "../utils/storeButton";
 
 const MAX_ORDER_NOTE_LENGTH = 200;
 
@@ -562,7 +567,7 @@ function Checkout() {
           <button
             type="button"
             onClick={() => openAuthModal("login")}
-            className="rounded-lg bg-primary px-8 py-3 text-sm font-bold tracking-wide text-white transition hover:brightness-110"
+            className={STORE_BTN_PRIMARY_LG}
           >
             Login / Sign Up
           </button>
@@ -583,7 +588,7 @@ function Checkout() {
       {placingOrder && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/40">
           <div className="flex flex-col items-center gap-4 rounded-xl bg-white px-10 py-8 shadow-lg">
-            <div className="h-10 w-10 animate-spin rounded-full border-4 border-border-light border-t-primary" />
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-border-light border-t-neutral-900" />
             <p className="text-sm font-semibold text-text-primary">Processing payment...</p>
           </div>
         </div>
@@ -602,7 +607,7 @@ function Checkout() {
             <button
               type="button"
               onClick={() => navigate("/orders", { replace: true, state: { orderPlaced: true } })}
-              className="w-full rounded-lg bg-primary py-3 text-sm font-bold text-white transition hover:brightness-110"
+              className={`w-full ${STORE_BTN_PRIMARY_LG} py-3`}
             >
               View My Orders
             </button>
@@ -627,7 +632,7 @@ function Checkout() {
               type="button"
               onClick={closeAddressPicker}
               disabled={!selectedAddressId}
-              className="rounded-lg bg-primary px-5 py-2.5 text-sm font-bold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+              className={`${STORE_BTN_PRIMARY_MD} disabled:opacity-50`}
             >
               Use this address
             </button>
@@ -919,7 +924,7 @@ function Checkout() {
                   type="button"
                   disabled={!selectedAddressId || placingOrder}
                   onClick={handlePlaceOrder}
-                  className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-bold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50 sm:mt-5 sm:px-6 sm:py-3.5"
+                  className={`mt-3 sm:mt-5 ${STORE_BTN_PLACE_ORDER} disabled:opacity-50`}
                 >
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path

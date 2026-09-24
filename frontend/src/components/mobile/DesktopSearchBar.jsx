@@ -42,7 +42,7 @@ function DesktopSearchBar({ className = "" }) {
 
   return (
     <form
-      className={`flex h-11 w-full items-center gap-2 rounded-full border border-neutral-200 bg-white pl-4 pr-1.5 shadow-sm transition focus-within:border-purple-300 focus-within:ring-2 focus-within:ring-purple-100 ${className}`}
+      className={`flex h-11 w-full items-center gap-2 rounded-full border border-neutral-200 bg-white pl-4 pr-1.5 shadow-sm transition focus-within:border-neutral-400 focus-within:ring-2 focus-within:ring-neutral-100 ${className}`}
       onSubmit={handleSubmit}
     >
       <SearchIcon className="h-5 w-5 shrink-0 text-neutral-400" />
@@ -57,7 +57,7 @@ function DesktopSearchBar({ className = "" }) {
 
       <button
         type="submit"
-        className="shrink-0 rounded-full bg-purple-600 px-5 py-2 text-sm font-bold text-white transition hover:bg-purple-700"
+        className="shrink-0 rounded-full bg-neutral-900 px-5 py-2 text-sm font-bold text-white transition hover:bg-neutral-800"
       >
         Search
       </button>

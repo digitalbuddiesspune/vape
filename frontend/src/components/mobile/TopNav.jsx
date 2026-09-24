@@ -7,6 +7,7 @@ import UserAccountDropdown from "../account/UserAccountDropdown";
 import DesktopSearchBar from "./DesktopSearchBar";
 import CategoryNavbar from "../layout/CategoryNavbar";
 import { NavIconWrap } from "./NavIconWrap";
+import { ICON_HIT_MD, ICON_SVG_LG } from "../../utils/iconLayout";
 
 import { formatPrice } from "../../utils/currency";
 
@@ -43,17 +44,17 @@ function TopNav() {
 
         <DesktopSearchBar className="mx-2 min-w-0 flex-1 xl:mx-4" />
 
-        <div className="flex shrink-0 items-center gap-1 xl:gap-2">
+        <div className="flex shrink-0 items-center gap-1.5 overflow-visible xl:gap-2">
           {user ? (
             <UserAccountDropdown user={user} />
           ) : (
             <button
               type="button"
               onClick={() => openAuthModal("login")}
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-black/[0.04] text-text-primary transition hover:bg-black/[0.07] hover:text-primary"
+              className={`${ICON_HIT_MD} rounded-full bg-black/[0.04] text-text-primary transition hover:bg-black/[0.07]`}
               aria-label="Login or Register"
             >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <svg className={ICON_SVG_LG} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -67,11 +68,11 @@ function TopNav() {
             to="/wishlist"
             data-wishlist-target="desktop"
             onClick={handleWishlistClick}
-            className="relative flex h-10 w-10 items-center justify-center overflow-visible rounded-full bg-black/[0.04] text-primary transition hover:bg-black/[0.07] hover:text-primary-dark"
+            className={`${ICON_HIT_MD} relative rounded-full bg-black/[0.04] text-text-primary transition hover:bg-black/[0.07]`}
             aria-label={`Wishlist${wishlistCount > 0 ? `, ${wishlistCount} items` : ""}`}
           >
             <NavIconWrap badge={wishlistCount}>
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <svg className={ICON_SVG_LG} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -85,11 +86,11 @@ function TopNav() {
             to="/cart"
             data-cart-target="desktop"
             onClick={handleCartClick}
-            className="relative flex h-10 items-center gap-1.5 overflow-visible rounded-full bg-black/[0.04] px-3 text-text-primary transition hover:bg-black/[0.07] hover:text-primary"
+            className="relative flex h-10 items-center gap-1.5 overflow-visible rounded-full bg-black/[0.04] px-3 text-text-primary transition hover:bg-black/[0.07]"
             aria-label={`Cart, ${cartCount} items, ${formatPrice(cartTotal)}`}
           >
             <NavIconWrap badge={cartCount}>
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <svg className={ICON_SVG_LG} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"

@@ -167,7 +167,7 @@ function StrengthRow({
             variant="outline"
             onClick={handleAdd}
             disabled={!inStock || adding}
-            className="!min-h-[32px] !px-2.5 !py-1.5 !text-[10px]"
+            className="!min-h-9 !px-2.5 !py-2 !text-[10px]"
           />
         )}
       </div>

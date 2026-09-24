@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
+import { ICON_SVG_LG, iconCountBadgeClass } from "../../utils/iconLayout";
 
 const NAV_ITEMS = [
   {
@@ -9,21 +10,17 @@ const NAV_ITEMS = [
     end: true,
     icon: (active) => (
       <svg
-        className="h-[22px] w-[22px]"
-        fill={active ? "currentColor" : "none"}
+        className={ICON_SVG_LG}
+        fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
-        strokeWidth={active ? 0 : 1.75}
+        strokeWidth={active ? 2.25 : 1.75}
       >
-        {active ? (
-          <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7A1 1 0 003 11v9a1 1 0 001 1h5a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h5a1 1 0 001-1v-9a1 1 0 00-.293-.707l-7-7z" />
-        ) : (
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-          />
-        )}
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+        />
       </svg>
     ),
   },
@@ -31,7 +28,7 @@ const NAV_ITEMS = [
     to: "/product",
     label: "Shop",
     icon: (active) => (
-      <svg className="h-[22px] w-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={active ? 2.1 : 1.75}>
+      <svg className={ICON_SVG_LG} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={active ? 2.1 : 1.75}>
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -44,7 +41,7 @@ const NAV_ITEMS = [
     to: "/orders",
     label: "Orders",
     icon: (active) => (
-      <svg className="h-[22px] w-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={active ? 2.1 : 1.75}>
+      <svg className={ICON_SVG_LG} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={active ? 2.1 : 1.75}>
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -58,7 +55,7 @@ const NAV_ITEMS = [
     label: "Cart",
     badge: true,
     icon: (active) => (
-      <svg className="h-[22px] w-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={active ? 2.1 : 1.75}>
+      <svg className={ICON_SVG_LG} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={active ? 2.1 : 1.75}>
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -71,7 +68,7 @@ const NAV_ITEMS = [
     to: "/profile",
     label: "Account",
     icon: (active) => (
-      <svg className="h-[22px] w-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={active ? 2.1 : 1.75}>
+      <svg className={ICON_SVG_LG} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={active ? 2.1 : 1.75}>
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -94,9 +91,9 @@ function BottomNav() {
   };
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-50 lg:hidden" aria-label="Primary">
-      <div className="pointer-events-none px-4 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2">
-        <div className="pointer-events-auto mx-auto flex max-w-md items-stretch justify-between rounded-[26px] border border-black/[0.06] bg-white/80 px-1 py-1 shadow-[0_4px_24px_rgba(0,0,0,0.1)] backdrop-blur-2xl">
+    <nav className="fixed inset-x-0 bottom-0 z-50 overflow-visible lg:hidden" aria-label="Primary">
+      <div className="pointer-events-none overflow-visible px-4 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2">
+        <div className="pointer-events-auto mx-auto flex max-w-md items-stretch justify-between overflow-visible rounded-[26px] border border-black/[0.06] bg-white/80 px-1 py-1.5 shadow-[0_4px_24px_rgba(0,0,0,0.1)] backdrop-blur-2xl">
           {NAV_ITEMS.map((item) => (
             <NavLink
               key={item.to}
@@ -104,25 +101,25 @@ function BottomNav() {
               end={item.end}
               data-cart-target={item.to === "/cart" ? "mobile" : undefined}
               onClick={(e) => handleNavClick(e, item)}
-              className="relative flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-1 py-2"
+              className="relative flex min-w-[3.25rem] flex-1 flex-col items-center justify-center gap-0.5 overflow-visible px-0.5 py-1.5"
             >
               {({ isActive }) => (
                 <>
                   {isActive ? (
                     <span
-                      className="absolute inset-x-0.5 inset-y-0.5 rounded-[18px] bg-primary/[0.12]"
+                      className="absolute inset-x-0.5 inset-y-1 rounded-[18px] bg-neutral-900/[0.08]"
                       aria-hidden="true"
                     />
                   ) : null}
                   <span
                     className={`relative flex flex-col items-center gap-0.5 transition-colors ${
-                      isActive ? "text-primary" : "text-neutral-500"
+                      isActive ? "text-neutral-900" : "text-neutral-500"
                     }`}
                   >
-                    <span className="relative">
+                    <span className="relative flex h-7 w-7 shrink-0 items-center justify-center overflow-visible">
                       {item.icon(isActive)}
                       {item.badge && cartCount > 0 ? (
-                        <span className="absolute -right-2.5 -top-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold leading-none text-white">
+                        <span className={iconCountBadgeClass(true)}>
                           {cartCount > 99 ? "99+" : cartCount}
                         </span>
                       ) : null}

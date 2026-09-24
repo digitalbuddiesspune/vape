@@ -6,8 +6,8 @@ function CategoryPill({ name, isActive, compact = false }) {
   return (
     <Link
       to={`/product?categoryName=${encodeURIComponent(name)}`}
-      className={`shrink-0 whitespace-nowrap rounded-full border bg-white font-medium transition-colors hover:border-primary hover:text-primary ${
-        compact ? "px-2.5 py-1 text-[11px]" : "px-3 py-1 text-xs"
+      className={`inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full border bg-white text-center font-medium transition-colors hover:border-primary hover:text-primary ${
+        compact ? "min-h-6 px-2 py-0.5 text-[10px]" : "min-h-7 px-2.5 py-0.5 text-[11px]"
       } ${
         isActive
           ? "border-primary text-primary"
@@ -20,15 +20,15 @@ function CategoryPill({ name, isActive, compact = false }) {
 }
 
 function ScrollArrow({ direction, onClick, compact = false }) {
-  const sizeClass = compact ? "h-7 w-7" : "h-8 w-8";
-  const iconClass = compact ? "h-3.5 w-3.5" : "h-4 w-4";
+  const sizeClass = compact ? "h-6 w-6" : "h-7 w-7";
+  const iconClass = compact ? "h-3 w-3" : "h-3.5 w-3.5";
 
   return (
     <button
       type="button"
       onClick={onClick}
       aria-label={direction === "left" ? "Scroll categories left" : "Scroll categories right"}
-      className={`flex ${sizeClass} shrink-0 items-center justify-center rounded-full border border-neutral-200 bg-white text-primary shadow-sm transition hover:border-primary hover:bg-purple-50`}
+      className={`flex ${sizeClass} shrink-0 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-800 shadow-sm transition hover:border-neutral-400 hover:bg-neutral-100`}
     >
       <svg
         className={iconClass}
@@ -76,48 +76,63 @@ function CategoryPillScroller({ categories, activeCategory, compact = false }) {
     window.setTimeout(updateScrollState, 320);
   };
 
-  return (
-    <div className="relative flex items-center gap-2">
-      {canScrollLeft && (
-        <ScrollArrow direction="left" onClick={() => scroll(-1)} compact={compact} />
-      )}
+  const arrowSize = compact ? "h-6 w-6" : "h-7 w-7";
 
-      <div className="relative min-w-0 flex-1">
+  return (
+    <div className="flex w-full items-center justify-center gap-2">
+      {isOverflowing ? (
+        canScrollLeft ? (
+          <ScrollArrow direction="left" onClick={() => scroll(-1)} compact={compact} />
+        ) : (
+          <span className={`${arrowSize} shrink-0`} aria-hidden="true" />
+        )
+      ) : null}
+
+      <div className="relative min-w-0 w-full max-w-5xl flex-1">
         <div
           ref={scrollRef}
           onScroll={updateScrollState}
-          className={`flex items-center overflow-x-auto hide-scrollbar scroll-smooth ${
-            isOverflowing ? "justify-start" : "justify-center"
-          } ${compact ? "gap-1.5 py-0.5" : "gap-2 py-0.5"} ${canScrollRight ? "pr-2" : ""}`}
+          className={`flex items-center justify-center overflow-x-auto hide-scrollbar scroll-smooth ${
+            compact ? "gap-1 py-0.5" : "gap-1.5 py-0.5"
+          }`}
         >
-          {categories.map((category) => {
-            const name = category.categoryName;
-            const isActive =
-              activeCategory.toLowerCase() === String(name || "").toLowerCase();
+          <div
+            className={`mx-auto flex w-max max-w-none items-center justify-center ${
+              compact ? "gap-1" : "gap-1.5"
+            }`}
+          >
+            {categories.map((category) => {
+              const name = category.categoryName;
+              const isActive =
+                activeCategory.toLowerCase() === String(name || "").toLowerCase();
 
-            return (
-              <CategoryPill
-                key={category._id || name}
-                name={name}
-                isActive={isActive}
-                compact={compact}
-              />
-            );
-          })}
+              return (
+                <CategoryPill
+                  key={category._id || name}
+                  name={name}
+                  isActive={isActive}
+                  compact={compact}
+                />
+              );
+            })}
+          </div>
         </div>
 
-        {canScrollRight && (
-          <>
-            <div
-              className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-white via-white/90 to-transparent"
-              aria-hidden="true"
-            />
-            <div className="absolute right-0 top-1/2 z-10 -translate-y-1/2">
-              <ScrollArrow direction="right" onClick={() => scroll(1)} compact={compact} />
-            </div>
-          </>
-        )}
+        {isOverflowing && canScrollRight ? (
+          <div
+            className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-white via-white/90 to-transparent"
+            aria-hidden="true"
+          />
+        ) : null}
       </div>
+
+      {isOverflowing ? (
+        canScrollRight ? (
+          <ScrollArrow direction="right" onClick={() => scroll(1)} compact={compact} />
+        ) : (
+          <span className={`${arrowSize} shrink-0`} aria-hidden="true" />
+        )
+      ) : null}
     </div>
   );
 }
@@ -142,7 +157,7 @@ function CategoryNavbar() {
       aria-label="Product categories"
       className="hidden bg-white lg:block"
     >
-      <div className="mx-auto max-w-[1600px] px-5 pb-2 pt-0 xl:px-8">
+      <div className="mx-auto flex max-w-[1600px] justify-center px-5 pb-1.5 pt-0 xl:px-8">
         <CategoryPillScroller categories={categories} activeCategory={activeCategory} />
       </div>
     </nav>

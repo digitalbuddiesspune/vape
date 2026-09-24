@@ -1,7 +1,9 @@
-function CartIcon({ className = "h-3.5 w-3.5" }) {
+import { ICON_SVG_SM } from "../../utils/iconLayout";
+
+function CartIcon({ className = ICON_SVG_SM }) {
   return (
     <svg
-      className={`shrink-0 ${className}`}
+      className={className}
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
@@ -25,10 +27,10 @@ function AddToCartButton({ onClick, disabled, className = "", variant = "solid" 
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`inline-flex h-9 items-center justify-center gap-1 rounded-lg px-2.5 text-[10px] font-semibold leading-none transition disabled:cursor-not-allowed disabled:opacity-50 sm:text-[11px] ${
+      className={`inline-flex min-h-9 items-center justify-center gap-1.5 overflow-visible rounded-lg px-2.5 py-2 text-[10px] font-semibold leading-none transition disabled:cursor-not-allowed disabled:opacity-50 sm:text-[11px] ${
         isOutline
-          ? "border border-primary bg-white text-primary hover:bg-purple-50"
-          : "bg-primary text-white hover:brightness-110"
+          ? "border border-neutral-900 bg-white text-neutral-900 hover:bg-neutral-100"
+          : "bg-neutral-900 text-white hover:bg-neutral-800"
       } ${className}`}
     >
       {!isOutline ? <CartIcon /> : null}

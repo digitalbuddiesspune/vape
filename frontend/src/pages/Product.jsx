@@ -196,7 +196,7 @@ function FilteredProductsView({
   };
 
   return (
-    <div className="min-h-screen bg-mobile-bg pb-6 lg:flex lg:h-[calc(100vh-108px)] lg:min-h-0 lg:flex-col lg:overflow-hidden lg:pb-0">
+    <div className="min-h-screen bg-mobile-bg pb-6 lg:flex lg:h-[calc(100dvh-120px)] lg:max-h-[calc(100dvh-120px)] lg:min-h-0 lg:flex-col lg:overflow-hidden lg:pb-0">
       <div className="lg:hidden">
         <MobileProductToolbar
           title={pageTitle}
@@ -260,7 +260,7 @@ function FilteredProductsView({
 
       <div className="hidden lg:flex lg:h-full lg:min-h-0 lg:flex-1 lg:flex-col">
         <div className="mx-auto grid h-full min-h-0 w-full max-w-[1600px] grid-cols-[240px_1fr] bg-mobile-bg xl:grid-cols-[260px_1fr]">
-          <div className="min-h-0 overflow-hidden">
+          <div className="flex h-full min-h-0 flex-col self-stretch">
             <DesktopCategorySidebar categories={categories} activeCategory="" />
           </div>
           <div className="hide-scrollbar min-h-0 flex-1 overflow-y-auto border-l border-border-light bg-white">
@@ -381,7 +381,7 @@ function Product() {
 
   if (categoryName) {
     return (
-      <div className="min-h-screen bg-mobile-bg pb-6 lg:flex lg:h-[calc(100vh-108px)] lg:min-h-0 lg:flex-col lg:overflow-hidden lg:bg-white lg:pb-0">
+      <div className="flex min-h-0 flex-1 flex-col bg-mobile-bg pb-6 lg:h-[calc(100dvh-120px)] lg:max-h-[calc(100dvh-120px)] lg:min-h-0 lg:overflow-hidden lg:bg-white lg:pb-0">
         <MobileCategoryProductLayout
           categories={categories}
           categoryName={categoryName}
@@ -413,7 +413,7 @@ function Product() {
   }
 
   return (
-    <div className="min-h-screen bg-mobile-bg pb-6 lg:flex lg:h-[calc(100vh-108px)] lg:min-h-0 lg:flex-col lg:overflow-hidden lg:bg-white lg:pb-0">
+    <div className="flex min-h-0 flex-1 flex-col bg-mobile-bg pb-6 lg:h-[calc(100dvh-120px)] lg:max-h-[calc(100dvh-120px)] lg:min-h-0 lg:overflow-hidden lg:bg-white lg:pb-0">
       <AllProductsLayout
         categories={categories}
         products={products}

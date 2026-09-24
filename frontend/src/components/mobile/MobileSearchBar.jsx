@@ -48,7 +48,7 @@ function MobileSearchBar({ className = "", autoFocus = false, onSubmit }) {
       />
       <button
         type="submit"
-        className="shrink-0 rounded-full bg-purple-600 px-3 py-1 text-xs font-bold text-white transition hover:bg-purple-700 sm:px-4 sm:text-sm"
+        className="shrink-0 rounded-full bg-neutral-900 px-3 py-1 text-xs font-bold text-white transition hover:bg-neutral-800 sm:px-4 sm:text-sm"
       >
         Search
       </button>

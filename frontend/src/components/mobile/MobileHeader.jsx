@@ -5,6 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useWishlist } from "../../context/WishlistContext";
 import { SiteBrand } from "../layout/SiteBrand";
 import { NavIconWrap } from "./NavIconWrap";
+import { ICON_HIT_MD, ICON_SVG_MD } from "../../utils/iconLayout";
 import MobileMenuDrawer from "./MobileMenuDrawer";
 import MobileSearchBar from "./MobileSearchBar";
 function MobileHeader() {
@@ -58,20 +59,20 @@ function MobileHeader() {
     <>
       <header
         ref={headerRef}
-        className="fixed top-0 left-0 right-0 z-50 border-b border-black/[0.06] bg-white/80 px-4 pb-3 pt-[max(0.625rem,env(safe-area-inset-top))] backdrop-blur-xl sm:px-5 lg:hidden"
+        className="fixed top-0 left-0 right-0 z-50 overflow-visible border-b border-black/[0.06] bg-white/80 px-4 pb-3 pt-[max(0.625rem,env(safe-area-inset-top))] backdrop-blur-xl sm:px-5 lg:hidden"
       >
         <div className="flex items-center justify-between gap-3">
           <SiteBrand variant="headerMobile" />
 
-          <div className="flex shrink-0 items-center gap-1 overflow-visible">
+          <div className="flex shrink-0 items-center gap-1.5 overflow-visible">
             <button
               type="button"
               onClick={toggleSearch}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-black/[0.05] text-neutral-900 transition active:scale-95 hover:bg-black/[0.08]"
+              className={`${ICON_HIT_MD} rounded-full bg-black/[0.05] text-neutral-900 transition hover:bg-black/[0.08]`}
               aria-label={searchOpen ? "Close search" : "Open search"}
               aria-expanded={searchOpen}
             >
-              <svg className="h-5 w-5 sm:h-[22px] sm:w-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <svg className={ICON_SVG_MD} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -84,11 +85,11 @@ function MobileHeader() {
               to="/wishlist"
               data-wishlist-target="mobile"
               onClick={handleWishlistClick}
-              className="relative flex h-9 w-9 items-center justify-center overflow-visible rounded-full bg-black/[0.05] text-neutral-900 transition active:scale-95 hover:bg-black/[0.08]"
+              className={`${ICON_HIT_MD} relative rounded-full bg-black/[0.05] text-neutral-900 transition hover:bg-black/[0.08]`}
               aria-label={`Wishlist${wishlistCount > 0 ? `, ${wishlistCount} items` : ""}`}
             >
               <NavIconWrap badge={wishlistCount} compact>
-                <svg className="h-5 w-5 sm:h-[22px] sm:w-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                <svg className={ICON_SVG_MD} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -101,10 +102,10 @@ function MobileHeader() {
             <button
               type="button"
               onClick={openMenu}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-black/[0.05] text-neutral-900 transition active:scale-95 hover:bg-black/[0.08]"
+              className={`${ICON_HIT_MD} rounded-full bg-black/[0.05] text-neutral-900 transition hover:bg-black/[0.08]`}
               aria-label="Open menu"
             >
-              <svg className="h-5 w-5 sm:h-[22px] sm:w-[22px]" fill="currentColor" viewBox="0 0 24 24">
+              <svg className={ICON_SVG_MD} fill="currentColor" viewBox="0 0 24 24">
                 <circle cx="12" cy="5" r="1.75" />
                 <circle cx="12" cy="12" r="1.75" />
                 <circle cx="12" cy="19" r="1.75" />

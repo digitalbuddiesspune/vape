@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { ICON_HIT_MD, ICON_SVG_LG } from "../../utils/iconLayout";
 
 function UserIcon() {
   return (
-    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <svg className={ICON_SVG_LG} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -73,7 +74,7 @@ function UserAccountDropdown({ user }) {
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className="flex h-10 w-10 items-center justify-center rounded-lg text-text-primary transition hover:text-primary"
+        className={`${ICON_HIT_MD} rounded-full bg-black/[0.04] text-text-primary transition hover:bg-black/[0.07]`}
         aria-expanded={open}
         aria-haspopup="true"
         aria-label={`My account, ${firstName}`}

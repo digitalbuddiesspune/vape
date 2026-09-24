@@ -5,6 +5,7 @@ import { CONTACT_PHONE_DISPLAY, CONTACT_PHONE_TEL } from "../../config/contact";
 import { buildProductSearchUrl } from "../../utils/productSearch";
 import { NotificationDropdown } from "./NotificationDropdown";
 import { SiteBrand } from "./SiteBrand";
+import { ICON_HIT_MD, ICON_SVG_MD, iconCountBadgeClass } from "../../utils/iconLayout";
 
 function SearchBar({ className = "" }) {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ function SearchBar({ className = "" }) {
 
   return (
     <form
-      className={`flex h-9 items-center gap-2 rounded-full border border-neutral-200 bg-white pl-3 pr-1 shadow-sm transition focus-within:border-purple-300 focus-within:ring-2 focus-within:ring-purple-100 md:h-10 md:pl-4 ${className}`}
+      className={`flex h-9 items-center gap-2 rounded-full border border-neutral-200 bg-white pl-3 pr-1 shadow-sm transition focus-within:border-neutral-400 focus-within:ring-2 focus-within:ring-neutral-100 md:h-10 md:pl-4 ${className}`}
       onSubmit={handleSubmit}
     >
       <svg
@@ -51,7 +52,7 @@ function SearchBar({ className = "" }) {
       <button
         type="submit"
         aria-label="Search"
-        className="shrink-0 rounded-full bg-purple-600 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-purple-700 md:px-4 md:py-2 md:text-sm"
+        className="shrink-0 rounded-full bg-neutral-900 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-neutral-800 md:px-4 md:py-2 md:text-sm"
       >
         Search
       </button>
@@ -71,11 +72,11 @@ function UtilityIcons({ user, onLoginClick }) {
   return (
     <div className="flex items-center shrink-0 justify-end">
       <div className="hidden xl:flex items-center gap-2 pr-4 mr-4 border-r border-gray-200 text-gray-800">
-        <svg className="w-4 h-4 shrink-0 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+        <svg className="w-4 h-4 shrink-0 text-neutral-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
         </svg>
         <div className="text-[11px] leading-snug">
-          <a href={CONTACT_PHONE_TEL} className="font-semibold hover:text-purple-600 transition whitespace-nowrap">
+          <a href={CONTACT_PHONE_TEL} className="font-semibold whitespace-nowrap transition hover:text-neutral-900">
             {CONTACT_PHONE_DISPLAY}
           </a>
           <p className="text-gray-500">Mon - Sat: 10:00 AM - 7:00 PM</p>
@@ -89,9 +90,9 @@ function UtilityIcons({ user, onLoginClick }) {
       <button
         type="button"
         onClick={onLoginClick}
-        className="flex flex-col items-center justify-center gap-1 px-3 lg:px-4 text-gray-700 hover:text-purple-600 transition"
+        className="flex flex-col items-center justify-center gap-1 px-3 text-gray-700 transition hover:text-neutral-900 lg:px-4"
       >
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <svg className={ICON_SVG_MD} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
         </svg>
         <span className="text-[10px] font-medium whitespace-nowrap">
@@ -104,17 +105,15 @@ function UtilityIcons({ user, onLoginClick }) {
       <Link
         to="/cart"
         onClick={handleCartClick}
-        className="flex flex-col items-center justify-center gap-1 px-3 lg:px-4 text-gray-700 hover:text-purple-600 transition"
+        className="flex flex-col items-center justify-center gap-1 px-3 text-gray-700 transition hover:text-neutral-900 lg:px-4"
       >
-        <span className="relative inline-flex">
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <span className="relative inline-flex overflow-visible">
+          <svg className={ICON_SVG_MD} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
           </svg>
-          {user && (
-            <span className="absolute -top-1.5 -right-2.5 flex h-[18px] min-w-[18px] px-0.5 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-white leading-none">
-              {cartCount > 99 ? "99+" : cartCount}
-            </span>
-          )}
+          {user && cartCount > 0 ? (
+            <span className={iconCountBadgeClass(false)}>{cartCount > 99 ? "99+" : cartCount}</span>
+          ) : null}
         </span>
         <span className="text-[10px] font-medium">My Cart</span>
       </Link>
@@ -133,16 +132,16 @@ function Header({ user, onLoginClick, onMenuToggle, menuOpen }) {
           <button
             type="button"
             onClick={onMenuToggle}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-black/[0.05] text-gray-800 transition active:scale-95 hover:bg-black/[0.08]"
+            className={`${ICON_HIT_MD} rounded-full bg-black/[0.05] text-gray-800 transition hover:bg-black/[0.08]`}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
           >
             {menuOpen ? (
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className={ICON_SVG_MD} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             ) : (
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className={ICON_SVG_MD} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             )}

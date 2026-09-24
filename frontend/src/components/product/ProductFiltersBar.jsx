@@ -18,20 +18,40 @@ export function ProductFiltersBar({
   showSort = true,
   onClear,
   hasActiveFilters = false,
+  embedded = false,
+  compact = false,
   className = "",
 }) {
   const { data: brands = [], isLoading: brandsLoading } = useBrandsQuery();
   const brandNames = brands.map((brand) => brand.brandName).filter(Boolean);
 
+  const shellClass = embedded
+    ? compact
+      ? "gap-1 sm:gap-2"
+      : "gap-1.5 sm:gap-2"
+    : "gap-1.5 bg-white px-2 py-1.5 sm:gap-2 sm:px-3";
+
+  const selectClass = compact
+    ? "h-7 w-[4.75rem] shrink-0 rounded-md border border-border-light bg-white px-1 text-[9px] text-text-primary sm:h-8 sm:w-auto sm:max-w-[8.75rem] sm:px-2 sm:text-[11px]"
+    : embedded
+      ? "h-8 max-w-[7.5rem] shrink-0 rounded-md border border-border-light bg-white px-1.5 text-[10px] text-text-primary sm:max-w-[8.75rem] sm:px-2 sm:text-[11px]"
+      : "h-8 min-w-0 flex-1 rounded-md border border-border-light bg-white px-1.5 text-[11px] text-text-primary sm:h-8 sm:max-w-[140px] sm:flex-none sm:px-2 sm:text-xs";
+
+  const sortSelectClass = compact
+    ? "h-7 w-[4.25rem] shrink-0 rounded-md border border-border-light bg-white px-1 text-[9px] text-text-primary sm:h-8 sm:w-auto sm:max-w-[9.5rem] sm:px-2 sm:text-[11px]"
+    : embedded
+      ? "h-8 max-w-[8.25rem] shrink-0 rounded-md border border-border-light bg-white px-1.5 text-[10px] text-text-primary sm:max-w-[9.5rem] sm:px-2 sm:text-[11px]"
+      : selectClass;
+
   return (
-    <div className={`flex flex-nowrap items-center gap-1.5 bg-white px-2 py-1.5 sm:gap-2 sm:px-3 ${className}`}>
+    <div className={`flex flex-nowrap items-center ${shellClass} ${className}`}>
       {showBrand ? (
         <select
           value={selectedBrand}
           onChange={(e) => onBrandChange?.(e.target.value)}
           disabled={brandsLoading}
           aria-label="Brand name"
-          className="h-8 min-w-0 flex-1 rounded-md border border-border-light bg-white px-1.5 text-[11px] text-text-primary sm:h-8 sm:max-w-[140px] sm:flex-none sm:px-2 sm:text-xs"
+          className={selectClass}
         >
           <option value="">all brands</option>
           {brandNames.map((brand) => (
@@ -47,7 +67,7 @@ export function ProductFiltersBar({
           value={sortBy || DEFAULT_PRODUCT_SORT}
           onChange={(e) => onSortChange?.(e.target.value)}
           aria-label="Sort products"
-          className="h-8 min-w-0 flex-1 rounded-md border border-border-light bg-white px-1.5 text-[11px] text-text-primary sm:h-8 sm:max-w-[160px] sm:flex-none sm:px-2 sm:text-xs"
+          className={sortSelectClass}
         >
           {PRODUCT_SORT_OPTIONS.map((option) => (
             <option key={option.id} value={option.id}>
@@ -57,7 +77,7 @@ export function ProductFiltersBar({
         </select>
       ) : null}
 
-      {hasActiveFilters && onClear ? (
+      {hasActiveFilters && onClear && !compact ? (
         <button
           type="button"
           onClick={onClear}

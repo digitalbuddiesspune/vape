@@ -209,7 +209,7 @@ function ProductAdminShareMenu({ product, imageUrl, className = "" }) {
         type="button"
         onClick={handleShareClick}
         disabled={sharing}
-        className="flex h-9 w-9 items-center justify-center rounded-full border border-border-light text-text-secondary transition hover:border-primary hover:text-primary disabled:opacity-50"
+        className="flex h-10 w-10 shrink-0 items-center justify-center overflow-visible rounded-full border border-border-light text-text-secondary transition hover:border-neutral-400 hover:text-neutral-900 disabled:opacity-50"
         aria-label="Share product details"
         aria-expanded={open}
       >

@@ -63,7 +63,7 @@ function ProfileInfoRow({ icon, label, value, onEdit, showDivider }) {
   return (
     <div>
       <div className="flex items-center gap-3 px-3.5 py-3.5 sm:px-4 sm:py-4">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-visible rounded-xl bg-neutral-100 text-neutral-800">
           {icon}
         </div>
         <div className="min-w-0 flex-1">
@@ -73,7 +73,7 @@ function ProfileInfoRow({ icon, label, value, onEdit, showDivider }) {
         <button
           type="button"
           onClick={onEdit}
-          className="flex shrink-0 items-center gap-0.5 text-sm font-semibold text-primary"
+          className="flex shrink-0 items-center gap-0.5 text-sm font-semibold text-neutral-900"
         >
           Edit
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -89,7 +89,7 @@ function ProfileInfoRow({ icon, label, value, onEdit, showDivider }) {
 function QuickLink({ icon, label, onClick, to }) {
   const content = (
     <>
-      <div className="mx-auto flex h-8 w-8 items-center justify-center text-primary">{icon}</div>
+      <div className="mx-auto flex h-8 w-8 items-center justify-center overflow-visible text-neutral-800">{icon}</div>
       <span className="mt-1.5 block text-center text-[10px] font-semibold leading-tight text-text-primary">
         {label}
       </span>
@@ -243,7 +243,7 @@ function Profile() {
           <button
             type="button"
             onClick={() => openAuthModal("login")}
-            className="rounded-lg bg-primary px-8 py-3 text-sm font-bold text-white transition hover:brightness-110"
+            className="rounded-lg bg-neutral-900 px-8 py-3 text-sm font-bold text-white transition hover:bg-neutral-800"
           >
             Login / Sign Up
           </button>
@@ -263,11 +263,11 @@ function Profile() {
             <p className="mt-1 text-sm text-text-secondary">Manage your profile & addresses</p>
           </div>
           <div className="relative shrink-0">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full border border-primary/15 bg-primary/10 text-lg font-bold text-primary">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full border border-neutral-200 bg-neutral-100 text-lg font-bold text-neutral-900">
               {profileInitials(user.name)}
             </div>
             <span className="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full border border-border-light bg-white shadow-sm">
-              <svg className="h-3 w-3 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="block h-3 w-3 shrink-0 text-neutral-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536M4 20h4l10.5-10.5a1.5 1.5 0 00-4.5-4.5L4 15.5V20z" />
               </svg>
             </span>
@@ -310,7 +310,7 @@ function Profile() {
           />
         </div>
 
-        <div className="flex rounded-2xl border border-primary/10 bg-purple-50 px-2 py-4">
+        <div className="flex rounded-2xl border border-neutral-200 bg-neutral-50 px-2 py-4">
           <QuickLink
             label="My Addresses"
             onClick={scrollToAddresses}
@@ -384,7 +384,7 @@ function Profile() {
                   setShowAddressForm(true);
                   setFormError("");
                 }}
-                className="text-sm font-semibold text-primary"
+                className="text-sm font-semibold text-neutral-900"
               >
                 + Add Address
               </button>
@@ -427,7 +427,7 @@ function Profile() {
             <>
               <div className="rounded-2xl border border-border-light bg-white p-4 shadow-sm">
                 <div className="flex items-start gap-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-visible rounded-xl bg-neutral-100 text-neutral-800">
                     <svg className="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
@@ -456,7 +456,7 @@ function Profile() {
                   <button
                     type="button"
                     onClick={() => handleEditAddress(currentAddress)}
-                    className="px-2 text-sm font-semibold text-primary"
+                    className="px-2 text-sm font-semibold text-neutral-900"
                   >
                     Edit
                   </button>
@@ -488,7 +488,7 @@ function Profile() {
                         aria-label={`Address ${index + 1}`}
                         onClick={() => setAddressIndex(index)}
                         className={`h-2 rounded-full transition ${
-                          index === addressIndex ? "w-2 bg-primary" : "w-2 bg-border-light"
+                          index === addressIndex ? "w-2 bg-neutral-900" : "w-2 bg-border-light"
                         }`}
                       />
                     ))}

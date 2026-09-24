@@ -238,18 +238,18 @@ function CategoryListBox({ categories, activeCategory, variant = "desktop" }) {
 
   if (variant === "mobile") {
     return (
-      <div className="sticky top-14 z-30 mt-2 bg-white p-2.5">
-        <div className="hide-scrollbar flex gap-1.5 overflow-x-auto">
+      <div className="sticky top-14 z-30 mt-2 overflow-visible bg-white px-2 py-2 sm:px-3">
+        <div className="hide-scrollbar flex items-start gap-2 overflow-x-auto overflow-y-visible pb-1 pt-0.5">
           <Link
             to="/product"
-            className={`flex shrink-0 flex-col items-center gap-1 rounded-lg border px-2 py-2 text-[10px] transition ${
+            className={`flex w-[4.25rem] shrink-0 flex-col items-center justify-center gap-1 rounded-lg border px-1 py-1.5 text-[10px] transition sm:w-[4.75rem] ${
               allActive
                 ? "border-primary bg-primary/10 text-primary"
                 : "border-border-light text-text-primary hover:border-primary/40 hover:bg-mobile-surface"
             }`}
           >
-            <SidebarCategoryImage showGrid name="All Products" />
-            <span>All</span>
+            <SidebarCategoryImage showGrid name="All Products" size="strip" />
+            <span className="text-center leading-tight">All</span>
           </Link>
           {categories.map((cat) => {
             const isActive = activeCategory === cat.categoryName;
@@ -257,14 +257,16 @@ function CategoryListBox({ categories, activeCategory, variant = "desktop" }) {
               <Link
                 key={cat._id}
                 to={buildCategoryUrl(cat.categoryName)}
-                className={`flex shrink-0 flex-col items-center gap-1 rounded-lg border px-2 py-2 text-[10px] transition ${
+                className={`flex w-[4.25rem] shrink-0 flex-col items-center justify-center gap-1 rounded-lg border px-1 py-1.5 text-[10px] transition sm:w-[4.75rem] ${
                   isActive
                     ? "border-primary bg-primary/10 text-primary"
                     : "border-border-light text-text-primary hover:border-primary/40 hover:bg-mobile-surface"
                 }`}
               >
-                <SidebarCategoryImage image={cat.categoryImage} name={cat.categoryName} />
-                <span className="max-w-[72px] truncate">{cat.categoryName}</span>
+                <SidebarCategoryImage image={cat.categoryImage} name={cat.categoryName} size="strip" />
+                <span className="line-clamp-2 w-full px-0.5 text-center text-[10px] leading-tight">
+                  {cat.categoryName}
+                </span>
               </Link>
             );
           })}
@@ -274,11 +276,11 @@ function CategoryListBox({ categories, activeCategory, variant = "desktop" }) {
   }
 
   return (
-    <aside className="flex h-full min-h-0 flex-col overflow-hidden border-r border-border-light bg-white">
+    <aside className="flex h-full min-h-0 flex-col border-r border-border-light bg-white">
       <h2 className="shrink-0 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-text-muted">
         Categories
       </h2>
-      <nav className="hide-scrollbar flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-2 pb-2">
+      <nav className="hide-scrollbar flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto overscroll-y-contain px-2 pb-8 pt-0.5 scroll-pb-6">
         <Link
           to="/product"
           className={`flex items-center gap-2.5 rounded-lg border px-2.5 py-2 text-xs transition ${
@@ -303,7 +305,7 @@ function CategoryListBox({ categories, activeCategory, variant = "desktop" }) {
               }`}
             >
               <SidebarCategoryImage image={cat.categoryImage} name={cat.categoryName} />
-              <span className="min-w-0 truncate">{cat.categoryName}</span>
+              <span className="min-w-0 flex-1 leading-snug">{cat.categoryName}</span>
             </Link>
           );
         })}
@@ -338,22 +340,20 @@ function CategoryProductMain({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="shrink-0 px-0 pt-1 lg:px-3 lg:pt-2">
+      <div className="shrink-0 overflow-visible px-2 pt-1 sm:px-3 lg:px-3 lg:pt-2">
         <CategoryHeaderSection
           category={activeCategoryDoc}
           categoryName={categoryName}
           subcategories={activeCategoryDoc?.subcategories || []}
           activeSubcategory={filters.subcategory}
+          selectedBrand={filters.selectedBrand}
+          onBrandChange={(value) => filters.updateParam("brand", value)}
+          sortBy={filters.sortBy}
+          onSortChange={(value) => filters.updateParam("sort", value)}
+          onClearFilters={filters.clearFilters}
+          hasActiveFilters={filters.hasActiveFilters}
         />
       </div>
-      <CategoryFilterToolbar
-        selectedBrand={filters.selectedBrand}
-        onBrandChange={(value) => filters.updateParam("brand", value)}
-        sortBy={filters.sortBy}
-        onSortChange={(value) => filters.updateParam("sort", value)}
-        onClear={filters.clearFilters}
-        hasActiveFilters={filters.hasActiveFilters}
-      />
       <div className="hide-scrollbar flex-1 overflow-y-auto px-2 py-2 lg:px-3 lg:py-3">
         <ProductResultsGrid
           products={filters.sortedProducts}
@@ -425,7 +425,7 @@ export {
 function ProductPageTwoBoxLayout({ categories, activeCategory, children }) {
   return (
     <div className="mx-auto grid h-full min-h-0 w-full max-w-[1600px] grid-cols-[260px_1fr] bg-white xl:grid-cols-[280px_1fr]">
-      <div className="min-h-0 overflow-hidden">
+      <div className="flex h-full min-h-0 flex-col self-stretch">
         <CategoryListBox categories={categories} activeCategory={activeCategory} variant="desktop" />
       </div>
       <div className="flex min-h-0 flex-col overflow-hidden bg-white">{children}</div>
@@ -449,7 +449,7 @@ export default function CategoryProductLayout({
   onLoadMore,
 }) {
   return (
-    <div className="hidden lg:flex lg:h-full lg:min-h-0 lg:flex-1 lg:flex-col">
+    <div className="hidden min-h-0 flex-1 flex-col lg:flex lg:h-full">
       <ProductPageTwoBoxLayout categories={categories} activeCategory={activeCategory}>
         <CategoryProductMain
           categories={categories}
@@ -486,7 +486,7 @@ export function AllProductsLayout({
 }) {
   return (
     <>
-      <div className="hidden lg:flex lg:h-full lg:min-h-0 lg:flex-1 lg:flex-col">
+      <div className="hidden min-h-0 flex-1 flex-col lg:flex lg:h-full">
         <ProductPageTwoBoxLayout categories={categories} activeCategory="">
           <AllProductsMain
             products={products}
@@ -504,7 +504,7 @@ export function AllProductsLayout({
       </div>
       <div className="lg:hidden">
         <CategoryListBox categories={categories} activeCategory="" variant="mobile" />
-        <div className="mb-3 overflow-hidden bg-white">
+        <div className="mb-3 bg-white">
           <AllProductsMain
             products={products}
             loading={loading}
@@ -540,7 +540,7 @@ export function MobileCategoryProductLayout({
   return (
     <div className="lg:hidden">
       <CategoryListBox categories={categories} activeCategory={categoryName} variant="mobile" />
-      <div className="mb-3 overflow-hidden bg-white">
+      <div className="mb-3 bg-white">
         <CategoryProductMain
           categories={categories}
           categoryName={categoryName}

@@ -334,7 +334,7 @@ function GalleryNavButton({ direction, onClick, disabled }) {
       onClick={onClick}
       disabled={disabled}
       aria-label={direction === "prev" ? "Previous image" : "Next image"}
-      className="absolute top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-border-light bg-white/95 text-lg text-text-secondary transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
+      className="absolute top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center overflow-visible rounded-full border border-border-light bg-white/95 text-lg text-text-secondary transition hover:border-neutral-400 hover:text-neutral-900 disabled:cursor-not-allowed disabled:opacity-40"
       style={direction === "prev" ? { left: "0.5rem" } : { right: "0.5rem" }}
     >
       {direction === "prev" ? "‹" : "›"}
@@ -377,13 +377,13 @@ function QuantitySelector({ quantity, min, max, onDecrease, onIncrease, disabled
 
 function CartActionQuantity({ quantity, min, max, disabled, onDecrease, onIncrease }) {
   return (
-    <div className="flex flex-1 items-center justify-between gap-2 rounded-md border-2 border-primary bg-white px-4 py-2.5">
+    <div className="flex flex-1 items-center justify-between gap-2 rounded-md border-2 border-neutral-900 bg-white px-4 py-2.5">
       <button
         type="button"
         onClick={onDecrease}
         disabled={disabled}
         aria-label="Decrease cart quantity"
-        className="flex h-8 w-8 items-center justify-center rounded-md text-lg font-medium text-primary transition hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-40"
+        className="flex h-8 w-8 items-center justify-center rounded-md text-lg font-medium text-neutral-900 transition hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-40"
       >
         −
       </button>
@@ -395,7 +395,7 @@ function CartActionQuantity({ quantity, min, max, disabled, onDecrease, onIncrea
         onClick={onIncrease}
         disabled={disabled || quantity >= max}
         aria-label="Increase cart quantity"
-        className="flex h-8 w-8 items-center justify-center rounded-md text-lg font-medium text-primary transition hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-40"
+        className="flex h-8 w-8 items-center justify-center rounded-md text-lg font-medium text-neutral-900 transition hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-40"
       >
         +
       </button>
@@ -433,13 +433,13 @@ function ActionButtons({
           type="button"
           onClick={(e) => onAddToCart(e.currentTarget)}
           disabled={!inStock || !canAddToCart}
-          className="flex-1 rounded-md bg-primary px-6 py-3.5 text-sm font-bold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex-1 rounded-md bg-neutral-900 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-50"
         >
           Add to Cart
         </button>
       )}
       <ProductAdminShareMenu
-        className="flex-1 [&>button]:h-full [&>button]:w-full [&>button]:rounded-md [&>button]:border-2 [&>button]:border-primary [&>button]:bg-white [&>button]:px-6 [&>button]:py-3.5 [&>button]:text-sm [&>button]:font-bold [&>button]:text-primary [&>button]:transition hover:[&>button]:bg-primary/5"
+        className="flex-1 [&>button]:h-full [&>button]:w-full [&>button]:rounded-md [&>button]:border-2 [&>button]:border-neutral-300 [&>button]:bg-white [&>button]:px-6 [&>button]:py-3.5 [&>button]:text-sm [&>button]:font-bold [&>button]:text-neutral-900 [&>button]:transition hover:[&>button]:bg-neutral-50"
         product={product}
         imageUrl={shareImageUrl}
       />
@@ -786,7 +786,7 @@ function ProductDetail() {
                       setDownloadingImage(false);
                     }
                   }}
-                  className="absolute right-2 top-2 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-border-light bg-white/95 text-text-secondary transition hover:border-primary hover:text-primary disabled:cursor-wait disabled:opacity-60"
+                  className="absolute right-2 top-2 z-10 flex h-10 w-10 items-center justify-center overflow-visible rounded-full border border-border-light bg-white/95 text-text-secondary transition hover:border-neutral-400 hover:text-neutral-900 disabled:cursor-wait disabled:opacity-60"
                   aria-label="Save image to gallery"
                 >
                   <DownloadIcon />

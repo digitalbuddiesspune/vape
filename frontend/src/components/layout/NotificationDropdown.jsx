@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useNotifications } from "../../context/NotificationContext";
+import { ICON_HIT_MD, ICON_SVG_MD, iconCountBadgeClass } from "../../utils/iconLayout";
 
 function formatTimeAgo(dateString) {
   if (!dateString) return "";
@@ -68,25 +69,19 @@ export function NotificationDropdown({ user, onLoginClick, compact = false }) {
   };
 
   return (
-    <div className="relative inline-block text-left" ref={dropdownRef}>
+    <div className="relative inline-block overflow-visible text-left" ref={dropdownRef}>
       <button
         type="button"
         onClick={handleBellClick}
         className={
           compact
-            ? "relative flex h-8 w-8 items-center justify-center rounded-lg text-primary transition hover:bg-primary/5 focus:outline-none sm:h-9 sm:w-9"
-            : "relative flex flex-col items-center justify-center gap-1 px-3 text-gray-700 transition hover:text-accent focus:outline-none lg:px-4"
+            ? `${ICON_HIT_MD} rounded-full text-neutral-900 transition hover:bg-black/[0.06] focus:outline-none`
+            : "relative flex flex-col items-center justify-center gap-1 overflow-visible px-3 text-gray-700 transition hover:text-neutral-900 focus:outline-none lg:px-4"
         }
         aria-label="Notifications"
       >
-        <span className="relative inline-flex">
-          <svg
-            className={compact ? "h-5 w-5 sm:h-[22px] sm:w-[22px]" : "h-5 w-5"}
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={1.6}
-          >
+        <span className="relative inline-flex overflow-visible">
+          <svg className={ICON_SVG_MD} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -94,13 +89,7 @@ export function NotificationDropdown({ user, onLoginClick, compact = false }) {
             />
           </svg>
           {user && unreadCount > 0 && (
-            <span
-              className={`absolute flex items-center justify-center rounded-full bg-red-600 font-bold leading-none text-white shadow-sm animate-pulse ${
-                compact
-                  ? "-right-1.5 -top-1.5 h-4 min-w-4 px-0.5 text-[9px]"
-                  : "-right-2.5 -top-1.5 h-[18px] min-w-[18px] px-0.5 text-[10px]"
-              }`}
-            >
+            <span className={`${iconCountBadgeClass(compact)} bg-red-600 animate-pulse`}>
               {unreadCount > 99 ? "99+" : unreadCount}
             </span>
           )}
