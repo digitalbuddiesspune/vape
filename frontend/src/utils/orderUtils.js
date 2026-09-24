@@ -156,8 +156,6 @@ export function matchesOrderFilter(order, filter) {
         order.status !== "return" &&
         order.status !== "attempted"
       );
-    case "attempted":
-      return order.status === "attempted";
     case "delivered":
       return order.status === "delivered";
     case "cancelled":

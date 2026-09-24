@@ -213,7 +213,7 @@ function DesktopOrderCard({ order }) {
         <button
           type="button"
           onClick={() => navigate(`/orders/${order._id}`)}
-          className="rounded-lg bg-[#2874F0] px-5 py-2.5 text-sm font-bold text-white transition hover:brightness-110"
+          className="rounded-lg bg-primary px-5 py-2.5 text-sm font-bold text-white transition hover:bg-primary-dark"
         >
           View details
         </button>

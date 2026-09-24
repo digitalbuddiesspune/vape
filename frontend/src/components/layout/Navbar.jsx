@@ -242,7 +242,7 @@ function Navbar() {
             <Link
               to="/contact"
               onClick={closeMenu}
-              className="block w-full text-center rounded-lg bg-accent text-white px-4 py-2.5 text-sm font-bold uppercase tracking-wide hover:brightness-110 transition"
+              className="block w-full text-center rounded-lg bg-primary text-white px-4 py-2.5 text-sm font-bold uppercase tracking-wide transition hover:bg-primary-dark"
             >
               Bulk Enquiry
             </Link>
@@ -300,7 +300,7 @@ function Navbar() {
 
           <Link
             to="/contact"
-            className="shrink-0 rounded-lg bg-accent text-white px-6 py-2.5 text-xs font-bold tracking-[0.12em] uppercase hover:brightness-110 transition shadow-sm"
+            className="shrink-0 rounded-lg bg-primary text-white px-6 py-2.5 text-xs font-bold tracking-[0.12em] uppercase transition shadow-sm hover:bg-primary-dark"
           >
             Bulk Enquiry
           </Link>

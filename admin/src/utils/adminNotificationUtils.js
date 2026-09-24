@@ -67,7 +67,7 @@ export function showBrowserNotification({
 }
 
 export function isOrderNotificationType(type) {
-  return type === "order_placed" || type === "order_attempted";
+  return type === "order_placed";
 }
 
 export async function requestBrowserNotificationPermission() {

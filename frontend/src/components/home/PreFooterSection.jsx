@@ -199,7 +199,7 @@ function NewsletterBar() {
           />
           <button
             type="submit"
-            className="rounded-md bg-accent text-white px-6 py-3 text-sm font-bold tracking-wide hover:brightness-110 transition whitespace-nowrap"
+            className="rounded-md bg-primary px-6 py-3 text-sm font-bold tracking-wide text-white transition whitespace-nowrap hover:bg-primary-dark"
           >
             {submitted ? "SUBSCRIBED!" : "SUBSCRIBE"}
           </button>

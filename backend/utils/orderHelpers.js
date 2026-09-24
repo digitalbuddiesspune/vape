@@ -20,7 +20,6 @@ import { calculateOrderTotal } from "./gstHelpers.js";
 import { getRecordedAdvancePaidAmount } from "./paymentHelpers.js";
 import { resolveCouponForCheckout } from "../controllers/couponController.js";
 import { resolveGiftHamperForOrder, getCustomerVisibleGiftHamper } from "../../shared/store/giftHamper.js";
-import { formatIndiaDateString } from "../../shared/date/indiaDate.js";
 
 async function computeOrderPricing(subtotal, couponCode, options = {}) {
   const storeSettings = await getStoreSettings();
@@ -130,8 +129,13 @@ function applyCheckoutItemOverrides(itemsToProcess, checkoutItems) {
       ? overrideMap.get(key)
       : normalizeStrength(item.strength);
 
+    const productDoc = item.product;
+    const plain =
+      typeof item.toObject === "function" ? item.toObject({ depopulate: false }) : { ...item };
+
     return {
-      ...item,
+      ...plain,
+      product: productDoc,
       strength,
     };
   });
@@ -183,15 +187,6 @@ export function normalizeOrderSource(value, fallback = "website") {
   if (normalized === "mobile") return "app";
   if (ORDER_SOURCES.has(normalized)) return normalized;
   return ORDER_SOURCES.has(fallback) ? fallback : "website";
-}
-
-function isSameIndiaCalendarDay(value, compareTo = new Date()) {
-  const left = value instanceof Date ? value : new Date(value);
-  const right = compareTo instanceof Date ? compareTo : new Date(compareTo);
-  if (Number.isNaN(left.getTime()) || Number.isNaN(right.getTime())) {
-    return false;
-  }
-  return formatIndiaDateString(left) === formatIndiaDateString(right);
 }
 
 const populateCart = (query) =>
@@ -326,10 +321,11 @@ async function resolveCheckoutItems(rawItems, { skipStockCheck = false } = {}) {
     }
 
     const product = await Product.findById(productId).select(PRODUCT_PRICING_SELECT);
-    if (!product || !product.isActive) {
+    if (!product || product.isActive === false) {
       return {
         error: "One or more products are no longer available",
         status: 404,
+        code: "CART_ITEMS_UNAVAILABLE",
       };
     }
 
@@ -659,166 +655,6 @@ async function resolveItemsForCheckout(userId, options = {}) {
   return { itemsToProcess, cart, checkoutMode };
 }
 
-async function resolveAttemptedOrderForCheckout(userId, attemptedOrderId = null) {
-  if (attemptedOrderId) {
-    const explicit = await Order.findOne({
-      _id: attemptedOrderId,
-      user: userId,
-      status: "attempted",
-    })
-      .select("_id")
-      .lean();
-    if (explicit) {
-      return explicit;
-    }
-  }
-
-  return Order.findOne({ user: userId, status: "attempted" })
-    .sort({ updatedAt: -1 })
-    .select("_id")
-    .lean();
-}
-
-export async function supersedeAttemptedOrder(userId, attemptedOrderId, confirmOrder) {
-  if (!attemptedOrderId || !confirmOrder?._id) {
-    return null;
-  }
-
-  return Order.findOneAndUpdate(
-    {
-      _id: attemptedOrderId,
-      user: userId,
-      status: "attempted",
-    },
-    {
-      $set: {
-        status: "cancelled",
-      },
-    },
-    { new: true }
-  );
-}
-
-export async function prepareCheckoutAttemptData(userId, options = {}) {
-  const user = await User.findById(userId);
-  if (!user) {
-    return { error: "User not found", status: 404 };
-  }
-
-  let address = null;
-  if (options.addressId) {
-    address = await Address.findOne({ _id: options.addressId, user: userId });
-  } else {
-    address =
-      (await Address.findOne({ user: userId, isDefault: true })) ||
-      (await Address.findOne({ user: userId }).sort({ updatedAt: -1 }));
-  }
-
-  const resolvedItems = await resolveItemsForCheckout(userId, options);
-  if (resolvedItems.error) {
-    return resolvedItems;
-  }
-
-  const { itemsToProcess, cart, checkoutMode } = resolvedItems;
-  const built = buildOrderItemsFromResolved(itemsToProcess);
-  if (built.error) {
-    return built;
-  }
-
-  const { orderItems, subtotal } = built;
-
-  const attemptedOrder = await resolveAttemptedOrderForCheckout(
-    userId,
-    options.attemptedOrderId
-  );
-
-  const pricing = await computeOrderPricing(subtotal, options.couponCode, {
-    userId,
-    excludeOrderId: attemptedOrder?._id,
-  });
-  if (pricing.error) {
-    return pricing;
-  }
-
-  const { deliveryCharges, gstAmount, total, couponCode, couponDiscount } = pricing;
-
-  return {
-    orderItems,
-    deliveryAddress: buildPendingDeliveryAddress(user, address),
-    subtotal,
-    couponCode,
-    couponDiscount,
-    deliveryCharges,
-    gstAmount,
-    total,
-    cart,
-    checkoutMode,
-  };
-}
-
-export async function upsertCheckoutAttemptOrder(
-  userId,
-  prepared,
-  paymentMethod = "cod",
-  orderSource = "website",
-  attemptedOrderId = null
-) {
-  const normalizedPaymentMethod = paymentMethod === "online" ? "online" : "cod";
-  const normalizedOrderSource = normalizeOrderSource(orderSource);
-  const payload = {
-    items: prepared.orderItems,
-    deliveryAddress: prepared.deliveryAddress,
-    subtotal: prepared.subtotal,
-    couponCode: prepared.couponCode || "",
-    couponDiscount: prepared.couponDiscount || 0,
-    deliveryCharges: prepared.deliveryCharges,
-    gstAmount: prepared.gstAmount ?? 0,
-    total: prepared.total,
-    paymentMethod: normalizedPaymentMethod,
-    paymentStatus: "unpaid",
-    status: "attempted",
-    orderSource: normalizedOrderSource,
-  };
-
-  let order = null;
-  let preserveHistoricalAttempt = false;
-
-  if (attemptedOrderId) {
-    order = await Order.findOne({
-      _id: attemptedOrderId,
-      user: userId,
-      status: "attempted",
-    });
-    if (order && !isSameIndiaCalendarDay(order.createdAt)) {
-      preserveHistoricalAttempt = true;
-      order = null;
-    }
-  }
-
-  if (!order && !preserveHistoricalAttempt) {
-    order = await Order.findOne({ user: userId, status: "attempted" }).sort({
-      updatedAt: -1,
-    });
-  }
-
-  if (order) {
-    Object.assign(order, payload);
-    await order.save();
-    return order;
-  }
-
-  order = await Order.create({
-    user: userId,
-    ...payload,
-  });
-
-  await User.findByIdAndUpdate(userId, {
-    $addToSet: { orders: order._id },
-  });
-
-  return order;
-}
-
 async function clearCartAfterCheckout(cart, checkoutMode, orderItems, userId) {
   if (checkoutMode === "cart") {
     if (cart) {
@@ -842,93 +678,9 @@ async function clearCartAfterCheckout(cart, checkoutMode, orderItems, userId) {
   await cart.save();
 }
 
-export async function findAttemptedOrderForCheckout(userId, attemptedOrderId) {
-  if (attemptedOrderId) {
-    const explicit = await Order.findOne({
-      _id: attemptedOrderId,
-      user: userId,
-    });
-    if (explicit) {
-      return explicit;
-    }
-  }
-
-  return Order.findOne({ user: userId, status: "attempted" }).sort({ updatedAt: -1 });
-}
-
 async function resolveGiftHamperSnapshot(total) {
   const storeSettings = await getStoreSettings();
   return resolveGiftHamperForOrder(total, storeSettings);
-}
-
-export async function completeAttemptedOrder({
-  attemptedOrderId,
-  userId,
-  orderItems,
-  deliveryAddress,
-  subtotal,
-  couponCode = "",
-  couponDiscount = 0,
-  deliveryCharges,
-  gstAmount = 0,
-  total,
-  cart,
-  checkoutMode = "cart",
-  paymentMethod,
-  paymentStatus,
-  status = "confirm",
-  razorpayOrderId,
-  razorpayPaymentId,
-  codAdvanceAmount = 0,
-  codAdvanceRazorpayPaymentId = "",
-  razorpayPaidAmount = 0,
-  codAdvancePaidAt = null,
-  paidAt,
-  message = "",
-}) {
-  const order = await findAttemptedOrderForCheckout(userId, attemptedOrderId);
-
-  if (!order) {
-    return null;
-  }
-
-  if (order.status !== "attempted") {
-    await clearCartAfterCheckout(cart, checkoutMode, orderItems, userId);
-    return order;
-  }
-
-  const orderMessage =
-    typeof message === "string" ? message.trim().slice(0, 500) : "";
-
-  order.items = orderItems;
-  order.deliveryAddress = deliveryAddress;
-  order.subtotal = subtotal;
-  order.couponCode = couponCode || "";
-  order.couponDiscount = couponDiscount > 0 ? couponDiscount : 0;
-  order.deliveryCharges = deliveryCharges;
-  order.gstAmount = gstAmount > 0 ? gstAmount : 0;
-  order.total = total;
-  order.paymentMethod = paymentMethod;
-  order.paymentStatus = paymentStatus;
-  order.status = status;
-  order.message = orderMessage;
-  order.razorpayOrderId = razorpayOrderId || "";
-  order.razorpayPaymentId = razorpayPaymentId || "";
-  order.codAdvanceAmount = codAdvanceAmount > 0 ? codAdvanceAmount : 0;
-  order.razorpayPaidAmount = razorpayPaidAmount > 0 ? razorpayPaidAmount : 0;
-  order.codAdvanceRazorpayPaymentId = codAdvanceRazorpayPaymentId || "";
-  order.codAdvancePaidAt = codAdvancePaidAt || null;
-  order.paidAt = paidAt || null;
-
-  if (status !== "attempted") {
-    order.createdAt = new Date();
-    order.giftHamper = await resolveGiftHamperSnapshot(total);
-  }
-
-  await order.save();
-  await clearCartAfterCheckout(cart, checkoutMode, orderItems, userId);
-
-  return order;
 }
 
 export async function finalizeOrder({
@@ -955,11 +707,7 @@ export async function finalizeOrder({
   paidAt,
   message = "",
   orderSource = "website",
-  attemptedOrderId = null,
 }) {
-  // Always create a fresh confirm order on payment/place — never convert the
-  // attempted checkout draft in place. The attempted row is superseded after success.
-
   const razorpayPaymentKey = String(razorpayPaymentId || "").trim();
   const codAdvancePaymentKey = String(codAdvanceRazorpayPaymentId || "").trim();
   const razorpayOrderKey = String(razorpayOrderId || "").trim();
@@ -979,7 +727,6 @@ export async function finalizeOrder({
 
     if (existingPaid) {
       await clearCartAfterCheckout(cart, checkoutMode, orderItems, userId);
-      await supersedeAttemptedOrder(userId, attemptedOrderId, existingPaid);
       return existingPaid;
     }
   }
@@ -1019,7 +766,6 @@ export async function finalizeOrder({
   });
 
   await clearCartAfterCheckout(cart, checkoutMode, orderItems, userId);
-  await supersedeAttemptedOrder(userId, attemptedOrderId, order);
 
   return order;
 }

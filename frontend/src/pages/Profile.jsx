@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import {
@@ -10,11 +10,19 @@ import {
 } from "../api/api";
 import AddressForm, { ADDRESS_FORM_FIELDS } from "../components/address/AddressForm";
 import BuyAgainCard from "../components/product/BuyAgainCard";
+import { getBrandAccent } from "../config/brandColors";
+import { WISHLIST_ICON_CIRCLE } from "../utils/iconLayout";
 import {
   formatAddressLine,
   getAddressFullName,
   mapAddressToForm,
 } from "../utils/addressDisplay";
+
+/** Name, email, phone icon tints (reference layout). */
+const PROFILE_FIELD_ACCENTS = [0, 3, 1];
+
+/** Quick link circle colors: addresses, orders, wishlist, settings. */
+const QUICK_LINK_ACCENTS = [3, 2, 0, 0];
 
 function profileFirstName(name) {
   const parts = String(name || "")
@@ -59,44 +67,63 @@ function extractRecentOrderItems(orders, maxItems = 12) {
   return items;
 }
 
-function ProfileInfoRow({ icon, label, value, onEdit, showDivider }) {
+function ChevronRight({ className = "h-4 w-4" }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+    </svg>
+  );
+}
+
+function ProfileInfoRow({ icon, label, value, onEdit, showDivider, accentIndex = 0, showEdit = true }) {
+  const accent = getBrandAccent(accentIndex);
+
   return (
     <div>
-      <div className="flex items-center gap-3 px-3.5 py-3.5 sm:px-4 sm:py-4">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-visible rounded-xl bg-neutral-100 text-neutral-800">
+      <div className="flex items-center gap-3 px-4 py-3.5">
+        <div
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${accent.iconBg} ${accent.text}`}
+        >
           {icon}
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-xs text-text-secondary">{label}</p>
-          <p className="truncate text-sm font-semibold text-text-primary">{value}</p>
+          <p className="truncate text-sm font-bold text-text-primary">{value}</p>
         </div>
-        <button
-          type="button"
-          onClick={onEdit}
-          className="flex shrink-0 items-center gap-0.5 text-sm font-semibold text-neutral-900"
-        >
-          Edit
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
+        {showEdit && onEdit ? (
+          <button
+            type="button"
+            onClick={onEdit}
+            className="flex shrink-0 items-center gap-0.5 text-sm font-medium text-text-secondary"
+          >
+            Edit
+            <ChevronRight />
+          </button>
+        ) : null}
       </div>
-      {showDivider ? <div className="ml-[62px] mr-3.5 border-t border-border-light" /> : null}
+      {showDivider ? <div className="ml-[72px] mr-4 border-t border-border-light" /> : null}
     </div>
   );
 }
 
-function QuickLink({ icon, label, onClick, to }) {
+function QuickLink({ icon, label, onClick, to, accentIndex = 0, iconCircleClass }) {
+  const accent = getBrandAccent(accentIndex);
+  const circleClass = iconCircleClass ?? `${accent.iconBg} ${accent.text}`;
+
   const content = (
     <>
-      <div className="mx-auto flex h-8 w-8 items-center justify-center overflow-visible text-neutral-800">{icon}</div>
-      <span className="mt-1.5 block text-center text-[10px] font-semibold leading-tight text-text-primary">
+      <div
+        className={`mx-auto flex h-11 w-11 items-center justify-center rounded-full ${circleClass}`}
+      >
+        {icon}
+      </div>
+      <span className="mt-2 block text-center text-[10px] font-semibold leading-tight text-text-primary">
         {label}
       </span>
     </>
   );
 
-  const className = "flex-1 rounded-xl px-1 py-1 transition hover:bg-white/60";
+  const className = "flex-1 px-1 py-1 transition active:opacity-80";
 
   if (to) {
     return (
@@ -110,6 +137,61 @@ function QuickLink({ icon, label, onClick, to }) {
     <button type="button" onClick={onClick} className={className}>
       {content}
     </button>
+  );
+}
+
+function AddressActionsMenu({ onEdit, onRemove }) {
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const close = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener("click", close);
+    return () => document.removeEventListener("click", close);
+  }, [open]);
+
+  return (
+    <div className="relative shrink-0" ref={menuRef}>
+      <button
+        type="button"
+        aria-label="Address options"
+        onClick={() => setOpen((v) => !v)}
+        className="flex h-8 w-8 items-center justify-center rounded-full text-text-secondary hover:bg-mobile-surface"
+      >
+        <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+          <circle cx="5" cy="12" r="1.75" />
+          <circle cx="12" cy="12" r="1.75" />
+          <circle cx="19" cy="12" r="1.75" />
+        </svg>
+      </button>
+      {open ? (
+        <div className="absolute right-0 top-full z-20 mt-1 min-w-[120px] overflow-hidden rounded-xl border border-border-light bg-white py-1 shadow-lg">
+          <button
+            type="button"
+            className="block w-full px-4 py-2 text-left text-sm font-medium text-text-primary hover:bg-mobile-surface"
+            onClick={() => {
+              setOpen(false);
+              onEdit();
+            }}
+          >
+            Edit
+          </button>
+          <button
+            type="button"
+            className="block w-full px-4 py-2 text-left text-sm font-medium text-red-600 hover:bg-red-50"
+            onClick={() => {
+              setOpen(false);
+              onRemove();
+            }}
+          >
+            Remove
+          </button>
+        </div>
+      ) : null}
+    </div>
   );
 }
 
@@ -243,7 +325,7 @@ function Profile() {
           <button
             type="button"
             onClick={() => openAuthModal("login")}
-            className="rounded-lg bg-neutral-900 px-8 py-3 text-sm font-bold text-white transition hover:bg-neutral-800"
+            className="rounded-lg bg-primary px-8 py-3 text-sm font-bold text-white transition hover:bg-primary-dark"
           >
             Login / Sign Up
           </button>
@@ -253,28 +335,46 @@ function Profile() {
   }
 
   return (
-    <div className="store-page-x store-section-y min-h-screen bg-mobile-bg pb-24">
-      <div className="mx-auto max-w-xl space-y-4">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-text-primary">
-              Hi, {profileFirstName(user.name)} 👋
-            </h1>
-            <p className="mt-1 text-sm text-text-secondary">Manage your profile & addresses</p>
-          </div>
-          <div className="relative shrink-0">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full border border-neutral-200 bg-neutral-100 text-lg font-bold text-neutral-900">
-              {profileInitials(user.name)}
+    <div className="min-h-screen bg-mobile-bg pb-24">
+      <div className="mx-auto max-w-xl space-y-4 px-4 pt-4">
+        <section className="rounded-2xl bg-primary px-4 py-5 shadow-sm">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <h1 className="text-xl font-bold text-white sm:text-2xl">
+                Hi, {profileFirstName(user.name)} 👋
+              </h1>
+              <p className="mt-1 text-sm text-white/85">Manage your profile & addresses</p>
             </div>
-            <span className="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full border border-border-light bg-white shadow-sm">
-              <svg className="block h-3 w-3 shrink-0 text-neutral-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536M4 20h4l10.5-10.5a1.5 1.5 0 00-4.5-4.5L4 15.5V20z" />
-              </svg>
-            </span>
+            <div className="relative shrink-0">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/20 text-lg font-bold text-white">
+                {profileInitials(user.name)}
+              </div>
+              <button
+                type="button"
+                aria-label="Edit profile photo"
+                onClick={() => handleEditProfileField("name", "Name", user.name)}
+                className="absolute -bottom-0.5 -right-0.5 flex h-6 w-6 items-center justify-center rounded-full border border-border-light bg-white shadow-sm"
+              >
+                <svg className="h-3 w-3 text-text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536M4 20h4l10.5-10.5a1.5 1.5 0 00-4.5-4.5L4 15.5V20z" />
+                </svg>
+              </button>
+            </div>
           </div>
-        </div>
+        </section>
 
-        <div className="overflow-hidden rounded-2xl border border-border-light bg-white shadow-sm">
+        <section className="overflow-hidden rounded-2xl border border-border-light bg-white shadow-sm">
+          <div className="flex items-center justify-between gap-3 border-b border-border-light px-4 py-3.5">
+            <h2 className="text-base font-bold text-text-primary">Account Information</h2>
+            <button
+              type="button"
+              onClick={() => handleEditProfileField("name", "Name", user.name)}
+              className="flex items-center gap-0.5 text-sm font-medium text-text-secondary"
+            >
+              Edit Profile
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
           <ProfileInfoRow
             icon={
               <svg className="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
@@ -283,7 +383,8 @@ function Profile() {
             }
             label="Name"
             value={user.name}
-            onEdit={() => handleEditProfileField("name", "Name", user.name)}
+            showEdit={false}
+            accentIndex={PROFILE_FIELD_ACCENTS[0]}
             showDivider
           />
           <ProfileInfoRow
@@ -295,6 +396,7 @@ function Profile() {
             label="Email"
             value={user.email || "Not provided"}
             onEdit={() => handleEditProfileField("email", "Email", user.email || "")}
+            accentIndex={PROFILE_FIELD_ACCENTS[1]}
             showDivider
           />
           <ProfileInfoRow
@@ -306,50 +408,57 @@ function Profile() {
             label="Phone Number"
             value={user.phone || "Not provided"}
             onEdit={() => handleEditProfileField("phone", "Phone Number", user.phone || "")}
+            accentIndex={PROFILE_FIELD_ACCENTS[2]}
             showDivider={false}
           />
-        </div>
+        </section>
 
-        <div className="flex rounded-2xl border border-neutral-200 bg-neutral-50 px-2 py-4">
-          <QuickLink
-            label="My Addresses"
-            onClick={scrollToAddresses}
-            icon={
-              <svg className="h-[22px] w-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-            }
-          />
-          <QuickLink
-            label="My Orders"
-            to="/orders"
-            icon={
-              <svg className="h-[22px] w-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-            }
-          />
-          <QuickLink
-            label="Wishlist"
-            to="/wishlist"
-            icon={
-              <svg className="h-[22px] w-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-              </svg>
-            }
-          />
-          <QuickLink
-            label="Account Settings"
-            onClick={() => setShowSettings(true)}
-            icon={
-              <svg className="h-[22px] w-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-            }
-          />
-        </div>
+        <section className="rounded-2xl border border-border-light bg-white px-2 py-5 shadow-sm">
+          <div className="flex">
+            <QuickLink
+              label="My Addresses"
+              accentIndex={QUICK_LINK_ACCENTS[0]}
+              onClick={scrollToAddresses}
+              icon={
+                <svg className="h-[22px] w-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              }
+            />
+            <QuickLink
+              label="My Orders"
+              accentIndex={QUICK_LINK_ACCENTS[1]}
+              to="/orders"
+              icon={
+                <svg className="h-[22px] w-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              }
+            />
+            <QuickLink
+              label="Wishlist"
+              iconCircleClass={WISHLIST_ICON_CIRCLE}
+              to="/wishlist"
+              icon={
+                <svg className="h-[22px] w-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              }
+            />
+            <QuickLink
+              label="Account Settings"
+              accentIndex={QUICK_LINK_ACCENTS[3]}
+              onClick={() => setShowSettings(true)}
+              icon={
+                <svg className="h-[22px] w-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              }
+            />
+          </div>
+        </section>
 
         {(recentLoading || recentItems.length > 0) && (
           <section>
@@ -384,7 +493,7 @@ function Profile() {
                   setShowAddressForm(true);
                   setFormError("");
                 }}
-                className="text-sm font-semibold text-neutral-900"
+                className="text-sm font-bold text-brand-lime"
               >
                 + Add Address
               </button>
@@ -427,46 +536,37 @@ function Profile() {
             <>
               <div className="rounded-2xl border border-border-light bg-white p-4 shadow-sm">
                 <div className="flex items-start gap-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-visible rounded-xl bg-neutral-100 text-neutral-800">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-text-secondary">
                     <svg className="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="font-bold text-text-primary">{getAddressFullName(currentAddress)}</p>
-                      {currentAddress.isDefault && (
-                        <span className="rounded-md bg-green-100 px-2 py-0.5 text-[10px] font-bold text-green-700">
-                          DEFAULT
-                        </span>
-                      )}
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex min-w-0 flex-wrap items-center gap-2">
+                        <p className="font-bold text-text-primary">{getAddressFullName(currentAddress)}</p>
+                        {currentAddress.isDefault && (
+                          <span className="rounded-md bg-green-100 px-2 py-0.5 text-[10px] font-bold text-green-700">
+                            DEFAULT
+                          </span>
+                        )}
+                      </div>
+                      <AddressActionsMenu
+                        onEdit={() => handleEditAddress(currentAddress)}
+                        onRemove={() => handleDeleteAddress(currentAddress._id)}
+                      />
                     </div>
                     <p className="mt-2 text-sm leading-relaxed text-text-secondary">
                       {formatAddressLine(currentAddress)}
                     </p>
-                    <p className="mt-2 flex items-center gap-1 text-sm text-text-secondary">
-                      <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    <p className="mt-2 flex items-center gap-1.5 text-sm text-text-secondary">
+                      <svg className="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
                       +91 {currentAddress.number}
                     </p>
                   </div>
-                </div>
-                <div className="mt-3 flex justify-end gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleEditAddress(currentAddress)}
-                    className="px-2 text-sm font-semibold text-neutral-900"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteAddress(currentAddress._id)}
-                    className="px-2 text-sm font-semibold text-red-600"
-                  >
-                    Remove
-                  </button>
                 </div>
               </div>
 
@@ -476,7 +576,7 @@ function Profile() {
                     type="button"
                     disabled={addressIndex === 0}
                     onClick={() => setAddressIndex((i) => Math.max(0, i - 1))}
-                    className="rounded-full border border-border-light px-3 py-1 text-xs disabled:opacity-40"
+                    className="rounded-full border border-border-light px-3 py-1 text-xs text-text-secondary disabled:opacity-40"
                   >
                     Prev
                   </button>
@@ -488,7 +588,7 @@ function Profile() {
                         aria-label={`Address ${index + 1}`}
                         onClick={() => setAddressIndex(index)}
                         className={`h-2 rounded-full transition ${
-                          index === addressIndex ? "w-2 bg-neutral-900" : "w-2 bg-border-light"
+                          index === addressIndex ? "w-2 bg-primary" : "w-2 bg-border-light"
                         }`}
                       />
                     ))}
@@ -497,7 +597,7 @@ function Profile() {
                     type="button"
                     disabled={addressIndex >= addresses.length - 1}
                     onClick={() => setAddressIndex((i) => Math.min(addresses.length - 1, i + 1))}
-                    className="rounded-full border border-border-light px-3 py-1 text-xs disabled:opacity-40"
+                    className="rounded-full border border-border-light px-3 py-1 text-xs text-text-secondary disabled:opacity-40"
                   >
                     Next
                   </button>

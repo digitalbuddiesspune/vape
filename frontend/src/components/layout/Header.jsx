@@ -52,7 +52,7 @@ function SearchBar({ className = "" }) {
       <button
         type="submit"
         aria-label="Search"
-        className="shrink-0 rounded-full bg-neutral-900 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-neutral-800 md:px-4 md:py-2 md:text-sm"
+        className="shrink-0 rounded-full bg-primary px-3 py-1.5 text-xs font-bold text-white transition hover:bg-primary-dark md:px-4 md:py-2 md:text-sm"
       >
         Search
       </button>

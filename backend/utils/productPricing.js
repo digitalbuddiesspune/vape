@@ -109,15 +109,16 @@ export function getVariant(product, variantName) {
 }
 
 export function isProductInStock(product, variantName = "") {
+  if (!product || typeof product !== "object") return false;
+  if (product.isActive === false) return false;
+
   if (isMultiVariant(product)) {
     const variant = getVariant(product, variantName);
     if (!variant) return false;
-    if (typeof variant.inStock === "boolean") return variant.inStock;
-    return (variant.stock ?? 0) > 0;
+    return variant.inStock !== false;
   }
 
-  if (typeof product?.inStock === "boolean") return product.inStock;
-  return (product?.stock ?? 0) > 0;
+  return product.inStock !== false;
 }
 
 const IN_STOCK_MAX_QTY = 9999;
@@ -137,9 +138,7 @@ export function getAvailableColors(product, variantName = "") {
 
 export function getTotalProductStock(product) {
   if (isMultiVariant(product)) {
-    return product.variants.some((variant) =>
-      typeof variant.inStock === "boolean" ? variant.inStock : (variant.stock ?? 0) > 0
-    )
+    return product.variants.some((variant) => isProductInStock(product, variant.name))
       ? IN_STOCK_MAX_QTY
       : 0;
   }

@@ -180,7 +180,7 @@ function DesktopOrderDetail({ order, onCancel, cancelling, cancelError }) {
           <div className="flex flex-wrap items-center gap-2 border-t border-border-light bg-[#FAFAFA] px-6 py-3">
             <Link
               to={`/orders/${order._id}/invoice`}
-              className="rounded-lg bg-[#2874F0] px-5 py-2.5 text-sm font-bold text-white transition hover:brightness-110"
+              className="rounded-lg bg-primary px-5 py-2.5 text-sm font-bold text-white transition hover:bg-primary-dark"
             >
               Download invoice
             </Link>

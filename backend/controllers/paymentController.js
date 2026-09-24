@@ -7,7 +7,6 @@ import {
   normalizeOrderMessage,
   normalizeOrderSource,
   prepareOrderData,
-  upsertCheckoutAttemptOrder,
 } from "../utils/orderHelpers.js";
 import { resolveImageForStorage } from "../utils/imageValidation.js";
 import { UPLOAD_FOLDERS } from "../utils/uploadFolders.js";
@@ -78,7 +77,7 @@ export const createRazorpayOrder = async (req, res) => {
       });
     }
 
-    const { addressId, paymentMode = "online", checkoutItems, checkoutMode, buyNow, couponCode, attemptedOrderId } =
+    const { addressId, paymentMode = "online", checkoutItems, checkoutMode, buyNow, couponCode } =
       req.body;
     if (!addressId) {
       return res.status(400).json({
@@ -99,7 +98,6 @@ export const createRazorpayOrder = async (req, res) => {
       checkoutMode,
       buyNow,
       couponCode,
-      excludeOrderId: attemptedOrderId || undefined,
     });
     if (result.error) {
       return res.status(result.status).json({
@@ -109,27 +107,6 @@ export const createRazorpayOrder = async (req, res) => {
         ...(result.removedItems ? { removedItems: result.removedItems } : {}),
       });
     }
-
-    const orderSource = normalizeOrderSource(req.body.orderSource);
-
-    const attemptedOrder = await upsertCheckoutAttemptOrder(
-      req.user._id,
-      {
-        orderItems: result.orderItems,
-        deliveryAddress: result.deliveryAddress,
-        subtotal: result.subtotal,
-        couponCode: result.couponCode,
-        couponDiscount: result.couponDiscount,
-        deliveryCharges: result.deliveryCharges,
-        gstAmount: result.gstAmount,
-        total: result.total,
-        cart: result.cart,
-        checkoutMode: result.checkoutMode,
-      },
-      paymentMode === "cod_advance" ? "cod" : "online",
-      orderSource,
-      attemptedOrderId || null
-    );
 
     const payableAmount = calculatePayableAmount(result.total, paymentMode);
     const amountPaise = Math.round(payableAmount * 100);
@@ -155,7 +132,6 @@ export const createRazorpayOrder = async (req, res) => {
         paymentMode,
         payableAmount,
         orderTotal: result.total,
-        attemptedOrderId: attemptedOrder._id,
       },
     });
   } catch (error) {
@@ -190,7 +166,6 @@ export const verifyRazorpayPayment = async (req, res) => {
       checkoutItems,
       checkoutMode,
       buyNow,
-      attemptedOrderId,
       couponCode,
     } = req.body;
     const orderMessage = normalizeOrderMessage(req.body);
@@ -227,7 +202,6 @@ export const verifyRazorpayPayment = async (req, res) => {
       checkoutMode,
       buyNow,
       couponCode,
-      excludeOrderId: attemptedOrderId || undefined,
     });
 
     if (result.error) {
@@ -272,13 +246,10 @@ export const verifyRazorpayPayment = async (req, res) => {
       paidAt: isCodAdvance ? null : new Date(),
       ...(isCodAdvance ? { codAdvancePaidAt: new Date() } : {}),
       message: orderMessage,
-      attemptedOrderId,
       orderSource: normalizeOrderSource(req.body.orderSource),
     });
 
-    void notifyOrderCreated(order, {
-      previousStatus: attemptedOrderId ? "attempted" : null,
-    });
+    void notifyOrderCreated(order);
     void notifyPaymentSuccess(order, { paymentMode });
 
     res.status(201).json({
@@ -302,7 +273,6 @@ export const submitUpiPaymentProof = async (req, res) => {
       checkoutItems,
       checkoutMode,
       buyNow,
-      attemptedOrderId,
       couponCode,
     } = req.body;
     const orderMessage = normalizeOrderMessage(req.body);
@@ -347,7 +317,6 @@ export const submitUpiPaymentProof = async (req, res) => {
       checkoutMode,
       buyNow,
       couponCode,
-      excludeOrderId: attemptedOrderId || undefined,
     });
     if (result.error) {
       return res.status(result.status).json({
@@ -380,13 +349,10 @@ export const submitUpiPaymentProof = async (req, res) => {
       status: "confirm",
       codAdvanceAmount: isCodAdvance ? payableAmount : 0,
       message: orderMessage,
-      attemptedOrderId,
       orderSource: normalizeOrderSource(req.body.orderSource),
     });
 
-    void notifyOrderCreated(order, {
-      previousStatus: attemptedOrderId ? "attempted" : null,
-    });
+    void notifyOrderCreated(order);
 
     const payment = await Payment.create({
       order: order._id,

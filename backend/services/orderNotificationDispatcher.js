@@ -47,20 +47,16 @@ function dispatchWhatsApp(context, promise) {
   });
 }
 
-export async function notifyOrderCreated(order, { previousStatus = null } = {}) {
+export async function notifyOrderCreated(order) {
   if (!order?.user) {
     return null;
   }
 
   try {
-    const result =
-      previousStatus === "attempted"
-        ? await sendOrderConfirmed(order)
-        : await sendOrderPlaced(order);
+    const result = await sendOrderPlaced(order);
     logDispatchResult("notifyOrderCreated", result);
 
-    // WhatsApp confirmation when order is confirmed (invoice waits until shipping)
-    if (previousStatus === "attempted" || order.status === "confirm") {
+    if (order.status === "confirm") {
       dispatchWhatsApp(
         "notifyOrderCreated",
         sendWhatsAppOrderConfirmedBundle(order)

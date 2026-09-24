@@ -14,7 +14,7 @@ const NAV_ITEMS = [
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
-        strokeWidth={active ? 2.25 : 1.75}
+        strokeWidth={1.75}
       >
         <path
           strokeLinecap="round"
@@ -28,7 +28,7 @@ const NAV_ITEMS = [
     to: "/product",
     label: "Shop",
     icon: (active) => (
-      <svg className={ICON_SVG_LG} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={active ? 2.1 : 1.75}>
+      <svg className={ICON_SVG_LG} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -41,7 +41,7 @@ const NAV_ITEMS = [
     to: "/orders",
     label: "Orders",
     icon: (active) => (
-      <svg className={ICON_SVG_LG} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={active ? 2.1 : 1.75}>
+      <svg className={ICON_SVG_LG} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -55,7 +55,7 @@ const NAV_ITEMS = [
     label: "Cart",
     badge: true,
     icon: (active) => (
-      <svg className={ICON_SVG_LG} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={active ? 2.1 : 1.75}>
+      <svg className={ICON_SVG_LG} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -68,7 +68,7 @@ const NAV_ITEMS = [
     to: "/profile",
     label: "Account",
     icon: (active) => (
-      <svg className={ICON_SVG_LG} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={active ? 2.1 : 1.75}>
+      <svg className={ICON_SVG_LG} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -107,19 +107,25 @@ function BottomNav() {
                 <>
                   {isActive ? (
                     <span
-                      className="absolute inset-x-0.5 inset-y-1 rounded-[18px] bg-neutral-900/[0.08]"
+                      className="absolute inset-x-0.5 inset-y-1 rounded-[18px] bg-primary"
                       aria-hidden="true"
                     />
                   ) : null}
                   <span
                     className={`relative flex flex-col items-center gap-0.5 transition-colors ${
-                      isActive ? "text-neutral-900" : "text-neutral-500"
+                      isActive ? "text-[#FAF9F6]" : "text-neutral-500"
                     }`}
                   >
                     <span className="relative flex h-7 w-7 shrink-0 items-center justify-center overflow-visible">
                       {item.icon(isActive)}
                       {item.badge && cartCount > 0 ? (
-                        <span className={iconCountBadgeClass(true)}>
+                        <span
+                          className={
+                            isActive
+                              ? "pointer-events-none absolute z-10 -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#FAF9F6] px-0.5 text-[9px] font-bold leading-none text-primary ring-2 ring-primary"
+                              : iconCountBadgeClass(true)
+                          }
+                        >
                           {cartCount > 99 ? "99+" : cartCount}
                         </span>
                       ) : null}

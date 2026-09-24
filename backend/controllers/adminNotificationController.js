@@ -27,16 +27,10 @@ function buildSinceFilter(sinceDate) {
 
 export const getAdminInboxSummary = async (req, res) => {
   try {
-    const {
-      supportSince,
-      placedSince,
-      attemptedSince,
-      paymentSince,
-    } = req.query;
+    const { supportSince, placedSince, paymentSince } = req.query;
 
     const supportDate = parseSinceDate(supportSince);
     const placedDate = parseSinceDate(placedSince);
-    const attemptedDate = parseSinceDate(attemptedSince);
     const paymentDate = parseSinceDate(paymentSince);
 
     const mapRecentOrder = (order) => ({
@@ -49,39 +43,22 @@ export const getAdminInboxSummary = async (req, res) => {
       updatedAt: order.updatedAt,
     });
 
-    const attemptedSinceFilter = attemptedDate
-      ? { updatedAt: { $gt: attemptedDate } }
-      : {};
-
-    const [supportCount, placedCount, attemptedCount, paymentCount, recentPlaced, recentAttempted] =
-      await Promise.all([
-        SupportMessage.countDocuments(buildSinceFilter(supportDate)),
-        Order.countDocuments({
-          status: { $ne: "attempted" },
-          ...buildSinceFilter(placedDate),
-        }),
-        Order.countDocuments({
-          status: "attempted",
-          ...attemptedSinceFilter,
-        }),
-        Payment.countDocuments({ status: "pending", ...buildSinceFilter(paymentDate) }),
-        Order.find({
-          status: { $ne: "attempted" },
-          ...buildSinceFilter(placedDate),
-        })
-          .sort({ createdAt: -1 })
-          .limit(5)
-          .populate("user", "name")
-          .select("orderNumber status createdAt updatedAt deliveryAddress.fullName user"),
-        Order.find({
-          status: "attempted",
-          ...attemptedSinceFilter,
-        })
-          .sort({ updatedAt: -1 })
-          .limit(10)
-          .populate("user", "name")
-          .select("orderNumber status createdAt updatedAt deliveryAddress.fullName user"),
-      ]);
+    const [supportCount, placedCount, paymentCount, recentPlaced] = await Promise.all([
+      SupportMessage.countDocuments(buildSinceFilter(supportDate)),
+      Order.countDocuments({
+        status: { $ne: "attempted" },
+        ...buildSinceFilter(placedDate),
+      }),
+      Payment.countDocuments({ status: "pending", ...buildSinceFilter(paymentDate) }),
+      Order.find({
+        status: { $ne: "attempted" },
+        ...buildSinceFilter(placedDate),
+      })
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .populate("user", "name")
+        .select("orderNumber status createdAt updatedAt deliveryAddress.fullName user"),
+    ]);
 
     return res.json({
       success: true,
@@ -89,10 +66,8 @@ export const getAdminInboxSummary = async (req, res) => {
         support: { count: supportCount },
         orders: {
           placedCount,
-          attemptedCount,
-          count: placedCount + attemptedCount,
+          count: placedCount,
           recentPlaced: recentPlaced.map(mapRecentOrder),
-          recentAttempted: recentAttempted.map(mapRecentOrder),
         },
         payments: { count: paymentCount },
       },

@@ -5,7 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useWishlist } from "../../context/WishlistContext";
 import { SiteBrand } from "../layout/SiteBrand";
 import { NavIconWrap } from "./NavIconWrap";
-import { ICON_HIT_MD, ICON_SVG_MD } from "../../utils/iconLayout";
+import { ICON_HIT_MD, ICON_SVG_MD, WISHLIST_ICON_COLOR } from "../../utils/iconLayout";
 import MobileMenuDrawer from "./MobileMenuDrawer";
 import MobileSearchBar from "./MobileSearchBar";
 function MobileHeader() {
@@ -85,7 +85,7 @@ function MobileHeader() {
               to="/wishlist"
               data-wishlist-target="mobile"
               onClick={handleWishlistClick}
-              className={`${ICON_HIT_MD} relative rounded-full bg-black/[0.05] text-neutral-900 transition hover:bg-black/[0.08]`}
+              className={`${ICON_HIT_MD} relative rounded-full bg-black/[0.05] ${WISHLIST_ICON_COLOR} transition hover:bg-black/[0.08]`}
               aria-label={`Wishlist${wishlistCount > 0 ? `, ${wishlistCount} items` : ""}`}
             >
               <NavIconWrap badge={wishlistCount} compact>

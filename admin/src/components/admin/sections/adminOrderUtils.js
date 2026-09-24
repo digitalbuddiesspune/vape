@@ -2,7 +2,6 @@ import { getOrderNumber } from "../../../utils/orderNumber";
 import { getAddressFullName } from "../../../utils/addressDisplay";
 
 export const ORDER_STATUSES = [
-  "attempted",
   "confirm",
   "processing",
   "shipping",
@@ -13,7 +12,6 @@ export const ORDER_STATUSES = [
 
 export const ORDER_STATUS_OPTIONS = [
   { value: "all", label: "All Status" },
-  { value: "attempted", label: "Attempted" },
   { value: "confirm", label: "Confirm" },
   { value: "processing", label: "Processing" },
   { value: "shipping", label: "Shipping" },
@@ -39,7 +37,6 @@ export function normalizeAdminSearchQuery(value) {
 }
 
 export const ADMIN_DETAIL_ORDER_STATUS_OPTIONS = [
-  { value: "attempted", label: "attempted" },
   { value: "confirm", label: "confirm" },
   { value: "processing", label: "processing" },
   { value: "shipping", label: "shipping" },

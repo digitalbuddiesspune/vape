@@ -1,5 +1,10 @@
 import { useWishlist } from "../../context/WishlistContext";
-import { ICON_HIT_MD, ICON_HIT_SM, ICON_SVG_SM } from "../../utils/iconLayout";
+import {
+  ICON_HIT_MD,
+  ICON_HIT_SM,
+  ICON_SVG_SM,
+  WISHLIST_ICON_COLOR,
+} from "../../utils/iconLayout";
 
 function HeartIcon({ filled }) {
   if (filled) {
@@ -39,8 +44,8 @@ function WishlistButton({ product, className = "", size = "sm" }) {
       onClick={handleClick}
       aria-label={active ? "Remove from wishlist" : "Add to wishlist"}
       aria-pressed={active}
-      className={`${hitClass} rounded-full border border-neutral-300 bg-white/95 text-neutral-800 transition hover:border-neutral-500 hover:bg-neutral-50 ${
-        active ? "border-neutral-900 bg-neutral-100 text-neutral-900" : ""
+      className={`${hitClass} rounded-full border border-neutral-300 bg-white/95 ${WISHLIST_ICON_COLOR} transition hover:border-red-300 hover:bg-red-50 ${
+        active ? "border-red-400 bg-red-50" : ""
       } ${className}`}
     >
       <HeartIcon filled={active} />

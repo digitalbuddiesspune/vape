@@ -104,7 +104,7 @@ function Orders() {
                 <button
                   type="button"
                   onClick={() => openAuthModal("login")}
-                  className="mt-5 w-full rounded-lg bg-[#2874F0] px-8 py-3.5 text-sm font-bold text-white transition hover:brightness-110 lg:w-auto"
+                  className="mt-5 w-full rounded-lg bg-primary px-8 py-3.5 text-sm font-bold text-white transition hover:bg-primary-dark lg:w-auto"
                 >
                   Login / Sign Up
                 </button>
@@ -119,7 +119,7 @@ function Orders() {
                 <button
                   type="button"
                   onClick={loadOrders}
-                  className="mt-5 w-full rounded-lg bg-[#2874F0] px-8 py-3.5 text-sm font-bold text-white transition hover:brightness-110 lg:w-auto"
+                  className="mt-5 w-full rounded-lg bg-primary px-8 py-3.5 text-sm font-bold text-white transition hover:bg-primary-dark lg:w-auto"
                 >
                   Retry
                 </button>
@@ -141,7 +141,7 @@ function Orders() {
                 </p>
                 <Link
                   to="/product"
-                  className="mt-5 inline-block w-full rounded-lg bg-neutral-900 px-8 py-3.5 text-sm font-bold text-white transition hover:bg-neutral-800 lg:w-auto"
+                  className="mt-5 inline-block w-full rounded-lg bg-primary px-8 py-3.5 text-sm font-bold text-white transition hover:bg-primary-dark lg:w-auto"
                 >
                   Browse Products
                 </Link>

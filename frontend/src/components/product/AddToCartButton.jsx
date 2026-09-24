@@ -29,8 +29,8 @@ function AddToCartButton({ onClick, disabled, className = "", variant = "solid" 
       disabled={disabled}
       className={`inline-flex min-h-9 items-center justify-center gap-1.5 overflow-visible rounded-lg px-2.5 py-2 text-[10px] font-semibold leading-none transition disabled:cursor-not-allowed disabled:opacity-50 sm:text-[11px] ${
         isOutline
-          ? "border border-neutral-900 bg-white text-neutral-900 hover:bg-neutral-100"
-          : "bg-neutral-900 text-white hover:bg-neutral-800"
+          ? "border border-primary bg-white text-primary hover:bg-primary/5"
+          : "bg-primary text-white hover:bg-primary-dark"
       } ${className}`}
     >
       {!isOutline ? <CartIcon /> : null}

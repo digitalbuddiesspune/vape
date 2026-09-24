@@ -17,7 +17,6 @@ import {
 const STORAGE_KEYS = {
   support: "bmm_admin_support_last_seen",
   ordersPlaced: "bmm_admin_orders_placed_last_seen",
-  ordersAttempted: "bmm_admin_orders_attempted_last_seen",
   payments: "bmm_admin_payments_last_seen",
   legacyOrders: "bmm_admin_orders_last_seen",
 };
@@ -45,9 +44,6 @@ function migrateLegacyOrderLastSeen() {
 
   if (!localStorage.getItem(STORAGE_KEYS.ordersPlaced)) {
     localStorage.setItem(STORAGE_KEYS.ordersPlaced, legacy);
-  }
-  if (!localStorage.getItem(STORAGE_KEYS.ordersAttempted)) {
-    localStorage.setItem(STORAGE_KEYS.ordersAttempted, legacy);
   }
 }
 
@@ -78,16 +74,6 @@ function getAlertMeta(type, count, customerName = "") {
     };
   }
 
-  if (type === "order_attempted") {
-    return {
-      title: "Order attempt",
-      message: customerName
-        ? `${customerName} attempted an order${moreSuffix}`
-        : `A customer attempted an order${suffix}`,
-      link: "/orders?status=attempted",
-    };
-  }
-
   if (type === "support") {
     return {
       title: "New support inquiry",
@@ -109,8 +95,6 @@ export function AdminNotificationProvider({ children }) {
   const [unreadSupportCount, setUnreadSupportCount] = useState(0);
   const [hasUnreadOrdersPlaced, setHasUnreadOrdersPlaced] = useState(false);
   const [unreadOrdersPlacedCount, setUnreadOrdersPlacedCount] = useState(0);
-  const [hasUnreadOrdersAttempted, setHasUnreadOrdersAttempted] = useState(false);
-  const [unreadOrdersAttemptedCount, setUnreadOrdersAttemptedCount] = useState(0);
   const [hasUnreadPayments, setHasUnreadPayments] = useState(false);
   const [unreadPaymentCount, setUnreadPaymentCount] = useState(0);
   const [recentAlerts, setRecentAlerts] = useState([]);
@@ -122,13 +106,11 @@ export function AdminNotificationProvider({ children }) {
   const previousCountsRef = useRef(null);
   const hasLoadedCountsRef = useRef(false);
   const seenPlacedKeysRef = useRef(new Set());
-  const seenAttemptedKeysRef = useRef(new Set());
   const toastTimersRef = useRef(new Map());
   const dismissedAlertIdsRef = useRef(new Set());
 
-  const hasUnreadOrders =
-    hasUnreadOrdersPlaced || hasUnreadOrdersAttempted;
-  const unreadOrderCount = unreadOrdersPlacedCount + unreadOrdersAttemptedCount;
+  const hasUnreadOrders = hasUnreadOrdersPlaced;
+  const unreadOrderCount = unreadOrdersPlacedCount;
   const panelUnreadCount = unreadSupportCount + unreadPaymentCount;
 
   const getOrderEventKey = useCallback((order, preferUpdated = false) => {
@@ -174,21 +156,13 @@ export function AdminNotificationProvider({ children }) {
   }, []);
 
   const pushOrderEventAlert = useCallback((type, order) => {
-    const action = type === "order_placed" ? "confirmed" : "attempted";
-    const eventTime = type === "order_attempted"
-      ? order.updatedAt || order.createdAt
-      : order.createdAt;
-    const time = new Date(eventTime).toLocaleTimeString("en-IN", {
+    const time = new Date(order.createdAt).toLocaleTimeString("en-IN", {
       hour: "numeric",
       minute: "2-digit",
     });
-    const message = `${order.customerName} ${action} order at ${time}`;
-    const link = order.id
-      ? `/orders/${order.id}`
-      : type === "order_placed"
-        ? "/orders?status=confirm"
-        : "/orders?status=attempted";
-    const eventKey = `${type}:${getOrderEventKey(order, type === "order_attempted")}`;
+    const message = `${order.customerName} confirmed order at ${time}`;
+    const link = order.id ? `/orders/${order.id}` : "/orders?status=confirm";
+    const eventKey = `${type}:${getOrderEventKey(order, false)}`;
     const alert = buildAlert({
       type,
       title: "",
@@ -276,8 +250,6 @@ export function AdminNotificationProvider({ children }) {
       setUnreadSupportCount(0);
       setHasUnreadOrdersPlaced(false);
       setUnreadOrdersPlacedCount(0);
-      setHasUnreadOrdersAttempted(false);
-      setUnreadOrdersAttemptedCount(0);
       setHasUnreadPayments(false);
       setUnreadPaymentCount(0);
       setRecentAlerts([]);
@@ -285,7 +257,6 @@ export function AdminNotificationProvider({ children }) {
       previousCountsRef.current = null;
       hasLoadedCountsRef.current = false;
       seenPlacedKeysRef.current = new Set();
-      seenAttemptedKeysRef.current = new Set();
       return;
     }
 
@@ -295,7 +266,6 @@ export function AdminNotificationProvider({ children }) {
       const params = {
         supportSince: readLastSeenAt(STORAGE_KEYS.support) || undefined,
         placedSince: readLastSeenAt(STORAGE_KEYS.ordersPlaced) || undefined,
-        attemptedSince: readLastSeenAt(STORAGE_KEYS.ordersAttempted) || undefined,
         paymentSince: readLastSeenAt(STORAGE_KEYS.payments) || undefined,
       };
 
@@ -307,15 +277,12 @@ export function AdminNotificationProvider({ children }) {
       setRecentAlerts(alertsResponse.data.data || []);
       const supportCount = data.data?.support?.count || 0;
       const placedCount = data.data?.orders?.placedCount || 0;
-      const attemptedCount = data.data?.orders?.attemptedCount || 0;
       const paymentCount = data.data?.payments?.count || 0;
       const recentPlaced = data.data?.orders?.recentPlaced || [];
-      const recentAttempted = data.data?.orders?.recentAttempted || [];
 
       const nextCounts = {
         support: supportCount,
         placed: placedCount,
-        attempted: attemptedCount,
         payments: paymentCount,
       };
 
@@ -336,25 +303,12 @@ export function AdminNotificationProvider({ children }) {
           .reverse();
         newPlaced.forEach((order) => pushOrderEventAlert("order_placed", order));
 
-        const newAttempted = recentAttempted
-          .filter((order) => {
-            const key = getOrderEventKey(order, true);
-            if (seenAttemptedKeysRef.current.has(key)) return false;
-            seenAttemptedKeysRef.current.add(key);
-            return true;
-          })
-          .reverse();
-        newAttempted.forEach((order) => pushOrderEventAlert("order_attempted", order));
-
         if (paymentCount > previous.payments) {
           pushAlert("payment", paymentCount - previous.payments);
         }
       } else {
         recentPlaced.forEach((order) => {
           seenPlacedKeysRef.current.add(getOrderEventKey(order, false));
-        });
-        recentAttempted.forEach((order) => {
-          seenAttemptedKeysRef.current.add(getOrderEventKey(order, true));
         });
       }
 
@@ -365,8 +319,6 @@ export function AdminNotificationProvider({ children }) {
       setHasUnreadSupport(supportCount > 0);
       setUnreadOrdersPlacedCount(placedCount);
       setHasUnreadOrdersPlaced(placedCount > 0);
-      setUnreadOrdersAttemptedCount(attemptedCount);
-      setHasUnreadOrdersAttempted(attemptedCount > 0);
       setUnreadPaymentCount(paymentCount);
       setHasUnreadPayments(paymentCount > 0);
     } catch {
@@ -385,16 +337,12 @@ export function AdminNotificationProvider({ children }) {
 
   const markOrdersAsSeen = useCallback(() => {
     writeLastSeenAt(STORAGE_KEYS.ordersPlaced);
-    writeLastSeenAt(STORAGE_KEYS.ordersAttempted);
     setHasUnreadOrdersPlaced(false);
     setUnreadOrdersPlacedCount(0);
-    setHasUnreadOrdersAttempted(false);
-    setUnreadOrdersAttemptedCount(0);
     if (previousCountsRef.current) {
       previousCountsRef.current = {
         ...previousCountsRef.current,
         placed: 0,
-        attempted: 0,
       };
     }
   }, []);
@@ -490,8 +438,6 @@ export function AdminNotificationProvider({ children }) {
         unreadOrderCount,
         hasUnreadOrdersPlaced,
         unreadOrdersPlacedCount,
-        hasUnreadOrdersAttempted,
-        unreadOrdersAttemptedCount,
         hasUnreadPayments,
         unreadPaymentCount,
         panelUnreadCount,

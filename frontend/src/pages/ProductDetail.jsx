@@ -433,7 +433,7 @@ function ActionButtons({
           type="button"
           onClick={(e) => onAddToCart(e.currentTarget)}
           disabled={!inStock || !canAddToCart}
-          className="flex-1 rounded-md bg-neutral-900 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex-1 rounded-md bg-primary px-6 py-3.5 text-sm font-bold text-white transition hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
         >
           Add to Cart
         </button>

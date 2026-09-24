@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import ProductImageFrame from "../components/product/ProductImageFrame";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
@@ -7,7 +7,6 @@ import {
   getAddresses,
   addAddress,
   getStoreSettings,
-  createCheckoutAttempt,
   placeOrder,
   validateCoupon,
 } from "../api/api";
@@ -116,10 +115,6 @@ function AddressSummary({ address }) {
 function Checkout() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [searchParams] = useSearchParams();
-  const resumeAttemptedOrderIdRef = useRef(
-    searchParams.get("attemptedOrderId")?.trim() || null
-  );
   const { user, loading: authLoading, openAuthModal } = useAuth();
   const { items, loading: cartLoading, loadCart, resetCart } = useCart();
 
@@ -155,43 +150,17 @@ function Checkout() {
   const [orderSuccessNote, setOrderSuccessNote] = useState("");
   const [message, setMessage] = useState("");
   const [storeSettings, setStoreSettings] = useState(null);
-  const [attemptedOrderId, setAttemptedOrderId] = useState(null);
   const [couponInput, setCouponInput] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponError, setCouponError] = useState("");
   const [applyingCoupon, setApplyingCoupon] = useState(false);
   const messageRef = useRef("");
-  const attemptedOrderIdRef = useRef(resumeAttemptedOrderIdRef.current);
   const appliedCouponRef = useRef(null);
   const hasAutoOpenedAddressRef = useRef(false);
-
-  const getCheckoutAttemptedOrderId = () =>
-    resumeAttemptedOrderIdRef.current || attemptedOrderIdRef.current;
-
-  const checkoutAttemptKey = useMemo(
-    () =>
-      JSON.stringify({
-        addressId: selectedAddressId,
-        paymentMethod: "cod",
-        items: checkoutItems.map((item) => ({
-          productId: item.productId || item._id,
-          quantity: item.quantity,
-          variantName: item.variantName || "",
-          colorName: item.colorName || "",
-          strength: item.strength || "",
-        })),
-        couponCode: appliedCoupon?.code || "",
-      }),
-    [selectedAddressId, checkoutItems, appliedCoupon]
-  );
 
   useEffect(() => {
     messageRef.current = message;
   }, [message]);
-
-  useEffect(() => {
-    attemptedOrderIdRef.current = attemptedOrderId;
-  }, [attemptedOrderId]);
 
   useEffect(() => {
     appliedCouponRef.current = appliedCoupon;
@@ -330,53 +299,6 @@ function Checkout() {
     [loadCart]
   );
 
-  const syncCheckoutAttempt = useCallback(async () => {
-    if (authLoading || bootstrapping || !user || orderPlaced || checkoutItems.length === 0) {
-      return true;
-    }
-
-    try {
-      const { data } = await createCheckoutAttempt({
-        addressId: selectedAddressId || undefined,
-        paymentMethod: "cod",
-        checkoutItems: checkoutItemsPayload,
-        checkoutMode: isBuyNow ? "buyNow" : "cart",
-        buyNow: isBuyNow,
-        couponCode: appliedCouponRef.current?.code || undefined,
-        orderSource: "website",
-        attemptedOrderId: getCheckoutAttemptedOrderId() || undefined,
-      });
-      const orderId = data?.data?._id;
-      if (orderId) {
-        if (!resumeAttemptedOrderIdRef.current) {
-          setAttemptedOrderId(orderId);
-          attemptedOrderIdRef.current = orderId;
-        }
-      }
-      return true;
-    } catch (err) {
-      if (await handleUnavailableCartItems(err)) {
-        return false;
-      }
-      console.warn("Checkout attempt sync failed:", err.response?.data?.message || err.message);
-      return true;
-    }
-  }, [
-    authLoading,
-    bootstrapping,
-    user,
-    orderPlaced,
-    checkoutItems.length,
-    selectedAddressId,
-    checkoutItemsPayload,
-    isBuyNow,
-    handleUnavailableCartItems,
-  ]);
-
-  useEffect(() => {
-    syncCheckoutAttempt();
-  }, [syncCheckoutAttempt, checkoutAttemptKey]);
-
   useEffect(() => {
     if (!appliedCoupon?.code) return undefined;
 
@@ -477,11 +399,6 @@ function Checkout() {
     setPlacingOrder(true);
     await loadCart();
     try {
-      const canContinue = await syncCheckoutAttempt();
-      if (!canContinue) {
-        setPlacingOrder(false);
-        return;
-      }
       const { data } = await placeOrder({
         addressId: selectedAddressId,
         paymentMethod: "cod",
@@ -491,7 +408,6 @@ function Checkout() {
         checkoutItems: checkoutItemsPayload,
         couponCode: appliedCouponRef.current?.code || undefined,
         orderSource: "website",
-        attemptedOrderId: getCheckoutAttemptedOrderId() || undefined,
       });
       await completeOrderSuccess(
         "Your order has been placed. Pay on delivery.",

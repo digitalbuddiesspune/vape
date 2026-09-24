@@ -1,3 +1,5 @@
+import { getBrandAccent } from "../../config/brandColors";
+
 const ITEMS = [
   {
     label: "Best Prices Guaranteed",
@@ -47,9 +49,13 @@ const ITEMS = [
   },
 ];
 
-function FeatureIcon({ children }) {
+function FeatureIcon({ children, accentIndex = 0 }) {
+  const accent = getBrandAccent(accentIndex);
+
   return (
-    <div className="mb-3 flex h-14 w-14 items-center justify-center text-primary sm:mb-4 sm:h-16 sm:w-16 md:h-[72px] md:w-[72px]">
+    <div
+      className={`mb-3 flex h-14 w-14 items-center justify-center sm:mb-4 sm:h-16 sm:w-16 md:h-[72px] md:w-[72px] ${accent.text}`}
+    >
       <svg
         className="h-11 w-11 sm:h-12 sm:w-12 md:h-14 md:w-14"
         fill="none"
@@ -69,17 +75,20 @@ function ValuePropositions() {
     <section className="store-section-pad bg-mobile-bg">
       <div className="rounded-2xl border border-border-light bg-white px-3 py-6 shadow-sm sm:px-5 sm:py-7 md:px-6">
         <div className="grid grid-cols-4 gap-2 sm:gap-4 md:gap-5">
-          {ITEMS.map((item) => (
+          {ITEMS.map((item, index) => {
+            const accent = getBrandAccent(index);
+            return (
             <div
               key={item.label}
               className="flex flex-col items-center px-1 text-center sm:px-2"
             >
-              <FeatureIcon>{item.icon}</FeatureIcon>
-              <p className="text-[10px] font-bold leading-snug text-text-primary sm:text-xs md:text-sm">
+              <FeatureIcon accentIndex={index}>{item.icon}</FeatureIcon>
+              <p className={`text-[10px] font-bold leading-snug sm:text-xs md:text-sm ${accent.text}`}>
                 {item.label}
               </p>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

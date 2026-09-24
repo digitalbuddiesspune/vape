@@ -1,32 +1,26 @@
 const CARD_THEMES = [
   {
     bg: "bg-[#d4e8f7]",
-    title: "text-neutral-900",
     desc: "text-neutral-700",
   },
   {
     bg: "bg-[#ececec]",
-    title: "text-neutral-900",
     desc: "text-neutral-600",
   },
   {
     bg: "bg-[#5fa9a9]",
-    title: "text-white",
-    desc: "text-white/90",
+    desc: "text-neutral-800",
   },
   {
     bg: "bg-gradient-to-br from-[#f3dce6] via-[#e8eef5] to-[#c8dff5]",
-    title: "text-neutral-900",
     desc: "text-neutral-700",
   },
   {
     bg: "bg-[#b8d4e8]",
-    title: "text-neutral-900",
     desc: "text-neutral-700",
   },
   {
     bg: "bg-[#dfe8ef]",
-    title: "text-neutral-900",
     desc: "text-neutral-600",
   },
 ];
@@ -42,9 +36,7 @@ function WhatsRightForYouCard({ item, index = 0 }) {
       } ${theme.bg}`}
     >
       <div className={`min-w-0 flex-1 ${zigzagRight ? "text-right" : "text-left"}`}>
-        <h3
-          className={`text-lg font-bold leading-tight tracking-tight sm:text-xl ${theme.title}`}
-        >
+        <h3 className="text-lg font-bold leading-tight tracking-tight text-text-primary transition-colors duration-300 group-hover:text-brand-magenta sm:text-xl">
           {item.title}
         </h3>
         <p className={`mt-1.5 text-sm leading-relaxed sm:mt-2 sm:text-[15px] ${theme.desc}`}>

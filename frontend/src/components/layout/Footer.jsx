@@ -43,7 +43,7 @@ function FacebookIcon({ className = "h-4 w-4" }) {
 function FooterLinkColumn({ title, links }) {
   return (
     <div>
-      <h4 className="mb-4 text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+      <h4 className="mb-4 text-[11px] font-normal uppercase tracking-[0.18em] text-neutral-500">
         {title}
       </h4>
       <ul className="space-y-2.5 text-sm">
@@ -81,7 +81,7 @@ function Footer() {
     <footer className="relative border-t border-neutral-800 bg-[#080808] pb-24 text-neutral-400 lg:overflow-hidden lg:pb-8">
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-16 hidden select-none bg-gradient-to-t from-purple-500/15 via-purple-400/8 to-transparent pb-2 pt-16 text-center text-[clamp(4.5rem,20vw,12rem)] font-semibold uppercase leading-none tracking-tight text-white/[0.14] lg:block lg:bottom-[-0.08em]"
+        className="font-brand-display pointer-events-none absolute inset-x-0 bottom-16 hidden select-none bg-gradient-to-t from-purple-500/15 via-purple-400/8 to-transparent pb-2 pt-16 text-center text-[clamp(4.5rem,20vw,12rem)] font-medium uppercase leading-none tracking-[0.04em] text-white/[0.14] lg:block lg:bottom-[-0.08em]"
       >
         {SITE_FOOTER_WATERMARK}
       </div>
@@ -117,20 +117,11 @@ function Footer() {
           <FooterLinkColumn title="Legal" links={legalLinks} />
         </div>
 
-        <div
-          aria-hidden="true"
-          className="relative mt-8 px-3 py-2 text-center lg:hidden"
-        >
-          <p className="select-none bg-gradient-to-t from-purple-500/10 to-transparent pb-1 pt-4 text-[clamp(1.875rem,13vw,4.5rem)] font-semibold uppercase leading-none tracking-[0.02em] text-white/20">
-            {SITE_FOOTER_WATERMARK}
-          </p>
-        </div>
-
         <div className="relative mt-8 pt-5 lg:mt-10">
           <div className="flex flex-col gap-2 text-xs text-neutral-500 sm:flex-row sm:items-center sm:justify-between sm:text-sm">
             <p>
               © {new Date().getFullYear()}{" "}
-              <span className="font-medium text-neutral-300">{SITE_FOOTER_NAME}</span>. All Rights Reserved.
+              <span className="font-normal text-neutral-300">{SITE_FOOTER_NAME}</span>. All Rights Reserved.
             </p>
             <p>India — Serving nationwide</p>
           </div>

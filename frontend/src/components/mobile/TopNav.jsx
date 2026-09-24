@@ -7,7 +7,7 @@ import UserAccountDropdown from "../account/UserAccountDropdown";
 import DesktopSearchBar from "./DesktopSearchBar";
 import CategoryNavbar from "../layout/CategoryNavbar";
 import { NavIconWrap } from "./NavIconWrap";
-import { ICON_HIT_MD, ICON_SVG_LG } from "../../utils/iconLayout";
+import { ICON_HIT_MD, ICON_SVG_LG, WISHLIST_ICON_COLOR } from "../../utils/iconLayout";
 
 import { formatPrice } from "../../utils/currency";
 
@@ -68,7 +68,7 @@ function TopNav() {
             to="/wishlist"
             data-wishlist-target="desktop"
             onClick={handleWishlistClick}
-            className={`${ICON_HIT_MD} relative rounded-full bg-black/[0.04] text-text-primary transition hover:bg-black/[0.07]`}
+            className={`${ICON_HIT_MD} relative rounded-full bg-black/[0.04] ${WISHLIST_ICON_COLOR} transition hover:bg-black/[0.07]`}
             aria-label={`Wishlist${wishlistCount > 0 ? `, ${wishlistCount} items` : ""}`}
           >
             <NavIconWrap badge={wishlistCount}>

@@ -13,7 +13,7 @@ function CTASection() {
         </p>
         <Link
           to="/contact"
-          className="inline-block rounded-lg bg-accent text-white px-8 py-3 font-bold hover:brightness-110 transition"
+          className="inline-block rounded-lg bg-primary px-8 py-3 font-bold text-white transition hover:bg-primary-dark"
         >
           Contact Sales Team
         </Link>

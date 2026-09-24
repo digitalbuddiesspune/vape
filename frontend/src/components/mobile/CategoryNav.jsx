@@ -60,7 +60,7 @@ function CategoryCard({ category, className = "" }) {
           <CategoryImage src={category.image} name={category.name} />
         </div>
       </div>
-      <p className="line-clamp-2 px-0.5 pb-2 text-center text-[10px] font-extrabold uppercase leading-tight tracking-tight text-neutral-900 transition-colors duration-300 group-hover:text-primary sm:px-1 sm:pb-2.5 sm:text-xs lg:px-1 lg:pb-2 lg:text-xs lg:leading-snug">
+      <p className="line-clamp-2 px-0.5 pb-2 text-center text-[10px] font-extrabold uppercase leading-tight tracking-tight text-text-primary transition-colors duration-300 group-hover:text-brand-magenta sm:px-1 sm:pb-2.5 sm:text-xs lg:px-1 lg:pb-2 lg:text-xs lg:leading-snug">
         {category.name.replace(/&/g, " / ")}
       </p>
     </Link>
@@ -106,7 +106,7 @@ function CategoryNav() {
   return (
     <section className="store-section-pad bg-mobile-bg">
       <div className="mx-auto max-w-[1600px]">
-        <div className="mb-5 py-2 text-center sm:mb-6 sm:py-3 lg:mb-8">
+        <div className="mb-4 py-0 text-center sm:mb-5 lg:mb-6">
           <h2 className="text-2xl font-bold text-text-primary sm:text-3xl lg:text-4xl">
             Shop By Your Choice
           </h2>

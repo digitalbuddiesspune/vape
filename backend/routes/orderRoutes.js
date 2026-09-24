@@ -3,7 +3,6 @@ import { protect, requireAdmin } from "../middleware/authMiddleware.js";
 import {
   placeOrder,
   adminPlaceOrder,
-  createCheckoutAttempt,
   getMyOrders,
   getOrderById,
   getAllOrders,
@@ -34,7 +33,6 @@ router.patch("/admin/:id", requireAdmin, updateOrder);
 router.delete("/admin/:id", requireAdmin, deleteOrder);
 router.post("/admin/:id/shipment/link", requireAdmin, linkOrderShipmentTracking);
 router.post("/admin/:id/shipment/clear", requireAdmin, clearOrderShipment);
-router.post("/checkout-attempt", createCheckoutAttempt);
 router.post("/", placeOrder);
 router.get("/", getMyOrders);
 router.patch("/:id/cancel", cancelOrder);

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { getBrandAccent } from "../../config/brandColors";
 import { SITE_NAME } from "../../config/site";
 
 const FEATURES = [
@@ -7,9 +8,6 @@ const FEATURES = [
     mobileLine1: "Lowest wholesale rates",
     mobileLine2: "on all accessories",
     description: "Get the most competitive prices on all mobile accessories.",
-    iconBg: "bg-purple-100",
-    iconColor: "text-purple-600",
-    accent: "bg-purple-600",
     icon: (
       <path
         strokeLinecap="round"
@@ -23,9 +21,6 @@ const FEATURES = [
     mobileLine1: "Genuine products only",
     mobileLine2: "Quality you can trust",
     description: "We deal only in genuine and high-quality original products.",
-    iconBg: "bg-emerald-100",
-    iconColor: "text-emerald-600",
-    accent: "bg-emerald-500",
     icon: (
       <path
         strokeLinecap="round"
@@ -39,9 +34,6 @@ const FEATURES = [
     mobileLine1: "Buy more, save more",
     mobileLine2: "Extra bulk discounts",
     description: "More you buy, more you save. Special discounts on bulk orders.",
-    iconBg: "bg-amber-100",
-    iconColor: "text-amber-600",
-    accent: "bg-amber-500",
     icon: (
       <path
         strokeLinecap="round"
@@ -55,9 +47,6 @@ const FEATURES = [
     mobileLine1: "Pan India delivery",
     mobileLine2: "Safe & on-time shipping",
     description: "Pan India delivery with secure packaging and on-time service.",
-    iconBg: "bg-sky-100",
-    iconColor: "text-sky-600",
-    accent: "bg-sky-500",
     icon: (
       <path
         strokeLinecap="round"
@@ -71,9 +60,6 @@ const FEATURES = [
     mobileLine1: "Always here to help",
     mobileLine2: "Quick expert support",
     description: "Our support team is always ready to assist you anytime.",
-    iconBg: "bg-rose-100",
-    iconColor: "text-rose-600",
-    accent: "bg-rose-500",
     icon: (
       <path
         strokeLinecap="round"
@@ -112,35 +98,37 @@ function FeatureIcon({ children, iconBg, iconColor, compact = false }) {
 }
 
 function FeatureCard({ feature, index }) {
+  const accent = getBrandAccent(index);
+
   return (
     <article
       className="why-choose-card group flex flex-col gap-2 rounded-2xl border border-border-light bg-white p-3 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-primary/30 hover:shadow-xl sm:flex-row sm:gap-5 sm:p-5"
       style={{ animationDelay: `${index * 100}ms` }}
     >
-      <FeatureIcon iconBg={feature.iconBg} iconColor={feature.iconColor} compact>
+      <FeatureIcon iconBg={accent.iconBg} iconColor={accent.text} compact>
         {feature.icon}
       </FeatureIcon>
 
       <div className="min-w-0 flex-1">
-        <h3 className="hidden text-base font-bold leading-snug text-text-primary transition-colors duration-300 group-hover:text-primary sm:block">
+        <h3 className={`hidden text-base font-bold leading-snug transition-colors duration-300 sm:block ${accent.text}`}>
           {feature.title}
         </h3>
 
         <div className="sm:hidden">
-          <p className="text-[11px] font-bold leading-snug text-text-primary transition-colors duration-300 group-hover:text-primary">
+          <p className={`text-[11px] font-bold leading-snug transition-colors duration-300 ${accent.text}`}>
             {feature.mobileLine1}
           </p>
-          <p className="mt-0.5 text-[10px] leading-snug text-text-secondary">
+          <p className={`mt-0.5 text-[10px] leading-snug opacity-90 ${accent.text}`}>
             {feature.mobileLine2}
           </p>
         </div>
 
-        <p className="mt-1 hidden text-xs leading-relaxed text-text-secondary sm:block sm:text-sm">
+        <p className={`mt-1 hidden text-xs leading-relaxed opacity-90 sm:block sm:text-sm ${accent.text}`}>
           {feature.description}
         </p>
 
         <span
-          className={`mt-2 block h-0.5 w-6 rounded-full transition-all duration-300 group-hover:w-12 sm:mt-3 sm:w-8 sm:group-hover:w-16 ${feature.accent}`}
+          className={`mt-2 block h-0.5 w-6 rounded-full transition-all duration-300 group-hover:w-12 sm:mt-3 sm:w-8 sm:group-hover:w-16 ${accent.accent}`}
           aria-hidden="true"
         />
       </div>

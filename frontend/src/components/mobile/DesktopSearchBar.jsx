@@ -57,7 +57,7 @@ function DesktopSearchBar({ className = "" }) {
 
       <button
         type="submit"
-        className="shrink-0 rounded-full bg-neutral-900 px-5 py-2 text-sm font-bold text-white transition hover:bg-neutral-800"
+        className="shrink-0 rounded-full bg-primary px-5 py-2 text-sm font-bold text-white transition hover:bg-primary-dark"
       >
         Search
       </button>

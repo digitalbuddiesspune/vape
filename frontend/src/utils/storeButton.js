@@ -1,7 +1,7 @@
-/** Primary storefront actions (neutral, matches Add to Cart). */
+/** Primary storefront actions (#017474). */
 
 const BASE =
-  "bg-neutral-900 font-bold text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed";
+  "bg-primary font-bold text-white transition hover:bg-primary-dark disabled:cursor-not-allowed";
 
 export const STORE_BTN_PRIMARY_LG = `rounded-lg ${BASE} px-8 py-3 text-sm tracking-wide`;
 

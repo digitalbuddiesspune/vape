@@ -10,10 +10,8 @@ import {
   normalizeOrderMessage,
   normalizeOrderSource,
   populateOrderItems,
-  prepareCheckoutAttemptData,
   prepareOrderData,
   rebuildOrderFromItemsInput,
-  upsertCheckoutAttemptOrder,
 } from "../utils/orderHelpers.js";
 import { buildPaginatedResponse, getPaginationParams } from "../utils/pagination.js";
 import { getClearedShipment, mergeOrderShipment, mapShipmentTrackingToOrderStatus } from "../utils/shipmentHelpers.js";
@@ -87,6 +85,7 @@ function applyAdminOrderStatusFilter(filter, { status, statusGroup }) {
   }
 
   if (!normalizedStatus || normalizedStatus === "all") {
+    filter.status = { $ne: "attempted" };
     return;
   }
 
@@ -163,7 +162,6 @@ function buildOrderStatusCounts(statusAgg = []) {
     (byStatus.confirmed || 0);
   const processing = byStatus.processing || 0;
   const shipping = (byStatus.shipping || 0) + (byStatus.shipped || 0);
-  const attempted = byStatus.attempted || 0;
   const delivered = byStatus.delivered || 0;
   const cancelled = byStatus.cancelled || 0;
   const returned = byStatus.return || 0;
@@ -171,7 +169,6 @@ function buildOrderStatusCounts(statusAgg = []) {
 
   return {
     all,
-    attempted,
     pending,
     confirm,
     processing,
@@ -293,7 +290,6 @@ async function autoSyncShipmentForOrder(order) {
 function buildDayOrderStats(orders) {
   return {
     orders: orders.length,
-    attempted: orders.filter((order) => order.status === "attempted").length,
     confirmed: orders.filter(
       (order) =>
         order.status === "confirm" ||
@@ -396,46 +392,6 @@ function buildTopCategoriesChartData(categoriesAgg, yearOrderRevenue = 0) {
     totalSales: displayTotal,
   };
 }
-
-export const createCheckoutAttempt = async (req, res) => {
-  try {
-    const { addressId, checkoutItems, paymentMethod, checkoutMode, buyNow, couponCode, attemptedOrderId } =
-      req.body;
-    const prepared = await prepareCheckoutAttemptData(req.user._id, {
-      addressId,
-      checkoutItems,
-      checkoutMode,
-      buyNow,
-      couponCode,
-      attemptedOrderId,
-    });
-
-    if (prepared.error) {
-      return res.status(prepared.status).json({
-        success: false,
-        message: prepared.error,
-        ...(prepared.code ? { code: prepared.code } : {}),
-        ...(prepared.removedItems ? { removedItems: prepared.removedItems } : {}),
-      });
-    }
-
-    const order = await upsertCheckoutAttemptOrder(
-      req.user._id,
-      prepared,
-      paymentMethod,
-      normalizeOrderSource(req.body.orderSource),
-      attemptedOrderId || null
-    );
-
-    res.status(200).json({
-      success: true,
-      message: "Checkout attempt recorded",
-      data: enrichOrderForResponse(order),
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
 
 export const adminPlaceOrder = async (req, res) => {
   try {
@@ -548,7 +504,6 @@ export const placeOrder = async (req, res) => {
     const {
       addressId,
       paymentMethod,
-      attemptedOrderId,
       checkoutMode,
       buyNow,
       couponCode,
@@ -582,7 +537,6 @@ export const placeOrder = async (req, res) => {
       buyNow,
       couponCode,
       checkoutItems,
-      excludeOrderId: attemptedOrderId || undefined,
     });
     if (result.error) {
       return res.status(result.status).json({
@@ -608,13 +562,10 @@ export const placeOrder = async (req, res) => {
       paymentMethod: "cod",
       paymentStatus: "unpaid",
       message: orderMessage,
-      attemptedOrderId,
       orderSource: normalizeOrderSource(req.body.orderSource),
     });
 
-    void notifyOrderCreated(order, {
-      previousStatus: attemptedOrderId ? "attempted" : null,
-    });
+    void notifyOrderCreated(order);
 
     res.status(201).json({
       success: true,
@@ -629,7 +580,7 @@ export const placeOrder = async (req, res) => {
 export const getMyOrders = async (req, res) => {
   try {
     const orders = await populateOrderItems(
-      Order.find({ user: req.user._id }).sort({
+      Order.find({ user: req.user._id, status: { $ne: "attempted" } }).sort({
         createdAt: -1,
       })
     );
@@ -702,10 +653,10 @@ export const cancelOrder = async (req, res) => {
       });
     }
 
-    if (!["confirm", "attempted"].includes(order.status)) {
+    if (order.status !== "confirm") {
       return res.status(400).json({
         success: false,
-        message: "Order can only be cancelled while status is Confirm or Attempted",
+        message: "Order can only be cancelled while status is Confirm",
       });
     }
 
@@ -978,9 +929,7 @@ export const getOrderUnreadCount = async (req, res) => {
     const filter = {};
     const normalizedGroup = typeof statusGroup === "string" ? statusGroup.trim().toLowerCase() : "";
 
-    if (normalizedGroup === "attempted") {
-      filter.status = "attempted";
-    } else if (normalizedGroup === "placed") {
+    if (normalizedGroup === "placed") {
       filter.status = { $ne: "attempted" };
     }
 
@@ -1137,7 +1086,6 @@ export const updateOrder = async (req, res) => {
     const updates = {};
 
     const allowedStatuses = [
-      "attempted",
       "confirm",
       "processing",
       "shipping",

@@ -126,7 +126,7 @@ function ProductPreview({ items, primary }) {
         </div>
       ))}
       {items.length > 3 ? (
-        <span className="absolute bottom-0 right-0 rounded-full bg-[#2874F0] px-1.5 py-0.5 text-[10px] font-bold text-white">
+        <span className="absolute bottom-0 right-0 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold text-white">
           +{items.length - 3}
         </span>
       ) : null}
