@@ -1,13 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
 import { getDashboardStats } from "../../../api/api";
 import MonthlySalesChart from "../MonthlySalesChart";
+import DashboardOrderPeriodFilters from "../dashboard/DashboardOrderPeriodFilters";
 import DashboardRecentOrders from "../dashboard/DashboardRecentOrders";
 import RevenueCard from "../dashboard/RevenueCard";
 import StoreOverview from "../dashboard/StoreOverview";
 import TodayStatCard from "../dashboard/TodayStatCard";
 import TopCategoriesChart from "../dashboard/TopCategoriesChart";
 import TotalMiniCard from "../dashboard/TotalMiniCard";
-import { getCurrentMonthDateRange, getCurrentMonthName, getTodayDateString } from "../dashboardUtils";
+import { formatCurrency } from "../dashboard/dashboardUtils";
+import {
+  buildOrdersListLink,
+  getCurrentMonthDateRange,
+  getCurrentMonthName,
+  getDashboardOrderPeriodLabel,
+  getTodayDateString,
+} from "../dashboardUtils";
 import { IconCategory, IconOrder, IconProduct } from "../AdminIcons";
 
 const EMPTY_DAY_STATS = {
@@ -37,7 +45,8 @@ function OverviewSection() {
   });
   const [topCategories, setTopCategories] = useState([]);
   const [topCategoriesTotal, setTopCategoriesTotal] = useState(0);
-  const [monthOrders, setMonthOrders] = useState({ count: 0, ...EMPTY_DAY_STATS });
+  const [orderPeriods, setOrderPeriods] = useState({});
+  const [ordersPeriod, setOrdersPeriod] = useState("today");
   const [todayDate, setTodayDate] = useState(() => getTodayDateString());
 
   useEffect(() => {
@@ -57,7 +66,7 @@ function OverviewSection() {
         setLoading(true);
         setError("");
 
-        const { data } = await getDashboardStats({ year });
+        const { data } = await getDashboardStats({ year, ordersPeriod });
         const stats = data.data || {};
 
         setRecentOrders(stats.recentOrders || []);
@@ -75,15 +84,7 @@ function OverviewSection() {
         );
         setTopCategories(stats.topCategories || []);
         setTopCategoriesTotal(Number(stats.topCategoriesTotal) || 0);
-        setMonthOrders({
-          count: Number(stats.monthOrders?.count ?? stats.monthOrders?.orders) || 0,
-          orders: Number(stats.monthOrders?.orders ?? stats.monthOrders?.count) || 0,
-          confirmed: Number(stats.monthOrders?.confirmed) || 0,
-          shipping: Number(stats.monthOrders?.shipping) || 0,
-          delivered: Number(stats.monthOrders?.delivered) || 0,
-          cancelled: Number(stats.monthOrders?.cancelled) || 0,
-          return: Number(stats.monthOrders?.return) || 0,
-        });
+        setOrderPeriods(stats.orderPeriods || {});
       } catch (err) {
         setError(err.response?.data?.message || "Failed to load dashboard data");
       } finally {
@@ -92,16 +93,39 @@ function OverviewSection() {
     };
 
     loadDashboard();
-  }, [year, currentYear, todayDate]);
+  }, [year, currentYear, todayDate, ordersPeriod]);
 
-  const todayOrdersLink = useMemo(
-    () => `/orders?startDate=${todayDate}&endDate=${todayDate}`,
-    [todayDate]
+  const activePeriodStats = useMemo(() => {
+    const fromApi = orderPeriods[ordersPeriod];
+    if (fromApi) {
+      return {
+        count: Number(fromApi.count ?? fromApi.orders) || 0,
+        confirmed: Number(fromApi.confirmed) || 0,
+        shipping: Number(fromApi.shipping) || 0,
+        delivered: Number(fromApi.delivered) || 0,
+        cancelled: Number(fromApi.cancelled) || 0,
+        return: Number(fromApi.return) || 0,
+        revenue: Number(fromApi.revenue) || 0,
+        previousRevenue: Number(fromApi.previousRevenue) || 0,
+        startDate: fromApi.startDate || todayDate,
+        endDate: fromApi.endDate || todayDate,
+      };
+    }
+    return {
+      count: 0,
+      revenue: 0,
+      previousRevenue: 0,
+      ...EMPTY_DAY_STATS,
+      startDate: todayDate,
+      endDate: todayDate,
+    };
+  }, [orderPeriods, ordersPeriod, todayDate]);
+
+  const periodLabel = useMemo(() => getDashboardOrderPeriodLabel(ordersPeriod), [ordersPeriod]);
+  const periodOrdersLink = useMemo(
+    () => buildOrdersListLink(activePeriodStats.startDate, activePeriodStats.endDate),
+    [activePeriodStats.startDate, activePeriodStats.endDate]
   );
-  const monthOrdersLink = useMemo(() => {
-    const { startDate, endDate } = getCurrentMonthDateRange();
-    return `/orders?startDate=${startDate}&endDate=${endDate}`;
-  }, []);
   const monthRevenueLink = useMemo(() => {
     const { startDate, endDate } = getCurrentMonthDateRange();
     return `/revenue?startDate=${startDate}&endDate=${endDate}`;
@@ -116,33 +140,39 @@ function OverviewSection() {
         </p>
       )}
 
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-6">
+      <DashboardOrderPeriodFilters
+        value={ordersPeriod}
+        onChange={setOrdersPeriod}
+        disabled={loading}
+      />
+
+      <div className="grid grid-cols-2 items-stretch gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-7">
         <TodayStatCard
-          label={`${currentMonthName} Orders`}
-          value={monthOrders.count ?? monthOrders.orders}
+          label={`${periodLabel} Orders`}
+          value={activePeriodStats.count}
           loading={loading}
           iconBg="bg-orange-50 text-primary"
-          to={monthOrdersLink}
+          to={periodOrdersLink}
         >
           <IconOrder className="h-5 w-5" />
         </TodayStatCard>
         <TodayStatCard
-          label={`${currentMonthName} Confirmed`}
-          value={monthOrders.confirmed}
+          label={`${periodLabel} Confirmed`}
+          value={activePeriodStats.confirmed}
           loading={loading}
           iconBg="bg-emerald-50 text-emerald-600"
-          to={`${monthOrdersLink}&status=confirm`}
+          to={buildOrdersListLink(activePeriodStats.startDate, activePeriodStats.endDate, "confirm")}
         >
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75l2.25 2.25L15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </TodayStatCard>
         <TodayStatCard
-          label={`${currentMonthName} Shipping`}
-          value={monthOrders.shipping}
+          label={`${periodLabel} Shipping`}
+          value={activePeriodStats.shipping}
           loading={loading}
           iconBg="bg-blue-50 text-blue-600"
-          to={`${monthOrdersLink}&status=shipping`}
+          to={buildOrdersListLink(activePeriodStats.startDate, activePeriodStats.endDate, "shipping")}
         >
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path
@@ -153,39 +183,53 @@ function OverviewSection() {
           </svg>
         </TodayStatCard>
         <TodayStatCard
-          label={`${currentMonthName} Delivered`}
-          value={monthOrders.delivered}
+          label={`${periodLabel} Delivered`}
+          value={activePeriodStats.delivered}
           loading={loading}
           iconBg="bg-green-50 text-green-600"
-          to={`${monthOrdersLink}&status=delivered`}
+          to={buildOrdersListLink(activePeriodStats.startDate, activePeriodStats.endDate, "delivered")}
         >
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
         </TodayStatCard>
         <TodayStatCard
-          label={`${currentMonthName} Cancelled`}
-          value={monthOrders.cancelled}
+          label={`${periodLabel} Cancelled`}
+          value={activePeriodStats.cancelled}
           loading={loading}
           iconBg="bg-red-50 text-red-500"
-          to={`${monthOrdersLink}&status=cancelled`}
+          to={buildOrdersListLink(activePeriodStats.startDate, activePeriodStats.endDate, "cancelled")}
         >
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </TodayStatCard>
         <TodayStatCard
-          label={`${currentMonthName} Return`}
-          value={monthOrders.return}
+          label={`${periodLabel} Return`}
+          value={activePeriodStats.return}
           loading={loading}
           iconBg="bg-amber-50 text-amber-600"
-          to={`${monthOrdersLink}&status=return`}
+          to={buildOrdersListLink(activePeriodStats.startDate, activePeriodStats.endDate, "return")}
         >
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
               d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"
+            />
+          </svg>
+        </TodayStatCard>
+        <TodayStatCard
+          label={`${periodLabel} Revenue`}
+          value={formatCurrency(activePeriodStats.revenue)}
+          loading={loading}
+          iconBg="bg-green-50 text-green-600"
+        >
+          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3"
             />
           </svg>
         </TodayStatCard>
@@ -256,7 +300,9 @@ function OverviewSection() {
           <DashboardRecentOrders
             orders={recentOrders}
             loading={loading}
-            viewAllTo={todayOrdersLink}
+            viewAllTo={periodOrdersLink}
+            title={`${periodLabel} Orders`}
+            emptyMessage={`No orders for ${periodLabel.toLowerCase()}.`}
           />
         </div>
         <StoreOverview overview={storeOverview} loading={loading} />

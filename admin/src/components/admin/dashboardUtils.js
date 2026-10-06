@@ -25,6 +25,26 @@ export function getCurrentMonthName() {
   return new Intl.DateTimeFormat("en-IN", { timeZone: INDIA_TZ, month: "long" }).format(new Date());
 }
 
+export const DASHBOARD_ORDER_PERIODS = [
+  { id: "today", label: "Today" },
+  { id: "yesterday", label: "Yesterday" },
+  { id: "last_week", label: "Last Week" },
+  { id: "last_month", label: "Last Month" },
+];
+
+export function getDashboardOrderPeriodLabel(periodId) {
+  return DASHBOARD_ORDER_PERIODS.find((item) => item.id === periodId)?.label || "Today";
+}
+
+export function buildOrdersListLink(startDate, endDate, status) {
+  const params = new URLSearchParams();
+  if (startDate) params.set("startDate", startDate);
+  if (endDate) params.set("endDate", endDate);
+  if (status) params.set("status", status);
+  const query = params.toString();
+  return query ? `/orders?${query}` : "/orders";
+}
+
 export function buildMonthlySales(orders, year) {
   const monthly = Array.from({ length: 12 }, (_, index) => ({
     month: index + 1,

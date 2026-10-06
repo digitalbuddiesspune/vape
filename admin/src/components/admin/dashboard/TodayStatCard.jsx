@@ -4,7 +4,7 @@ import { cardClass } from "../adminStyles";
 function TodayStatCard({ label, value, loading, iconBg, to, children }) {
   const content = (
     <div
-      className={`${cardClass} flex min-w-0 items-start gap-2 p-3 sm:gap-3 sm:p-5 xl:gap-2 xl:p-3 ${
+      className={`${cardClass} flex h-full min-w-0 items-start gap-2 p-3 sm:gap-3 sm:p-5 xl:gap-2 xl:p-3 ${
         to ? "transition hover:border-neutral-300 hover:shadow-sm" : ""
       }`}
     >
@@ -27,7 +27,7 @@ function TodayStatCard({ label, value, loading, iconBg, to, children }) {
 
   if (to) {
     return (
-      <Link to={to} className="block min-w-0 cursor-pointer">
+      <Link to={to} className="block h-full min-w-0 cursor-pointer">
         {content}
       </Link>
     );

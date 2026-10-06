@@ -32,11 +32,11 @@ const PAGE_TITLES = {
   "/banners": "Hero Banners",
   "/offer-banners": "Offer Banners",
   "/categories/add": "Add Category",
-  "/categories/show": "Show Category",
+  "/categories/show": "Categories",
   "/products/add": "Add Product",
-  "/products/show": "Show Product",
+  "/products/show": "Products",
   "/brands/add": "Add Brand",
-  "/brands/show": "Show Brands",
+  "/brands/show": "Brands",
   "/testimonials/add": "Add Testimonial",
   "/testimonials/show": "Testimonials",
   "/whats-right-for-you/add": "Add What's Right for You",
@@ -56,69 +56,52 @@ const PAGE_TITLES = {
 const NAV_ITEMS = [
   { type: "link", tabKey: "dashboard", to: "/", label: "Dashboard", end: true, icon: IconDashboard },
   {
-    type: "group",
+    type: "link",
     tabKey: "products",
+    to: "/products/show",
     label: "Products",
     icon: IconProduct,
-    basePath: "/products",
-    children: [
-      { to: "/products/add", label: "Add Product" },
-      { to: "/products/show", label: "Show Product" },
-    ],
+    resolveActive: (pathname) => pathname.startsWith("/products"),
   },
   {
-    type: "group",
+    type: "link",
     tabKey: "orders",
+    to: "/orders",
     label: "Orders",
     icon: IconOrder,
-    basePath: "/orders",
-    children: [
-      { to: "/orders", label: "All Orders", end: true },
-    ],
+    resolveActive: (pathname) => isOrdersNavActive(pathname),
   },
   {
-    type: "group",
+    type: "link",
     tabKey: "categories",
+    to: "/categories/show",
     label: "Categories",
     icon: IconCategory,
-    basePath: "/categories",
-    children: [
-      { to: "/categories/add", label: "Add Category" },
-      { to: "/categories/show", label: "Show Category" },
-    ],
+    resolveActive: (pathname) => pathname.startsWith("/categories"),
   },
   {
-    type: "group",
+    type: "link",
     tabKey: "brands",
+    to: "/brands/show",
     label: "Brands",
     icon: IconBrand,
-    basePath: "/brands",
-    children: [
-      { to: "/brands/add", label: "Add Brand" },
-      { to: "/brands/show", label: "Show Brands" },
-    ],
+    resolveActive: (pathname) => pathname.startsWith("/brands"),
   },
   {
-    type: "group",
+    type: "link",
     tabKey: "testimonials",
+    to: "/testimonials/show",
     label: "Testimonials",
     icon: IconTestimonial,
-    basePath: "/testimonials",
-    children: [
-      { to: "/testimonials/add", label: "Add Testimonial" },
-      { to: "/testimonials/show", label: "Show Testimonials" },
-    ],
+    resolveActive: (pathname) => pathname.startsWith("/testimonials"),
   },
   {
-    type: "group",
+    type: "link",
     tabKey: "whats-right-for-you",
+    to: "/whats-right-for-you/show",
     label: "What's Right for You",
     icon: IconCategory,
-    basePath: "/whats-right-for-you",
-    children: [
-      { to: "/whats-right-for-you/add", label: "Add Item" },
-      { to: "/whats-right-for-you/show", label: "Show Items" },
-    ],
+    resolveActive: (pathname) => pathname.startsWith("/whats-right-for-you"),
   },
   { type: "link", tabKey: "settings", to: "/settings", label: "Store Settings", icon: IconSettings },
   { type: "link", tabKey: "payments", to: "/payments", label: "UPI Proofs", icon: IconPayment },
@@ -263,6 +246,7 @@ function NavGroup({
             <NavLink
               key={child.to}
               to={child.to}
+              end={child.end}
               onClick={onNavigate}
               className={subNavLinkClass}
             >
@@ -320,7 +304,7 @@ function SidebarContent({
         )}
       </div>
 
-      <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-y-contain pb-4 [-webkit-overflow-scrolling:touch]">
+      <nav className="hide-scrollbar min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-y-contain pb-4 [-webkit-overflow-scrolling:touch]">
         {navItems.map((item) => {
           if (item.type === "group") {
             const showOrdersBadge =

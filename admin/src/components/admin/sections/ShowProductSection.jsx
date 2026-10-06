@@ -16,8 +16,11 @@ import {
   adminCompactThClass,
   adminTableHeaderClass,
   adminTableWrapperClass,
+  btnPrimary,
   iconBtnClass,
   iconBtnDangerClass,
+  pageHeaderActionsClass,
+  pageHeaderClass,
 } from "../adminStyles";
 import ProductListFilters from "./ProductListFilters";
 
@@ -138,6 +141,17 @@ function ShowProductSection() {
         onClear={() => setError("")}
       />
 
+      <div className={pageHeaderClass}>
+        <p className="text-sm font-medium text-neutral-700">
+          All products ({statusCounts?.all ?? pagination.total})
+        </p>
+        <div className={pageHeaderActionsClass}>
+          <button type="button" onClick={() => navigate("/products/add")} className={btnPrimary}>
+            Add Product
+          </button>
+        </div>
+      </div>
+
       <ProductListFilters
         categories={categoryOptions}
         totalCount={statusCounts?.all ?? pagination.total}
@@ -155,8 +169,7 @@ function ShowProductSection() {
       />
 
       <p className="mb-4 mt-4 text-sm font-medium text-neutral-700">
-        {pagination.total} product{pagination.total === 1 ? "" : "s"} · Click a row to view full
-        details
+        Click a row to view full details
       </p>
 
       {loading ? (

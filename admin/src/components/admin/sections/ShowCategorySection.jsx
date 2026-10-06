@@ -14,8 +14,10 @@ import {
   adminCompactThClass,
   adminTableHeaderClass,
   adminTableWrapperClass,
+  btnPrimary,
   iconBtnClass,
   iconBtnDangerClass,
+  pageHeaderActionsClass,
   pageHeaderClass,
 } from "../adminStyles";
 
@@ -91,6 +93,11 @@ function ShowCategorySection() {
         <p className="text-sm font-medium text-neutral-700">
           All categories ({pagination.total})
         </p>
+        <div className={pageHeaderActionsClass}>
+          <button type="button" onClick={() => navigate("/categories/add")} className={btnPrimary}>
+            Add Category
+          </button>
+        </div>
       </div>
 
       <div className="mb-4">

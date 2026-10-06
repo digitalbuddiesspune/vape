@@ -14,13 +14,19 @@ const STATUS_STYLES = {
   shipping: "bg-blue-100 text-blue-800",
 };
 
-function DashboardRecentOrders({ orders = [], loading, viewAllTo = "/orders" }) {
+function DashboardRecentOrders({
+  orders = [],
+  loading,
+  viewAllTo = "/orders",
+  title = "Today's Orders",
+  emptyMessage = "No orders for this period.",
+}) {
   const navigate = useNavigate();
 
   return (
     <div className={cardClass}>
       <div className="mb-4 flex items-center justify-between gap-3">
-        <h3 className="text-base font-semibold text-neutral-900">Today's Orders</h3>
+        <h3 className="text-base font-semibold text-neutral-900">{title}</h3>
         <Link to={viewAllTo} className="text-sm font-medium text-primary hover:underline">
           View All
         </Link>
@@ -29,7 +35,7 @@ function DashboardRecentOrders({ orders = [], loading, viewAllTo = "/orders" }) 
       {loading ? (
         <p className="py-8 text-center text-sm text-neutral-500">Loading orders...</p>
       ) : orders.length === 0 ? (
-        <p className="py-8 text-center text-sm text-neutral-500">No orders today.</p>
+        <p className="py-8 text-center text-sm text-neutral-500">{emptyMessage}</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[520px] text-left text-sm">

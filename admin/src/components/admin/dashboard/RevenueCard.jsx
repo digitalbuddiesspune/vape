@@ -15,13 +15,17 @@ function RevenueCard({
   compact = false,
   showTrend = true,
   showSparkline = true,
+  trendCompareLabel = "vs last month",
   to,
 }) {
   const change = getDayChange(currentMonth, lastMonth);
   const trendClass = getTrendClass(change);
   const sparkValues = monthlyTrend.slice(-6).map((item) => item.revenue);
+  const compareSuffix = trendCompareLabel.trim() || "vs last month";
   const trendLabel =
-    change.direction === "flat" ? "No change vs last month" : `${change.percent}% vs last month`;
+    change.direction === "flat"
+      ? `No change ${compareSuffix}`
+      : `${change.percent}% ${compareSuffix}`;
   const formattedRevenue = loading ? "—" : formatCurrency(totalRevenue);
   const compactAmountClass =
     formattedRevenue.length >= 13

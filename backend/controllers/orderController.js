@@ -36,7 +36,9 @@ import {
   buildCreatedOnIndiaDateExpr,
   buildCreatedInIndiaDateRangeExpr,
   getIndiaCurrentMonthDateRange,
+  getIndiaMonthDateRange,
   getIndiaPreviousMonthDateRange,
+  parseIndiaDateOnly,
 } from "../../shared/date/indiaDate.js";
 import { resolveCouponForCheckout } from "./couponController.js";
 
@@ -306,6 +308,33 @@ function buildDayOrderStats(orders) {
   };
 }
 
+const DASHBOARD_ORDER_PERIODS = new Set(["today", "yesterday", "last_week", "last_month"]);
+
+function normalizeDashboardOrdersPeriod(value) {
+  const normalized = typeof value === "string" ? value.trim().toLowerCase() : "";
+  return DASHBOARD_ORDER_PERIODS.has(normalized) ? normalized : "today";
+}
+
+function getDashboardOrdersPeriodRange(period, ranges) {
+  const {
+    todayDateString,
+    yesterdayDateString,
+    start7DaysDateString,
+    lastMonthRange,
+  } = ranges;
+
+  switch (period) {
+    case "yesterday":
+      return { startDate: yesterdayDateString, endDate: yesterdayDateString };
+    case "last_week":
+      return { startDate: start7DaysDateString, endDate: todayDateString };
+    case "last_month":
+      return { startDate: lastMonthRange.startDate, endDate: lastMonthRange.endDate };
+    default:
+      return { startDate: todayDateString, endDate: todayDateString };
+  }
+}
+
 function buildLast7DaysTrend(orders) {
   const today = formatIndiaDateString();
 
@@ -336,6 +365,43 @@ function getPercentChange(current, previous) {
   }
 
   return Math.round(((curr - prev) / prev) * 100);
+}
+
+function getIndiaMonthRangeMonthsAgo(monthsAgo) {
+  const parsed = parseIndiaDateOnly(formatIndiaDateString());
+  if (!parsed) {
+    const today = formatIndiaDateString();
+    return { startDate: today, endDate: today };
+  }
+
+  let year = parsed.year;
+  let month = parsed.month - monthsAgo;
+  while (month < 1) {
+    month += 12;
+    year -= 1;
+  }
+
+  return getIndiaMonthDateRange(year, month);
+}
+
+function calculatePeriodRevenue(orders) {
+  return orders
+    .filter((order) => REVENUE_STATUSES.includes(order.status))
+    .reduce((sum, order) => sum + (Number(order.total) || 0), 0);
+}
+
+function buildOrderPeriodPayload(stats, orders, { startDate, endDate, previousRevenue = 0 }) {
+  const revenue = Math.round(calculatePeriodRevenue(orders) * 100) / 100;
+  const prev = Math.round((Number(previousRevenue) || 0) * 100) / 100;
+
+  return {
+    startDate,
+    endDate,
+    count: stats.orders,
+    revenue,
+    previousRevenue: prev,
+    ...stats,
+  };
 }
 
 function buildMonthStats(orders) {
@@ -681,17 +747,31 @@ export const getDashboardStats = async (req, res) => {
   try {
     const currentYear = new Date().getFullYear();
     const year = Number.parseInt(req.query.year, 10) || currentYear;
+    const ordersPeriod = normalizeDashboardOrdersPeriod(req.query.ordersPeriod);
 
     const { dateString: todayDateString } = getIndiaTodayRange();
     const { dateString: yesterdayDateString } = getIndiaYesterdayRange();
     const start7DaysDateString = shiftIndiaDateString(todayDateString, -6);
     const currentMonthRange = getIndiaCurrentMonthDateRange();
     const lastMonthRange = getIndiaPreviousMonthDateRange();
+    const periodRanges = {
+      todayDateString,
+      yesterdayDateString,
+      start7DaysDateString,
+      lastMonthRange,
+    };
+    const recentRange = getDashboardOrdersPeriodRange(ordersPeriod, periodRanges);
+    const dayBeforeYesterdayDateString = shiftIndiaDateString(yesterdayDateString, -1);
+    const previous7DayStartDateString = shiftIndiaDateString(todayDateString, -13);
+    const previous7DayEndDateString = shiftIndiaDateString(todayDateString, -7);
+    const monthBeforeLastRange = getIndiaMonthRangeMonthsAgo(2);
 
     const [
       todayOrders,
       yesterdayOrders,
+      dayBeforeYesterdayOrders,
       last7DayOrders,
+      previous7DayOrders,
       recentOrders,
       monthlyAgg,
       yearsAgg,
@@ -701,20 +781,30 @@ export const getDashboardStats = async (req, res) => {
       totalRevenueAgg,
       currentMonthOrders,
       lastMonthOrders,
+      monthBeforeLastOrders,
       activeProducts,
       outOfStockProducts,
       lowStockProducts,
       topCategoriesAgg,
       yearOrderSummary,
     ] = await Promise.all([
-      Order.find({ $expr: buildCreatedOnIndiaDateExpr(todayDateString) }).select("status"),
-      Order.find({ $expr: buildCreatedOnIndiaDateExpr(yesterdayDateString) }).select("status"),
+      Order.find({ $expr: buildCreatedOnIndiaDateExpr(todayDateString) }).select("status total"),
+      Order.find({ $expr: buildCreatedOnIndiaDateExpr(yesterdayDateString) }).select("status total"),
+      Order.find({
+        $expr: buildCreatedOnIndiaDateExpr(dayBeforeYesterdayDateString),
+      }).select("status total"),
       Order.find({
         $expr: buildCreatedInIndiaDateRangeExpr(start7DaysDateString, todayDateString),
-      }).select("status createdAt"),
+      }).select("status total createdAt"),
+      Order.find({
+        $expr: buildCreatedInIndiaDateRangeExpr(
+          previous7DayStartDateString,
+          previous7DayEndDateString
+        ),
+      }).select("status total"),
       Order.find({
         status: { $in: RECENT_ORDERS_STATUSES },
-        $expr: buildCreatedOnIndiaDateExpr(todayDateString),
+        $expr: buildCreatedInIndiaDateRangeExpr(recentRange.startDate, recentRange.endDate),
       })
         .populate("user", "name email phone")
         .sort({ createdAt: -1 })
@@ -757,6 +847,12 @@ export const getDashboardStats = async (req, res) => {
       }).select("status total"),
       Order.find({
         $expr: buildCreatedInIndiaDateRangeExpr(lastMonthRange.startDate, lastMonthRange.endDate),
+      }).select("status total"),
+      Order.find({
+        $expr: buildCreatedInIndiaDateRangeExpr(
+          monthBeforeLastRange.startDate,
+          monthBeforeLastRange.endDate
+        ),
       }).select("status total"),
       Product.countDocuments({ isActive: true, inStock: true, stock: { $gt: 0 } }),
       Product.countDocuments({
@@ -820,7 +916,32 @@ export const getDashboardStats = async (req, res) => {
 
     const today = buildDayOrderStats(todayOrders);
     const yesterday = buildDayOrderStats(yesterdayOrders);
+    const lastWeek = buildDayOrderStats(last7DayOrders);
+    const lastMonthOrdersStats = buildDayOrderStats(lastMonthOrders);
     const last7Days = buildLast7DaysTrend(last7DayOrders);
+
+    const orderPeriods = {
+      today: buildOrderPeriodPayload(today, todayOrders, {
+        startDate: todayDateString,
+        endDate: todayDateString,
+        previousRevenue: calculatePeriodRevenue(yesterdayOrders),
+      }),
+      yesterday: buildOrderPeriodPayload(yesterday, yesterdayOrders, {
+        startDate: yesterdayDateString,
+        endDate: yesterdayDateString,
+        previousRevenue: calculatePeriodRevenue(dayBeforeYesterdayOrders),
+      }),
+      last_week: buildOrderPeriodPayload(lastWeek, last7DayOrders, {
+        startDate: start7DaysDateString,
+        endDate: todayDateString,
+        previousRevenue: calculatePeriodRevenue(previous7DayOrders),
+      }),
+      last_month: buildOrderPeriodPayload(lastMonthOrdersStats, lastMonthOrders, {
+        startDate: lastMonthRange.startDate,
+        endDate: lastMonthRange.endDate,
+        previousRevenue: calculatePeriodRevenue(monthBeforeLastOrders),
+      }),
+    };
 
     const monthlySales = Array.from({ length: 12 }, (_, index) => {
       const month = index + 1;
@@ -861,7 +982,10 @@ export const getDashboardStats = async (req, res) => {
       data: {
         today,
         yesterday,
+        lastWeek,
         last7Days,
+        orderPeriods,
+        ordersPeriod,
         recentOrders,
         recentTodayOrders: recentOrders,
         monthlySales,
